@@ -13,7 +13,7 @@ Plan, status log and decisions: [`PLAN_TO_SEP28.md`](PLAN_TO_SEP28.md).
 ## Setup
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt openpyxl
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m pytest tests/ -q          # ~10 s
 ```
 
