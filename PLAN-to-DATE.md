@@ -1,9 +1,9 @@
-# Plan to 28 September — Physics-Attested Federated Learning
+# Plan to date — Physics-Attested Federated Learning
 
 **Owner:** Jeff Nijsse. **Target:** MDPI *Information*, special issue "Innovative AI Solutions for
 Cybersecurity in Critical Infrastructures", submission **Mon 28 September 2026**. **Repo:**
 https://github.com/RMIT-BDSL/pafl (private). **Paper text:** Overleaf, not this repo.
-**Dated record of runs and findings:** `LOG.md` (untracked, on Jeff's laptop). **Project introduction:** `README.md`.
+**Dated record of runs and findings:** `LOG.md` (untracked, on Jeff's laptop). **Convention:** whenever a run finishes, a defect is found or fixed, a number changes or a decision is taken, append a dated entry to `LOG.md` first; then update this plan only if a decision, the scope or the schedule changed. The log is the memory the next session (human or agent) recovers from. **Project introduction:** `README.md`.
 
 ---
 

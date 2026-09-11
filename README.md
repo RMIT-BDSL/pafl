@@ -6,7 +6,7 @@ intrusion detection for industrial control systems**. Target: MDPI *Information*
 Blockchain Data Science Lab, RMIT. The paper itself is written on Overleaf; this repository holds
 everything the paper's numbers come from.
 
-- Plan, decisions and schedule: [`PLAN_TO_SEP28.md`](PLAN_TO_SEP28.md)
+- Plan, decisions and schedule: [`PLAN-to-DATE.md`](PLAN-to-DATE.md)
 - What each result file is: [`results/README.md`](results/README.md)
 - The zero-knowledge extension: [`zk/README.md`](zk/README.md)
 

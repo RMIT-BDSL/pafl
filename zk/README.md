@@ -1,6 +1,6 @@
 # PA-FL Lite — the pared-back zero-knowledge extension
 
-Spec, time budget and cut-lines: `../PLAN_TO_SEP28.md`, section 3.
+Spec, time budget and cut-lines: `../PLAN-to-DATE.md`, section 3.
 
 Statement proved: the prover holds a 1,024-row batch committed as a Poseidon Merkle root R, and
 for each of k verifier-chosen indices i the rows x_i and x_{i-1} satisfy every declared linear
