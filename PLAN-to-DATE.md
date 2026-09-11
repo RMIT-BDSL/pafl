@@ -38,26 +38,28 @@
 
 ## 3. Scope of the submission
 
-The paper is the pilot paper extended to real federated data, plus a small zero-knowledge
-extension that shows the enforcement path is real. It is not the full pitch.
+The paper is the pilot extended to real federated data, plus a pared-back zero-knowledge extension
+that shows the enforcement path is real. It is not the full pitch. Everything below is **done except
+the ZK extension** (status as of Fri 11 Sep, 13:00).
 
-| Pitch promised | Submission delivers | Why |
-|---|---|---|
-| Federation on ICS-NAD, BATADAL, SWaT | **SWaT** (10 clients, primary: all damage and removal numbers), **WADI** (10 clients, second physical testbed: criterion 1 and admission behaviour only), **BATADAL** (5 clients, support), plus the simulated plant | ICS-NAD has no loader and is 246 GB; BATADAL is too short for 10 clients; on WADI the detector's recall on attacks is ≈ 0.2, so poisoning has nothing to remove |
-| Full defence set, three conditions | **Yes**: 7 rules × {honest, naive, physics-aware} × 3 seeds, for **two attackers**: fabricated (channel roll) and **exposure-only replay** (`splice_only`), under a narrow and a wide invariant set | cheap (20 s per cell); code exists |
-| Recipe B (gradient matching) | First-order path only, **one day, cut if it misbehaves** | untested on real data |
-| Update-space baselines | sign-flip, scaling, free-rider, min-max (drop ALIE, noise first) | code exists |
-| FLTrust interaction, FoolsGold | **Yes**: 4b with trust traces on both rules | code exists |
-| Groth16 circuit with Merkle commitment, sampling, invariant check, last-layer binding | **PA-FL Lite**: commitment + sampling + invariant check. **No gradient binding.** See §5 | 3 attention-days, not 3 weeks |
-| Fabric and Soroban verification costs | Off-chain verification only; ledger costs as a stated next step | cut |
-| HAI as a dataset | Scope boundary paragraph, as in the pilot paper | done |
+| Pitch promised | Submission delivers | Status | Why |
+|---|---|---|---|
+| Federation on ICS-NAD, BATADAL, SWaT | **SWaT**, 10 clients — the primary record, carrying every damage and removal number. **WADI**, 10 clients — second physical testbed, a mention: one row in the criterion-1 table, one in the admission table, two sentences. **BATADAL**, 5 clients — a mention on the same footing. **Simulated plant** — appendix only | done | ICS-NAD has no loader and is 246 GB; BATADAL is too short for 10 clients; on WADI the detector's recall on attacks is ≈ 0.2, so poisoning has nothing to remove; a simulator is discounted beside real data |
+| Full defence set, three conditions | Exceeded: 7 rules × **five modes** (honest, honest-only, naive, physics-aware, **gated** — the deployed system, where a batch that still fails the check is excluded) × **5 seeds** on the two headline SWaT files (3 seeds elsewhere), for **two attackers** — fabricated (channel roll) and **exposure-only replay** (`splice_only`) — under a narrow and a wide invariant set | done | 20 s per cell; the honest-only and gated modes were added on 10 Sep and are what make the removal numbers fair and deployable |
+| Recipe B (gradient matching) | Kept. First-order path, 7 rules × 3 seeds on SWaT: rejected by the check in every cell, comparable damage to the simple attackers, and the one attack FoolsGold admits in full | done | ran in 22 s per cell; the full gradient-matching path is not needed |
+| Update-space baselines | sign-flip, scaling, free-rider, min-max (ALIE and additive noise dropped as planned) | done | they form the complementarity table with the data attacks |
+| FLTrust interaction, FoolsGold | Run on both rules with trust traces, but **demoted**: a one-paragraph observation showing both settings, not a contribution and not in the abstract. The simulator reversal does not reproduce on SWaT | done, demoted 11 Sep | see §4, claim 5 |
+| Groth16 circuit with Merkle commitment, sampling, invariant check, last-layer binding | **PA-FL Lite**: commitment + sampling + invariant check. **No gradient binding.** See §5 | **not started** | 3 attention-days, not 3 weeks |
+| Fabric and Soroban verification costs | Off-chain verification only; ledger costs as a stated next step | cut | attention, not compute |
+| HAI as a dataset | Scope boundary paragraph, as in the pilot paper | done | the invariant families are absent from its training record |
+| *(not promised)* Coverage per attack segment | New: how many attacks each invariant set can see, at what honest-violation cost. The paper's organising idea | done 11 Sep | it explains why removal varies by seed and makes coverage a defender's dial |
 
-RQ1 and RQ3 are the empirical core. RQ2 is answered in part by PA-FL Lite. RQ4 becomes a design
-statement. **RQ3's real-data answer is a coverage statement** (see LOG.md, 10 Sep): the gate removes the
-poison that rides on physics the invariant set covers, and it blocks every fabricated batch, but an
-exposure-only replay of physics-consistent attacks passes it and does the same damage. The damage
-measure on real data is recall on the targeted attacks, not global F1. 
-
+RQ1 and RQ3 are the empirical core. RQ2 is answered in part by PA-FL Lite, and is the one open risk.
+RQ4 becomes a design statement. **RQ3's real-data answer is a coverage statement** (evidence:
+`results/swat_coverage.json`, LOG.md 11 Sep): the gate blocks every fabricated batch and removes the
+poison that rides on physics the invariant set covers, but an exposure-only replay of
+physics-consistent attacks passes it and does the same damage. The damage measure on real data is
+recall on the targeted attacks, not global F1.
 
 ---
 
