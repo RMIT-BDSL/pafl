@@ -13,6 +13,7 @@
 | Fri 11 Sep | **Channel-roll shift stated in plant time**: 5 min on SWaT (60 rows at the 5 s stride) | 7 rows was 35 s on SWaT and nearly free to repair |
 | Fri 11 Sep | Damage on real data is **recall on the targeted attacks**, measured against the **honest-only** federation (same honest shards, attacker absent) | global F1 never moves under a targeted poison; the ten-client clean run differs by composition |
 | Fri 11 Sep | Repo holds code, tests, scripts and the result JSON the paper reads; no data, no caches, no LaTeX, no pilot-only material | licences; Overleaf owns the paper |
+| Fri 11 Sep | **Emphasis decided from a 0–5 grading of every result (LOG.md, 13:00).** The abstract is carried by criterion 1 across three plants and by the coverage result. The **simulated plant moves to an appendix**; **WADI and BATADAL are mentions** (a row and two sentences each); the **FLTrust interaction is demoted** from a contribution to a reported observation showing both settings | the two graded 5 are the claims a reviewer can least argue with; the simulator is discounted beside real data; the pilot's FLTrust reversal does not reproduce on SWaT |
 
 
 ---
@@ -62,16 +63,18 @@ measure on real data is recall on the targeted attacks, not global F1.
 
 ## 4. The claims the paper makes (as the evidence stands on Fri 11 Sep)
 
-1. **Fabricated telemetry is a solved problem for the gate.** Every fabricated batch (channel roll at
-   any shift, permutation, scaling, Recipe B) was rejected on BATADAL, SWaT and WADI, with zero honest
-   false rejections, by the same automatically mined invariant set (two physical testbeds from
-   different processes, treatment and distribution, plus a simulated benchmark). The simulator result (100 % of the damage
-   removed against an adaptive attacker) holds after the confound fix.
-2. **The real threat on a real plant is replay, not fabrication.** An attacker who splices real
+*Graded 0–5 for prominence in LOG.md (Fri 11, 13:00). The two claims graded 5 carry the abstract.*
+
+1. **[5 — abstract] Fabricated telemetry is a solved problem for the gate.** Every fabricated batch
+   (channel roll at any shift, permutation, scaling, Recipe B) was rejected on BATADAL, SWaT and
+   WADI, with zero honest false rejections, by the same automatically mined invariant set: two
+   physical testbeds from different processes, treatment and distribution, plus a simulated
+   benchmark, with no per-plant tuning.
+2. **[4] The real threat on a real plant is replay, not fabrication.** An attacker who splices real
    attack telemetry into an honest shard and presents it as normal does the same targeted damage as
    the fabricated attacker and needs no physics violation of its own. Whether the gate sees it
    depends on whether the *attacks* violate the plant's invariants.
-3. **Coverage is the governing quantity, and it is a knob the defender controls.** Five mined
+3. **[5 — abstract] Coverage is the governing quantity, and it is a knob the defender controls.** Five mined
    invariants see 12 of 35 SWaT attacks (10 % of attack rows); nine see 20 (82 %), at 0.35 % honest
    violations. Under the wide set the replay attacker is rejected in every seed; after adapting it
    recovers admission for 56 % of its batches, because with actuator states held fixed some attack
@@ -79,22 +82,32 @@ measure on real data is recall on the targeted attacks, not global F1.
    the targeted damage is removed on SWaT for FedAvg, median, norm clip and trimmed mean (5 seeds,
    honest-only reference); projection alone removes 3–55 %. The poison that survives is the part that
    rides on physics-consistent attacks: 0 % removed in a seed whose targets are consistent.
-4. **Metric.** A targeted poison on 36 diverse attacks does not move global F1 (never more than
+4. **[4] Metric.** A targeted poison on 36 diverse attacks does not move global F1 (never more than
    1 pt tonight). Recall on the targeted attacks moves 5–17 pts. Report targeted and untargeted
    recall, AUC-PR and best-F1; explain why.
-5. **The gate is necessary, not sufficient, and it composes.** Krum stops the replay attacker
+5. **[4] The gate is necessary, not sufficient, and it composes.** Krum stops the replay attacker
    outright on SWaT; FedAvg, median and norm clipping admit everything and the gate is what removes
-   the poison for them. The FLTrust interaction found on the simulator does not appear on SWaT
-   (acceptance falls after projection); report both, do not generalise either.
-6. **The gate helps a detector that detects.** On WADI the check rejects 100 % of fabricated and
+   the poison for them.
+   *Demoted to a reported observation (was a pitch contribution):* on the simulated plant, projecting
+   onto the physics raised FLTrust's acceptance of the malicious clients from 0.34 to 0.96 and grew
+   the damage; on SWaT the same projection leaves the malicious trust weight at 0.004–0.005 and
+   *lowers* acceptance. Report both settings in one paragraph, attribute the difference to update
+   geometry, generalise neither, and do not list it as a contribution.
+6. **[3] The gate helps a detector that detects.** On WADI the check rejects 100 % of fabricated and
    89 % of replayed batches and excludes two of three adapted attackers, but the autoencoder's recall
    on WADI attacks is ≈ 0.2, so the poison has nothing to remove and WADI carries no damage numbers.
    State this as the boundary: admission control governs what enters the model; it cannot supply
    detection the model lacks.
-7. **Enforcement is buildable.** PA-FL Lite (§5) with a violation budget, on the nine-invariant set.
+7. **[not yet measured] Enforcement is buildable.** PA-FL Lite (§5) with a violation budget, on the nine-invariant set.
 
 What this is not: it is not "physics removes 100 % of attack capability on real data". The
-abstract's real-data sentence should be the coverage sentence in point 3.
+abstract's real-data sentence is the coverage sentence in point 3 (decided Fri 11).
+
+**Appendix, not body:** the simulated plant's criteria 2–4b (graded 3). It is the upper-bound case,
+where the plant's physics is known exactly and every attack violates it, so the invariant requirement
+removes all measurable damage against FedAvg and trimmed mean. Keep it as the mechanism
+demonstration and as the setting where the FLTrust observation originates; keep it out of the
+headline tables, because a simulator is discounted beside real data.
 
 
 
@@ -205,16 +218,21 @@ Start from `pilot-paper/pilot-paper.tex`. It already has the setting figure, the
 criteria table, five results figures generated from JSON, the enforcement design with the
 constraint budget, and the limitations. Add:
 
-1. **Real-data federation results** for criteria 2–4b on SWaT (headline, all damage and removal
-   numbers), with WADI as a row in the criterion-1 table and a row in the admission table plus two
-   sentences (second physical testbed; no damage numbers because the detector's recall on its attacks
-   is ≈ 0.2), BATADAL as the support record with its own small table, and the simulated plant kept as
-   the pilot setting. Every number says which setting it came from. The pilot paper does this; the
-   dashboard and pitch did not until 10 Sep.
+1. **Results, in the order the grading implies.** (a) Criterion 1 across BATADAL, SWaT and WADI,
+   one automatic miner, zero honest rejections — the opening result. (b) The **coverage table**
+   (narrow vs wide invariant set: rules kept, honest violation rate, attacks and attack rows
+   covered) — the paper's organising idea. (c) SWaT damage and removal: the five modes, seven rules,
+   five seeds, against the honest-only reference. (d) The complementarity table from the sweep.
+   **WADI and BATADAL are mentions**: one row each in the criterion-1 table and the admission table,
+   plus two sentences saying what they add (WADI: second physical testbed, no damage numbers because
+   detector recall on its attacks is ≈ 0.2; BATADAL: benchmark with a published hydraulic model,
+   five clients, direction confirmed). **The simulated plant goes to an appendix.** Every number
+   says which setting it came from.
 2. **The full defence set** including FoolsGold, and the update-space attacks as the
    complementarity table (physics check catches data fabrications, robust rules catch update
    attacks).
-3. **4b with both similarity rules** and the trust traces.
+3. **The similarity-rule observation**, one paragraph with both settings and the trust traces.
+   Not a contribution, not in the abstract, not in the contribution list.
 4. **PA-FL Lite** as a subsection of the enforcement section, with the measured table and the
    sentence from §5.
 5. **Two new results the pilot did not have.** (a) The **exposure-only control** and the
