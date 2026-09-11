@@ -1,11 +1,6 @@
 # Plan to date — Physics-Attested Federated Learning
 
-**Owner:** Jeff Nijsse. **Target:** MDPI *Information*, special issue "Innovative AI Solutions for
-Cybersecurity in Critical Infrastructures", submission **Mon 28 September 2026**. **Repo:**
-https://github.com/RMIT-BDSL/pafl (private). **Paper text:** Overleaf, not this repo.
-**Dated record of runs and findings:** `LOG.md` (untracked, on Jeff's laptop). **Convention:** whenever a run finishes, a defect is found or fixed, a number changes or a decision is taken, append a dated entry to `LOG.md` first; then update this plan only if a decision, the scope or the schedule changed. The log is the memory the next session (human or agent) recovers from. **Project introduction:** `README.md`.
 
----
 
 ## 1. Decisions taken
 
@@ -39,8 +34,6 @@ https://github.com/RMIT-BDSL/pafl (private). **Paper text:** Overleaf, not this 
 | Recipe B | Done on SWaT, 7 rules × 3 seeds | in `swat_sweep_wide_3seed.json` |
 | ZK extension (PA-FL Lite) | Not started; toolchain present (circom, snarkjs, node) | `zk/README.md` |
 | Paper | Pilot draft complete; MDPI port not started | `pilot-paper/pilot-paper.tex` |
-| Repo | **On GitHub** (private, org): https://github.com/RMIT-BDSL/pafl, first push Fri 11 | — |
-| Collaborators / editor | On board / interested; abstract and scope message are Jeff's | — |
 
 ---
 
@@ -64,10 +57,8 @@ RQ1 and RQ3 are the empirical core. RQ2 is answered in part by PA-FL Lite. RQ4 b
 statement. **RQ3's real-data answer is a coverage statement** (see §0, 10 Sep): the gate removes the
 poison that rides on physics the invariant set covers, and it blocks every fabricated batch, but an
 exposure-only replay of physics-consistent attacks passes it and does the same damage. The damage
-measure on real data is recall on the targeted attacks, not global F1. Tell the collaborators this in the next message to them, and soften the "Full Study Plan"
-sentence in `../paper2-draft/pitch.tex` at the same time.
+measure on real data is recall on the targeted attacks, not global F1. 
 
----
 
 ---
 
@@ -101,7 +92,7 @@ sentence in `../paper2-draft/pitch.tex` at the same time.
 What this is not: it is not "physics removes 100 % of attack capability on real data". The
 abstract's real-data sentence should be the coverage sentence in point 3.
 
----
+
 
 ---
 
@@ -151,7 +142,8 @@ proof form.
 
 The last row is the disclosed limitation again. Sampling does not fix splicing. Say so.
 
-**What is explicitly out, and the sentence the paper needs.** PA-FL Lite proves that the client
+**What is explicitly out** 
+PA-FL Lite proves that the client
 holds a physically plausible batch. It does **not** prove that the submitted update was computed
 from that batch. The last-layer gradient binding that closes this gap is specified in the design
 section and is the next implementation step. Without that sentence a reviewer writes it for you.
@@ -232,36 +224,3 @@ constraint budget, and the limitations. Add:
    Check the Instructions for Authors page for length guidance (the page blocks scripted access;
    open it in a browser).
 
-Title stays close to the pilot paper's question. Do not title it "zero-knowledge admission
-control" when the binding is not built.
-
----
-
----
-
-## 8. Defects found and fixed (Thu 10 Sep; details in LOG.md)
-
-| # | Defect | Where | Fix |
-|---|---|---|---|
-| 1 ✅ | Coupling miner finds 0 couplings on SWaT. It tests the **maximum** off-state flow against 5% of full scale; SWaT's off state has a transition tail. It also treats the rare state 0 (transitioning) as "off" | `pafl/invariants/mine.py`, `mine_couplings` | Use a high quantile (e.g. 99th) of the off-state flow, not the max. Define off/on as the two most frequent states, ignore states under `min_support`. Re-run `test_week2.py::test_swat_invariants_find_the_coupling` and criterion 1 on SWaT |
-| 2 ✅ | `find_swat_files` picks `List_of_attacks_Final.xlsx` as the attack file when pointed at the release root | `pafl/data/swat.py` | Prefer names containing `Dataset`; or point `--data-dir` at `data/SWaT/.../Physical/` |
-| 3 ✅ | `week2_baselines.py` crashes on `recipe_b` for the synthetic dataset; dispatch exists only in `scenario_real` | `pafl/fl/scenario.py` | Route `recipe_b` through the same `_fabricate` helper, or skip that cell for synthetic |
-| 4 ⚠ | BATADAL has 8,761 clean rows. After the 30/15/5% slices, 10 clients fall under `min_rows_per_client=500` | `pafl/fl/scenario_real.py`, `partition.py` | Smaller slice fractions, or 5 clients. State it in the paper |
-| 5 ✅ | `day45_adaptive.py` is synthetic-only | `scripts/day45_adaptive.py` | Add the `--dataset swat|batadal` branch that `week2_4b.py` already has, so the projected attacker runs on real data for all 7 rules |
-| 6 ✅ | SWaT `.xlsx` loads take ~80 s each (pickle cache in `data/SWaT/.pafl_cache/`) | `pafl/data/real.py` | Export once to CSV in the original label format (`Normal/Attack`, `Timestamp`) and point `--data-dir` at the CSVs. A CSV re-export in the pilot loader's own format sets `ATT_FLAG` to zero, so keep the original column names |
-
-Also drop the first 21,600 SWaT rows (6 h start-up transient), as the literature does, before
-fitting invariants.
-
----
-
----
-
-## 9. Open items
-
-- [ ] Jeff: message collaborators (scope per §3, the claims in §4, PA-FL Lite instead of the full circuit); soften the "Full Study Plan" sentence in the pitch.
-- [ ] Jeff: send the 250-word abstract to the *Information* editorial office.
-- [ ] Jeff: the coverage sentence as the abstract's real-data claim.
-- [ ] WADI adaptive runs finish; rename the two result files to the convention; commit.
-- [ ] ZK Day A–D per §5.
-- [ ] Figures and tables from `results/` for Overleaf (`scripts/tables.py`, a figure script to write).

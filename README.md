@@ -2,16 +2,11 @@
 
 **A Framework for Physics-Based Admission Control in Federated Intrusion Detection for Industrial Control Systems**
 
-*Blockchain Data Science Lab, RMIT University*  
-*Target Venue: MDPI Information, Special Issue on Innovative AI Solutions for Cybersecurity in Critical Infrastructures*  
-*Repository: [https://github.com/RMIT-BDSL/pafl](https://github.com/RMIT-BDSL/pafl)*
-
----
 
 - **Dataset Guide & Licensing:** [`DATA.md`](DATA.md) — *Detailed descriptions, schemas, telemetry examples, and acquisition instructions (strict non-redistribution notice).*
-- **Research Plan & Milestones:** [`PLAN_TO_SEP28.md`](PLAN_TO_SEP28.md) — *Key architectural decisions, experiment schedules, and submission deadlines.*
+- **Research Plan & Milestones:** [`PLAN-to-DATE.md`](PLAN-to-DATE.md) — *Key architectural decisions, experiment schedules, and submission deadlines.*
 - **Zero-Knowledge Extension:** [`zk/README.md`](zk/README.md) — *Circom / Groth16 circuit definitions for PA-FL Lite.*
-- **Interactive Dashboards:** [`tutorials/`](tutorials/) — *Visual workflows of federated training loops and pilot results.*
+- **Learning Resources:** [`tutorials/`](tutorials/) — *Visual (HTML) workflows of federated training loops and pilot results.*
 
 ---
 
@@ -223,16 +218,16 @@ python scripts/summarize_adaptive.py results/swat_adaptive_wide_splice_3seed.jso
 
 ## Citation and Licensing
 
-This research is conducted by the **Blockchain Data Science Lab (BDSL)** at **RMIT University**.
+
 
 ```bibtex
-@article{pafl2026physics,
-  title   = {Physics-Attested Federated Learning: Process-Invariant Admission Control for Industrial Anomaly Detection},
-  author  = {Nijsse, Jeff and Collaborators},
-  journal = {Information},
-  volume  = {Special Issue on Innovative AI Solutions for Cybersecurity in Critical Infrastructures},
-  year    = {2026}
+@article{pafl2026,
+  title   = {Title},
+  author  = {Authors},
+  journal = {Journal},
+  volume  = {Volume},
+  year    = {Year}
 }
 ```
 
-**License:** This codebase is licensed under the Apache License 2.0. See [`LICENSE`](LICENSE) for details.
+**License:** This codebase is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.

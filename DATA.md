@@ -1,6 +1,6 @@
 # Dataset Documentation and Acquisition Guide
 
-This document outlines the cyber-physical system (CPS) datasets evaluated in **Physics-Attested Federated Learning (`pafl`)**, detailing their physical processes, schemas, formal academic citations, concrete telemetry examples, and acquisition procedures.
+Information about the datasets.
 
 ---
 
@@ -184,10 +184,7 @@ In this paper, HAI is documented as an **explicit scope boundary**: physical inv
 
 ## 5. Built-In Synthetic Benchmark: Coupled Three-Tank Plant
 
-The codebase includes a fully analytical, deterministic simulator in [`pafl/data/synthetic.py`](file:///Users/v127226/dev/26-MDPI-Info/pafl/pafl/data/synthetic.py). It models three inter-connected fluid storage tanks with two inlet pumps and cross-flow connecting valves:
-$$\frac{dh_1}{dt} = \frac{1}{A_1} \left( Q_1 - c_{12} \text{sgn}(h_1 - h_2) \sqrt{2g |h_1 - h_2|} \right)$$
-$$\frac{dh_2}{dt} = \frac{1}{A_2} \left( c_{12} \text{sgn}(h_1 - h_2) \sqrt{2g |h_1 - h_2|} - c_{23} \text{sgn}(h_2 - h_3) \sqrt{2g |h_2 - h_3|} \right)$$
-$$\frac{dh_3}{dt} = \frac{1}{A_3} \left( Q_2 + c_{23} \text{sgn}(h_2 - h_3) \sqrt{2g |h_2 - h_3|} - c_3 \sqrt{2g h_3} \right)$$
+The codebase includes a fully analytical, deterministic simulator in [`pafl/data/synthetic.py`](file:///Users/v127226/dev/26-MDPI-Info/pafl/pafl/data/synthetic.py). It models three inter-connected fluid storage tanks with two inlet pumps and cross-flow connecting valves.
 
 * **Usage:** Requires **zero external downloads**. Runs out-of-the-box for unit testing, mathematical verification, and fast algorithm debugging.
 
