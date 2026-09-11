@@ -38,3 +38,6 @@ results/swat_probe_*.json
 *.bst
 
 
+results/_probes/
+results/logs/
+pilot-paper/data/

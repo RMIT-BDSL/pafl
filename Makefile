@@ -39,18 +39,18 @@ day1:
 
 day1-batadal:
 	$(PY) scripts/day1_residuals.py --dataset batadal --seed 0 \
-		--out results/day1_batadal.json --figure results/day1_batadal.png
+		--out results/c1_batadal_expert.json --figure results/c1_batadal_expert.png
 	$(PY) scripts/day1_residuals.py --dataset batadal --seed 0 --mined \
-		--out results/day1_batadal_mined.json --figure results/day1_batadal_mined.png
+		--out results/c1_batadal_mined.json --figure results/c1_batadal_mined.png
 
 day1-swat:
 	$(PY) scripts/day1_residuals.py --dataset swat --seed 0 \
-		--out results/day1_swat.json --figure results/day1_swat.png
+		--out results/c1_swat_narrow_shift7.json --figure results/c1_swat_narrow_shift7.png
 
 day2:
 	$(PY) scripts/day2_defences.py --clients $(CLIENTS) --rounds $(ROUNDS) --local-epochs 2 \
 		--steps-per-client $(STEPS) --malicious-fractions 0.0 0.3 --seeds $(SEEDS) --device $(DEVICE) \
-		--out results/day2_mal30.json
+		--out results/sim_defences_mal30_2seed.json
 
 day45:
 	$(PY) scripts/day45_adaptive.py --clients $(CLIENTS) --rounds $(ROUNDS) --local-epochs 2 \
@@ -59,8 +59,8 @@ day45:
 		--out results/day45_adaptive_3seed.json
 
 report:
-	$(PY) scripts/go_nogo.py --day1 results/day1_batadal.json \
-		--day2 results/day2_mal30.json --day45 results/day45_adaptive_3seed.json
+	$(PY) scripts/go_nogo.py --day1 results/c1_batadal_expert.json \
+		--day2 results/sim_defences_mal30_2seed.json --day45 results/day45_adaptive_3seed.json
 
 pilot: day1 day2 day45 report
 

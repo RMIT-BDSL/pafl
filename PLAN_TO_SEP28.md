@@ -87,7 +87,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   diverse attacks; targeted recall is the paper's damage measure on real data.
 - **Compute**: a SWaT cell takes 16 s on this laptop.
 - **Open, running overnight**: the physics-aware (projected) attacker on SWaT for FedAvg, trimmed
-  mean, FLTrust (`results/day45_swat_roll7_s0.json`), and the **exposure-only control**
+  mean, FLTrust (`results/swat_adaptive_narrow_roll7_seed0.json`), and the **exposure-only control**
   (`splice_only`: real attack rows replayed as normal, no fabrication). If the control passes the
   check and does the same targeted damage as channel roll, the physics gate closes the fabrication
   channel but not the replay channel, and the paper must say exactly that.
@@ -108,7 +108,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   closes the fabrication channel entirely; it does not touch a replay of physics-consistent
   attacks.** That is a coverage result, and it links directly to the invariant-mining literature
   (Zhu 2025: 11–22 of 36 attacks with thousands of rules). Three-seed runs at a 5-minute shift are
-  in progress (`results/day45_swat_roll60_3seed.json`, `results/swat_probe_roll60_3seed.json`).
+  in progress (`results/swat_adaptive_narrow_roll60_3seed.json`, `results/swat_probe_roll60_3seed.json`).
 
 - **Control confirmed (seed 0):** `splice_only` does the same targeted damage as channel roll
   (−8.40 pts FedAvg, −4.91 trimmed mean) and the physics check **admits** it (100 %) while it
@@ -122,7 +122,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   splice-only attacker is the real physics-aware replay adversary; whether its exposure poison
   survives the projection is the paper's central real-data number.
 
-- **Narrow set (5 invariants), 5-min shift, 3 seeds** (`results/day45_swat_roll60_3seed.json`,
+- **Narrow set (5 invariants), 5-min shift, 3 seeds** (`results/swat_adaptive_narrow_roll60_3seed.json`,
   `results/swat_probe_roll60_3seed.json`): targeted-recall damage under FedAvg 6.6 pts (channel roll)
   and 8.6 pts (splice-only), per-seed 8.4 / 0.2 / 11.2 — seed 1's target set (11 segments, clean
   targeted recall 0.20) is barely poisonable at all. Projection removes 2.7 % of the damage under
@@ -139,9 +139,9 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   roll: 3 % removed (FedAvg), 49 % (trimmed mean). Every prior cell still *aggregated* the rejected
   clients, because the pilot's projected batches always passed. **Added a `gated` mode** (projected
   attacker, rejected batches excluded from the round): the deployed system's number. Overnight queue
-  restarted with it (`results/overnight_sep10.log`).
+  restarted with it (`results/logs/overnight_sep10.log`).
 
-- **Gated mode, wide set, channel roll, 7 rules** (`results/day45_swat_wide_roll60_3seed.json`, ~22:00):
+- **Gated mode, wide set, channel roll, 7 rules** (`results/swat_adaptive_wide_roll60_5seed.json`, ~22:00):
   read per seed, not averaged. Seed 0: no client excluded (all projected batches pass), gate removes
   0 %. Seed 2: one of three excluded, FedAvg targeted recall 0.304 → 0.192 → 0.282 gated (80 %
   removed). Seed 1: the naive attack did no damage, and the gate excluded all three, so the
@@ -156,7 +156,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   queued after the main run; the files keep their `_3seed` names for continuity).
 
 - **Gated mode, wide set, splice-only (the physics-aware replay attacker), 7 rules, ~22:20**
-  (`results/day45_swat_wide_splice_3seed.json`): FedAvg targeted damage 8.6 pts; projection alone
+  (`results/swat_adaptive_wide_splice_5seed.json`): FedAvg targeted damage 8.6 pts; projection alone
   removes 26 %, the gate 34 % (damage-weighted, seeds 0 and 2). Seed 0: 0 % (targets are
   physics-consistent even under the wide set; the projection repairs the LIT401 residuals at 0.05 σ
   and the exposure survives). Seed 2: 0.304 → 0.131 → 0.196 → 0.219 gated, one client excluded.
@@ -165,7 +165,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   real data so far.** Krum rejects every malicious update in every condition. Fabricated batches
   (channel roll) were rejected by the check in 100 % of cells across all settings tonight.
 
-- **SWaT baselines sweep done, 23:14** (`results/week2_baselines_swat_wide.json`, 168 cells, 7 rules ×
+- **SWaT baselines sweep done, 23:14** (`results/swat_sweep_wide_3seed.json`, 168 cells, 7 rules ×
   7 attacks × 3 seeds, wide set). Clean F1 0.74–0.78, AUC-PR ≈ 0.80 for every rule. Targeted-recall
   drop under FedAvg: splice-only 8.6, channel roll 6.6, permutation 6.6, sign-flip 7.1, scaling 8.8,
   free-rider 2.2, min-max 2.6 pts. **The three data attackers are rejected by the physics check in
@@ -180,7 +180,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   variance, not poisoning. Report Krum with that sentence, or compare against a 7-honest-client
   reference for it.
 
-- **4b on SWaT, 23:20** (`results/week2_4b_swat_wide.json`, channel roll @60, wide set, 3 seeds).
+- **4b on SWaT, 23:20** (`results/swat_trust_traces_wide_3seed.json`, channel roll @60, wide set, 3 seeds).
   FLTrust gives the malicious clients a mean trust weight of 0.004 (fabricated) and 0.005
   (projected); acceptance 0.10 → 0.05; F1 damage −0.3 → +0.5 pts, targeted recall 0.283 → 0.289.
   FoolsGold: trust 0.10 → 0.13, acceptance 0.82 → 0.85, damage 0.0 → 0.8 pts. **No reversal on real
@@ -225,7 +225,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   caveat (§4b). `summarize_adaptive.py` and `tables.py` now use `honest_only` as the reference when
   present.
 
-- **Recipe B sweep done, 00:20 Thu** (in `results/week2_baselines_swat_wide.json`, now 189 cells).
+- **Recipe B sweep done, 00:20 Thu** (in `results/swat_sweep_wide_3seed.json`, now 189 cells).
   Recipe B (first-order gradient matching) is rejected by the check in every cell and does 6.0 pts of
   targeted damage under FedAvg (splice-only 8.6, channel roll 6.6); against trimmed mean and norm
   clip it does less (1.4, 2.7) than the simple attackers. FoolsGold admits it at 100 % (6.0 pts) where
@@ -248,7 +248,7 @@ supports at most 5 clients of 876 rows under the current slices). Tests: 54 pass
   takes 55–80 s. Clean F1 0.26, AUC-PR 0.35, best-F1 0.35: weak, as the WADI literature reports for
   autoencoders. All 14 attacks (1,996 rows at the 5 s stride) fit inside the 25 % target budget, so
   there was no untargeted set; damage 0.6 pts. Both the replay and the rolled attacker are rejected
-  by the check. Running now (`scripts/wadi_runs.sh`, `results/wadi_runs.log`): the adaptive set for
+  by the check. Running now (`scripts/wadi_runs.sh`, `results/logs/wadi_runs.log`): the adaptive set for
   FedAvg, trimmed mean, FLTrust, 3 seeds, 5 modes, target budget 10 % so a subset of attacks is
   targeted. Expect WADI to enter the paper as **a second physical testbed for criterion 1 and the
   gate's rejection behaviour**, with its poisoning damage too small to support a removal ratio.
@@ -266,13 +266,13 @@ which is the one lever that moves the real-data number.
 |---|---|---|
 | Criterion 1, BATADAL (real benchmark) | Done, passed; unchanged by the miner fix | `results/day1_batadal*.json` |
 | Criterion 1, SWaT (physical testbed) | **Done, passed** with the narrow (5) and wide (9) invariant sets; honest false-reject 0 | `results/day1_swat*.json` |
-| Criterion 1, HAI | Done, fails; scope boundary | `results/day1_hai_mined.json` |
-| Criterion 1, WADI | **Done Fri 11, passes** (7 couplings, 0 balances, default miner) | `results/day1_wadi.json` |
-| Criteria 2–4b, simulated plant (pilot) | Done; re-run after the oversampling fix, result holds | `results/day45_adaptive_3seed_v2.json`, `results/day2_mal30.json` |
-| Criteria 2–4b, **SWaT**: 7 rules × 8 attacks × 3 seeds baselines; adaptive attacker (channel roll, replay), 7 rules, 5 modes incl. gated, 5 seeds, two invariant sets; 4b traces | **Done** | `results/week2_baselines_swat_wide.json`, `results/day45_swat_wide_*_3seed.json`, `results/day45_swat_roll60_3seed.json`, `results/week2_4b_swat_wide.json` |
+| Criterion 1, HAI | Done, fails; scope boundary | `results/c1_hai_mined.json` |
+| Criterion 1, WADI | **Done Fri 11, passes** (7 couplings, 0 balances, default miner) | `results/c1_wadi_default_shift60.json` |
+| Criteria 2–4b, simulated plant (pilot) | Done; re-run after the oversampling fix, result holds | `results/sim_adaptive_3seed.json`, `results/sim_defences_mal30_2seed.json` |
+| Criteria 2–4b, **SWaT**: 7 rules × 8 attacks × 3 seeds baselines; adaptive attacker (channel roll, replay), 7 rules, 5 modes incl. gated, 5 seeds, two invariant sets; 4b traces | **Done** | `results/swat_sweep_wide_3seed.json`, `results/day45_swat_wide_*_3seed.json`, `results/swat_adaptive_narrow_roll60_3seed.json`, `results/swat_trust_traces_wide_3seed.json` |
 | Criteria 2–4b, **BATADAL** (5 clients, 3 rules, 3 seeds) | Done; weak signal, support only | `results/day45_batadal_*_3seed.json` |
 | Criteria 2–4b, **WADI** | Not started; runs only if criterion 1 passes | — |
-| Recipe B | Done on SWaT, 7 rules × 3 seeds | in `week2_baselines_swat_wide.json` |
+| Recipe B | Done on SWaT, 7 rules × 3 seeds | in `swat_sweep_wide_3seed.json` |
 | ZK extension (PA-FL Lite) | Not started; toolchain present (circom, snarkjs, node) | `zk/README.md` |
 | Paper | Pilot draft complete; MDPI port not started | `pilot-paper/pilot-paper.tex` |
 | Repo | **On GitHub** (private, org): https://github.com/RMIT-BDSL/pafl, first push Fri 11 | — |
