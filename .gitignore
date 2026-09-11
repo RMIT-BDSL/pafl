@@ -41,3 +41,4 @@ results/swat_probe_*.json
 results/_probes/
 results/logs/
 pilot-paper/data/
+LOG.md
