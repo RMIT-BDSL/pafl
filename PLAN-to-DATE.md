@@ -9,7 +9,7 @@
 | Thu 10 Sep | The paper is the pilot extended to real federated data plus a pared-back ZK extension (PA-FL Lite); ICS-NAD, Fabric and Soroban are out | 18 days; compute was never the constraint, attention is |
 | Thu 10 Sep | All experiments run on the laptop (≈ 20 s per SWaT cell); no AWS, no Colab | measured |
 | Fri 11 Sep | **SWaT is the primary real record** (10 clients, headline tables); **BATADAL is the support record** (5 clients, its own table); the simulated plant is the pilot setting | SWaT has the attack diversity, client count and detector baseline to carry claims about aggregation rules; BATADAL has 876 rows per client and 219 attack rows |
-| Fri 11 Sep | **WADI added** as an attempted third real record with a one-day cap; criterion 1 passed the same day, so it enters as a second physical testbed for rejection behaviour | on disk; loader quirks known from `../zhu-2025-reprod` |
+| Fri 11 Sep | **WADI added and run** (criterion 1 and the adaptive set the same day). It enters as the second physical testbed for criterion 1 and admission behaviour; it carries no damage or removal numbers | detector recall on WADI attacks ≈ 0.2; on disk; loader quirks known from `../zhu-2025-reprod` |
 | Fri 11 Sep | **Report both invariant-set settings** (narrow: miner defaults, 5 SWaT rules; wide: r2 0.40 / off-ratio 0.10 / support 0.005, 9 rules), each with coverage, honest violation rate and damage removed | coverage becomes the explicit variable instead of a tuned threshold |
 | Fri 11 Sep | **Channel-roll shift stated in plant time**: 5 min on SWaT (60 rows at the 5 s stride) | 7 rows was 35 s on SWaT and nearly free to repair |
 | Fri 11 Sep | Damage on real data is **recall on the targeted attacks**, measured against the **honest-only** federation (same honest shards, attacker absent) | global F1 never moves under a targeted poison; the ten-client clean run differs by composition |
@@ -44,17 +44,17 @@ extension that shows the enforcement path is real. It is not the full pitch.
 
 | Pitch promised | Submission delivers | Why |
 |---|---|---|
-| Federation on ICS-NAD, BATADAL, SWaT | Federation on **SWaT** (10 clients, primary), **BATADAL** (5 clients, support), **WADI** (attempted, one-day cap; second physical testbed if criterion 1 passes), plus the simulated plant | ICS-NAD has no loader and is 246 GB; BATADAL is too short for 10 clients; WADI is on disk and its file quirks are known from `../zhu-2025-reprod` |
+| Federation on ICS-NAD, BATADAL, SWaT | **SWaT** (10 clients, primary: all damage and removal numbers), **WADI** (10 clients, second physical testbed: criterion 1 and admission behaviour only), **BATADAL** (5 clients, support), plus the simulated plant | ICS-NAD has no loader and is 246 GB; BATADAL is too short for 10 clients; on WADI the detector's recall on attacks is ≈ 0.2, so poisoning has nothing to remove |
 | Full defence set, three conditions | **Yes**: 7 rules × {honest, naive, physics-aware} × 3 seeds, for **two attackers**: fabricated (channel roll) and **exposure-only replay** (`splice_only`), under a narrow and a wide invariant set | cheap (20 s per cell); code exists |
 | Recipe B (gradient matching) | First-order path only, **one day, cut if it misbehaves** | untested on real data |
 | Update-space baselines | sign-flip, scaling, free-rider, min-max (drop ALIE, noise first) | code exists |
 | FLTrust interaction, FoolsGold | **Yes**: 4b with trust traces on both rules | code exists |
-| Groth16 circuit with Merkle commitment, sampling, invariant check, last-layer binding | **PA-FL Lite**: commitment + sampling + invariant check. **No gradient binding.** See §3 | 3 attention-days, not 3 weeks |
+| Groth16 circuit with Merkle commitment, sampling, invariant check, last-layer binding | **PA-FL Lite**: commitment + sampling + invariant check. **No gradient binding.** See §5 | 3 attention-days, not 3 weeks |
 | Fabric and Soroban verification costs | Off-chain verification only; ledger costs as a stated next step | cut |
 | HAI as a dataset | Scope boundary paragraph, as in the pilot paper | done |
 
 RQ1 and RQ3 are the empirical core. RQ2 is answered in part by PA-FL Lite. RQ4 becomes a design
-statement. **RQ3's real-data answer is a coverage statement** (see §0, 10 Sep): the gate removes the
+statement. **RQ3's real-data answer is a coverage statement** (see LOG.md, 10 Sep): the gate removes the
 poison that rides on physics the invariant set covers, and it blocks every fabricated batch, but an
 exposure-only replay of physics-consistent attacks passes it and does the same damage. The damage
 measure on real data is recall on the targeted attacks, not global F1. 
@@ -65,8 +65,9 @@ measure on real data is recall on the targeted attacks, not global F1.
 ## 4. The claims the paper makes (as the evidence stands on Fri 11 Sep)
 
 1. **Fabricated telemetry is a solved problem for the gate.** Every fabricated batch (channel roll at
-   any shift, permutation, scaling) was rejected on BATADAL and SWaT, with zero honest false
-   rejections, by an automatically mined invariant set. The simulator result (100 % of the damage
+   any shift, permutation, scaling, Recipe B) was rejected on BATADAL, SWaT and WADI, with zero honest
+   false rejections, by the same automatically mined invariant set (two physical testbeds from
+   different processes, treatment and distribution, plus a simulated benchmark). The simulator result (100 % of the damage
    removed against an adaptive attacker) holds after the confound fix.
 2. **The real threat on a real plant is replay, not fabrication.** An attacker who splices real
    attack telemetry into an honest shard and presents it as normal does the same targeted damage as
@@ -87,7 +88,12 @@ measure on real data is recall on the targeted attacks, not global F1.
    outright on SWaT; FedAvg, median and norm clipping admit everything and the gate is what removes
    the poison for them. The FLTrust interaction found on the simulator does not appear on SWaT
    (acceptance falls after projection); report both, do not generalise either.
-6. **Enforcement is buildable.** PA-FL Lite (§3) with a violation budget, on the nine-invariant set.
+6. **The gate helps a detector that detects.** On WADI the check rejects 100 % of fabricated and
+   89 % of replayed batches and excludes two of three adapted attackers, but the autoencoder's recall
+   on WADI attacks is ≈ 0.2, so the poison has nothing to remove and WADI carries no damage numbers.
+   State this as the boundary: admission control governs what enters the model; it cannot supply
+   detection the model lacks.
+7. **Enforcement is buildable.** PA-FL Lite (§5) with a violation budget, on the nine-invariant set.
 
 What this is not: it is not "physics removes 100 % of attack capability on real data". The
 abstract's real-data sentence should be the coverage sentence in point 3.
@@ -173,11 +179,11 @@ the sweeps are running or done.
 
 | Date | Experiments | ZK | Writing / admin |
 |---|---|---|---|
-| **Thu 10** | Copy `pilot/` → `pafl/` (done) | | Plan written. Message collaborators on scope (§2). Send the 250-word abstract to the editorial office |
+| **Thu 10** | Copy `pilot/` → `pafl/` (done) | | Plan written. Message collaborators on scope (§3). Send the 250-word abstract to the editorial office |
 | Thu 10, night | Defects 1–8 fixed. Criterion 1 on SWaT. `scripts/overnight_sep10.sh`: SWaT adaptive (7 rules, roll and splice-only, wide set), SWaT baselines sweep, SWaT 4b, BATADAL support runs, Recipe B trial | | |
 | **Fri 11** | Read the overnight results with `scripts/summarize_adaptive.py`. Reruns. Decide the invariant-set setting (narrow vs wide) and the roll shift for the paper. `git init`, first commit | Day A (toolchain) | Jeff: abstract to the editorial office; scope message to collaborators |
-| **Sat 12** | **WADI, one-day cap:** `pafl/data/wadi.py` (labels from the attack time table), WADI branch in `load_real`, criterion 1 (`day1 --dataset wadi`), then if it passes the adaptive runs (`day45 --dataset wadi`, 7 rules, 5 modes, 3 seeds, ≈ 1 h) and the baselines sweep overnight. Coverage table per attack segment for SWaT | Day A (toolchain) | |
-| **Sun 13** | WADI results read; keep or scope-paragraph. Any missing SWaT cells | Day B (circuit) | Port `pilot-paper.tex` into the MDPI template |
+| **Sat 12** | ~~WADI~~ done Fri 11 (loader, criterion 1, adaptive runs). Coverage table per attack segment for SWaT (both invariant sets). Any missing SWaT cells | Day A (toolchain) | |
+| **Sun 13** | Figure script for the paper's results figures from `results/` | Day B (circuit) | Port `pilot-paper.tex` into the MDPI template on Overleaf |
 | Mon 14 | IID contrast row (one seed) if time | finish Day B; Day C with the real invariant set and real batches from the sweep | Setting, threat model, datasets, real-data construction |
 | Tue 15 – Wed 16 | Extend `pilot-paper/make_figures.py` to the new JSON. Tables and figures | | Results section: criteria 1–4b on SWaT and simulator; coverage; control |
 | **Thu 17** | Reruns if any cell failed | Day D | ZK subsection |
@@ -201,15 +207,18 @@ Start from `pilot-paper/pilot-paper.tex`. It already has the setting figure, the
 criteria table, five results figures generated from JSON, the enforcement design with the
 constraint budget, and the limitations. Add:
 
-1. **Real-data federation results** for criteria 2–4b on SWaT (headline), BATADAL (support) and
-   WADI (if criterion 1 passes), with the simulated plant kept as the pilot setting. Every number says which setting it came from. The pilot paper does this; the
+1. **Real-data federation results** for criteria 2–4b on SWaT (headline, all damage and removal
+   numbers), with WADI as a row in the criterion-1 table and a row in the admission table plus two
+   sentences (second physical testbed; no damage numbers because the detector's recall on its attacks
+   is ≈ 0.2), BATADAL as the support record with its own small table, and the simulated plant kept as
+   the pilot setting. Every number says which setting it came from. The pilot paper does this; the
    dashboard and pitch did not until 10 Sep.
 2. **The full defence set** including FoolsGold, and the update-space attacks as the
    complementarity table (physics check catches data fabrications, robust rules catch update
    attacks).
 3. **4b with both similarity rules** and the trust traces.
 4. **PA-FL Lite** as a subsection of the enforcement section, with the measured table and the
-   sentence from §3.
+   sentence from §5.
 5. **Two new results the pilot did not have.** (a) The **exposure-only control** and the
    **coverage table**: which SWaT attack segments the invariant set can see, and therefore which
    poison the gate can remove. (b) The **metric argument**: on 36 diverse attacks a targeted poison
