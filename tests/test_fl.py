@@ -1,0 +1,142 @@
+"""Federated pieces: defences behave as advertised, and a run is resumable."""
+import sys
+from pathlib import Path
+import numpy as np
+import pytest
+import torch
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from pafl.fl.defences import DEFENCES, aggregate, acceptance_mask
+from pafl.fl.models import build_model, get_flat_params, set_flat_params, n_params
+from pafl.fl.scenario import ScenarioConfig, build_synthetic_scenario
+from pafl.fl.train import FLConfig, run_federation
+
+
+def test_flat_param_roundtrip():
+    m = build_model("window_ae", 11, 10)
+    flat = get_flat_params(m).clone()
+    set_flat_params(m, torch.zeros_like(flat))
+    assert float(get_flat_params(m).abs().sum()) == 0.0
+    set_flat_params(m, flat)
+    assert torch.allclose(get_flat_params(m), flat)
+
+
+@pytest.mark.parametrize("name", list(DEFENCES))
+def test_defences_return_the_right_shape(name):
+    u = torch.randn(8, 40)
+    kw = {"server_update": u[1:].mean(0)} if name == "fltrust" else {}
+    assert aggregate(name, u, n_malicious=2, **kw).shape == (40,)
+
+
+def test_selective_defences_reject_a_gross_outlier():
+    u = torch.randn(10, 40)
+    u[0] *= 25
+    for name in ("krum", "trimmed_mean"):
+        assert not bool(acceptance_mask(name, u, n_malicious=1)[0])
+
+
+def test_fedavg_includes_everyone():
+    u = torch.randn(10, 40)
+    assert bool(acceptance_mask("fedavg", u).all())
+
+
+def test_scenario_marks_malicious_clients():
+    sc = build_synthetic_scenario(ScenarioConfig(n_clients=5, malicious_fraction=0.4,
+                                                 steps_per_client=800, seed=0))
+    assert sum(c.is_malicious for c in sc["clients"]) == 2
+    assert all(c.fabrication for c in sc["clients"] if c.is_malicious)
+
+
+def test_federation_runs_and_is_resumable(tmp_path):
+    sc = build_synthetic_scenario(ScenarioConfig(n_clients=3, malicious_fraction=0.0,
+                                                 steps_per_client=900, val_steps=500,
+                                                 test_steps=900, seed=0))
+    ck = tmp_path / "ck.pkl"
+    cfg = FLConfig(rounds=2, local_epochs=1, log_every=10_000)
+    a = run_federation(sc["clients"], sc["eval_sets"], cfg, root_data=sc["root_data"],
+                       ckpt_path=ck)
+    assert ck.exists()
+    assert 0.0 <= a["results"]["test"]["f1"] <= 1.0
+    cfg2 = FLConfig(rounds=4, local_epochs=1, log_every=10_000)
+    b = run_federation(sc["clients"], sc["eval_sets"], cfg2, root_data=sc["root_data"],
+                       ckpt_path=ck)
+    assert len(b["history"]) == 4          # resumed rather than restarted
+
+
+def test_threshold_is_never_taken_from_the_test_set():
+    """Calibrating on test data inflates every number that follows. The API makes
+    that hard on purpose, and this test says so."""
+    sc = build_synthetic_scenario(ScenarioConfig(n_clients=2, malicious_fraction=0.0,
+                                                 steps_per_client=700, val_steps=400,
+                                                 test_steps=700, seed=0))
+    bad = {k: v for k, v in sc["eval_sets"].items() if k != "clean_val"}
+    with pytest.raises(ValueError):
+        run_federation(sc["clients"], bad, FLConfig(rounds=1, log_every=10_000))
+
+
+# ----------------------------------------------------------------------------
+# the projected attacker must keep the fabricated attacker's training selection
+# ----------------------------------------------------------------------------
+def test_projected_variant_keeps_oversampling():
+    import numpy as np
+    from pafl.fl.variants import build_variant
+    kw = dict(n_clients=4, window=10, seed=0, steps_per_client=1200)
+    sc_f, inv, cols = build_variant("synthetic", "fabricated", 0.5, kw["n_clients"],
+                                    kw["window"], kw["seed"], steps_per_client=kw["steps_per_client"])
+    sc_p, _, _ = build_variant("synthetic", "projected", 0.5, kw["n_clients"],
+                               kw["window"], kw["seed"], steps_per_client=kw["steps_per_client"])
+    mal_f = [c for c in sc_f["clients"] if c.is_malicious]
+    mal_p = [c for c in sc_p["clients"] if c.is_malicious]
+    assert mal_f and len(mal_f) == len(mal_p)
+    for a, b in zip(mal_f, mal_p):
+        assert a.train_index is not None and np.array_equal(a.train_index, b.train_index)
+        assert a.train.shape == b.train.shape           # same size, same oversampling
+        assert not np.allclose(a.train, b.train)         # but the data moved
+        assert inv.batch_verdict(b.raw)["admitted"]      # and it now passes the check
+
+
+def test_real_scenario_splices_attacks_into_the_checked_batch():
+    import numpy as np
+    import pandas as pd
+    from pafl.data.synthetic import simulate, default_attacks
+    from pafl.fl.scenario_real import RealScenarioConfig, build_real_scenario, splice_attacks
+    from pafl.data.loaders import feature_columns
+    normal = simulate(6000, seed=1); normal["ATT_FLAG"] = 0
+    attack = simulate(3000, seed=2, attacks=default_attacks(3000, seed=2, n=6))
+    cols = feature_columns(normal)
+    rs = np.random.default_rng(0)
+    spliced = splice_attacks(normal.iloc[:1000], attack, cols, 0.25, rs)
+    assert len(spliced) == 1000
+    assert 0.15 <= spliced["ATT_FLAG"].mean() <= 0.30       # about a quarter, whole segments
+    sc = build_real_scenario(normal, attack, RealScenarioConfig(n_clients=4, malicious_fraction=0.5,
+                                                                seed=0))
+    mal = [c for c in sc["clients"] if c.is_malicious]
+    hon = [c for c in sc["clients"] if not c.is_malicious]
+    assert len(mal) == 2 and len(hon) == 2
+    for c in mal:
+        assert c.train_index is not None and len(c.train_index) == len(c.train)
+        assert int(c.raw["ATT_FLAG"].sum()) == 0             # labels hidden from the trainer
+        assert len(c.raw) == len(hon[0].raw)                 # shards keep their size
+
+
+def test_scaler_gives_constant_channels_unit_scale():
+    import numpy as np
+    from pafl.data.loaders import Scaler
+    X = np.column_stack([np.ones(100), np.random.default_rng(0).normal(size=100)]).astype(np.float32)
+    sc = Scaler.fit(X)
+    assert sc.std[0] == 1.0 and abs(sc.std[1] - X[:, 1].std()) < 1e-6
+    z = sc(np.array([[2.0, 0.0]], np.float32))
+    assert abs(z[0, 0] - 1.0) < 1e-6           # a state change is one sigma, not 1e8
+
+
+def test_gated_variant_excludes_rejected_clients():
+    from pafl.fl.variants import build_variant
+    sc_p, inv, _ = build_variant("synthetic", "projected", 0.5, 4, 10, 0, steps_per_client=1200,
+                                 target_violating=0.0)
+    sc_g, _, _ = build_variant("synthetic", "gated", 0.5, 4, 10, 0, steps_per_client=1200,
+                               target_violating=0.0)
+    n_rej = sum(not v["admitted"] for v in sc_p["physics_verdicts"])
+    assert sc_g["n_excluded_by_gate"] == n_rej
+    assert len(sc_g["clients"]) == len(sc_p["clients"]) - n_rej
+    assert all(inv.batch_verdict(c.raw)["admitted"] for c in sc_g["clients"] if c.is_malicious)

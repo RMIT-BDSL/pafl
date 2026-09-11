@@ -1,0 +1,283 @@
+{
+  "dataset": "hai",
+  "steps": 8000,
+  "seed": 0,
+  "invariant_set": "mined",
+  "n_invariants": 3,
+  "invariants": [
+    {
+      "name": "mined-balance::P1_LIT01",
+      "kind": "linear",
+      "eps": 13.204224971250317,
+      "note": "dP1_LIT01 = +0.08883*P1_FT01 + -0.06592*P1_FT03 + -0.002206*P1_FT03Z + +0.002006*P1_FT01Z +1.938"
+    },
+    {
+      "name": "mined-balance::P3_PIT01",
+      "kind": "linear",
+      "eps": 4295.010632743792,
+      "note": "dP3_PIT01 = -6.736*P1_FT03 + +5.854*P1_FT01 + +2.726*P1_FT03Z + -1.354*P1_FT01Z + +0.2511*P3_FIT01 + -0.02474*P1_FT02 -1194"
+    },
+    {
+      "name": "mined-balance::P3_LIT01",
+      "kind": "linear",
+      "eps": 3141.5290585776975,
+      "note": "dP3_LIT01 = -6.704*P1_FT01 + +6.12*P1_FT03 + -2.139*P1_FT03Z + +1.428*P1_FT01Z + +0.1734*P3_FIT01 + +0.01033*P1_FT02Z +368.7"
+    }
+  ],
+  "circuit_cost_k64": {
+    "invariants": 3,
+    "constraints_per_sample": 99,
+    "constraints_total": 6336
+  },
+  "admission_rule": {
+    "max_violating_frac": 0.01,
+    "batch_rows": 1000,
+    "n_batches": 200
+  },
+  "honest": {
+    "violating_fraction": 0.0004347826086956522,
+    "admitted": true,
+    "per_invariant_violating_fraction": {
+      "mined-balance::P1_LIT01": 0.0004347826086956522,
+      "mined-balance::P3_PIT01": 0.0,
+      "mined-balance::P3_LIT01": 0.0
+    },
+    "not_applicable_fraction": {
+      "mined-balance::P1_LIT01": 4.347826086956522e-05,
+      "mined-balance::P3_PIT01": 4.347826086956522e-05,
+      "mined-balance::P3_LIT01": 4.347826086956522e-05
+    },
+    "mean_row_score": 0.0002555985342411208
+  },
+  "honest_batch_violating_mean": 0.00037500000000000006,
+  "honest_batch_false_reject_rate": 0.0,
+  "real_attack_reference": {
+    "violating_fraction": 0.0038887988703965185,
+    "admitted": true,
+    "per_invariant_violating_fraction": {
+      "mined-balance::P1_LIT01": 0.0038887988703965185,
+      "mined-balance::P3_PIT01": 0.0,
+      "mined-balance::P3_LIT01": 0.0
+    },
+    "not_applicable_fraction": {
+      "mined-balance::P1_LIT01": 2.31476123237888e-05,
+      "mined-balance::P3_PIT01": 2.31476123237888e-05,
+      "mined-balance::P3_LIT01": 2.31476123237888e-05
+    },
+    "mean_row_score": 0.003379909715556874
+  },
+  "real_attack_rows_only": null,
+  "roll_shift": null,
+  "fabrications": [
+    {
+      "fabrication": "channel_roll",
+      "preserves": [
+        "per-channel marginal",
+        "variance",
+        "autocorrelation"
+      ],
+      "violating_fraction_full": 0.0004347826086956522,
+      "batch_violating_mean": 0.00036,
+      "batch_violating_std": 0.0005571355310873648,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.99,
+      "separated": false
+    },
+    {
+      "fabrication": "within_regime_permutation",
+      "preserves": [
+        "per-channel marginal",
+        "regime-conditional marginal"
+      ],
+      "violating_fraction_full": 0.0004347826086956522,
+      "batch_violating_mean": 0.00036500000000000004,
+      "batch_violating_std": 0.0006178794380783358,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.9400000000000001,
+      "separated": false
+    },
+    {
+      "fabrication": "conservation_scaling",
+      "preserves": [
+        "channel range"
+      ],
+      "violating_fraction_full": 0.0004347826086956522,
+      "batch_violating_mean": 0.00036500000000000004,
+      "batch_violating_std": 0.0005759991319437903,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.99,
+      "separated": false
+    },
+    {
+      "fabrication": "regime_splicing",
+      "preserves": [
+        "per-channel marginal",
+        "variance"
+      ],
+      "violating_fraction_full": 0.0006521739130434783,
+      "batch_violating_mean": 0.00068,
+      "batch_violating_std": 0.0009368030742904297,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.89,
+      "separated": false
+    }
+  ],
+  "mining_report": {
+    "candidates": {
+      "linear_relations": 3,
+      "couplings": 0,
+      "state_rules": 40,
+      "total": 43
+    },
+    "kept": 3,
+    "relations": [
+      {
+        "target": "P1_LIT01",
+        "terms": [
+          [
+            "P1_FT01",
+            0.08883086922857668
+          ],
+          [
+            "P1_FT03",
+            -0.06592217188207156
+          ],
+          [
+            "P1_FT03Z",
+            -0.0022062781182066475
+          ],
+          [
+            "P1_FT01Z",
+            0.0020063973852067784
+          ]
+        ],
+        "const": 1.9382857473026645,
+        "tightness": 0.69257,
+        "r2": 0.52034
+      },
+      {
+        "target": "P3_LIT01",
+        "terms": [
+          [
+            "P1_FT01",
+            -6.703659323325217
+          ],
+          [
+            "P1_FT03",
+            6.1199760345228595
+          ],
+          [
+            "P1_FT03Z",
+            -2.139234554919417
+          ],
+          [
+            "P1_FT01Z",
+            1.428495739699462
+          ],
+          [
+            "P3_FIT01",
+            0.17337670490319476
+          ],
+          [
+            "P1_FT02Z",
+            0.010331186788138541
+          ]
+        ],
+        "const": 368.70628157921067,
+        "tightness": 0.89323,
+        "r2": 0.20215
+      },
+      {
+        "target": "P3_PIT01",
+        "terms": [
+          [
+            "P1_FT03",
+            -6.73601646347425
+          ],
+          [
+            "P1_FT01",
+            5.854087306973386
+          ],
+          [
+            "P1_FT03Z",
+            2.7255900287425665
+          ],
+          [
+            "P1_FT01Z",
+            -1.3539384793590539
+          ],
+          [
+            "P3_FIT01",
+            0.25106901140817617
+          ],
+          [
+            "P1_FT02",
+            -0.0247412669585795
+          ]
+        ],
+        "const": -1193.8064209501708,
+        "tightness": 0.84346,
+        "r2": 0.28857
+      }
+    ],
+    "couplings": [],
+    "state_rules_top5": [
+      {
+        "sensor": "P1_FT01Z",
+        "actuator": "P4_HT_PS",
+        "range": [
+          772.825,
+          872.223
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.3811
+      },
+      {
+        "sensor": "P1_FT01Z",
+        "actuator": "P4_ST_PS",
+        "range": [
+          772.825,
+          872.223
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.3811
+      },
+      {
+        "sensor": "P1_LIT01",
+        "actuator": "P4_HT_PS",
+        "range": [
+          416.767,
+          458.836
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.1136
+      },
+      {
+        "sensor": "P1_LIT01",
+        "actuator": "P4_ST_PS",
+        "range": [
+          416.767,
+          458.836
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.1136
+      },
+      {
+        "sensor": "P1_B3004",
+        "actuator": "P4_HT_PS",
+        "range": [
+          417.513,
+          443.271
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.1067
+      }
+    ]
+  },
+  "criterion_1_pass": false
+}

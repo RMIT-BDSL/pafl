@@ -1,0 +1,262 @@
+{
+  "dataset": "batadal",
+  "steps": 8000,
+  "seed": 0,
+  "invariant_set": "batadal",
+  "n_invariants": 9,
+  "invariants": [
+    {
+      "name": "coupling::S_PU2~F_PU2",
+      "kind": "coupling",
+      "eps": 12.00512696970467,
+      "note": "F_PU2 ~= (S_PU2 - 0) / 1 * 95.0867831906731"
+    },
+    {
+      "name": "coupling::S_PU4~F_PU4",
+      "kind": "coupling",
+      "eps": 5.17104827257665,
+      "note": "F_PU4 ~= (S_PU4 - 0) / 1 * 34.469143255624324"
+    },
+    {
+      "name": "coupling::S_PU7~F_PU7",
+      "kind": "coupling",
+      "eps": 19.18602284757494,
+      "note": "F_PU7 ~= (S_PU7 - 0) / 1 * 49.28749929728329"
+    },
+    {
+      "name": "coupling::S_PU8~F_PU8",
+      "kind": "coupling",
+      "eps": 4.809762061127858,
+      "note": "F_PU8 ~= (S_PU8 - 0) / 1 * 35.458695883602914"
+    },
+    {
+      "name": "coupling::S_PU10~F_PU10",
+      "kind": "coupling",
+      "eps": 4.467632456081433,
+      "note": "F_PU10 ~= (S_PU10 - 0) / 1 * 30.894384605497617"
+    },
+    {
+      "name": "balance::L_T1",
+      "kind": "linear",
+      "eps": 0.6572369832100163,
+      "note": "dL_T1 = -0.01634*F_PU1 + -0.006583*F_PU11 + -0.003954*F_PU8 + -0.003446*F_PU10 + -0.00275*F_PU6 + -0.002624*F_V2 +1.969"
+    },
+    {
+      "name": "balance::L_T2",
+      "kind": "linear",
+      "eps": 1.5304031894357006,
+      "note": "dL_T2 = -0.01235*F_PU4 + +0.008174*F_V2 + +0.008025*F_PU1 + -0.006861*F_PU7 + -0.006811*F_PU6 + -0.002796*F_PU11 + +0.002185*F_PU2 + -0.001045*F_PU10 -0.9298"
+    },
+    {
+      "name": "balance::L_T3",
+      "kind": "linear",
+      "eps": 1.3325698703567297,
+      "note": "dL_T3 = +0.01876*F_PU4 + -0.01788*F_PU1 + -0.004773*F_PU6 + +0.004193*F_PU11 + -0.003728*F_PU2 + +0.002215*F_V2 + -0.001676*F_PU8 + -0.001077*F_PU10 +1.728"
+    },
+    {
+      "name": "balance::L_T5",
+      "kind": "linear",
+      "eps": 1.8354133306410345,
+      "note": "dL_T5 = +0.02234*F_PU8 + +0.007725*F_PU11 + -0.004291*F_PU1 + -0.001657*F_PU10 + +0.001256*F_PU4 + -0.001237*F_PU7 +0.03607"
+    }
+  ],
+  "circuit_cost_k64": {
+    "invariants": 9,
+    "constraints_per_sample": 297,
+    "constraints_total": 19008
+  },
+  "admission_rule": {
+    "max_violating_frac": 0.01,
+    "batch_rows": 1000,
+    "n_batches": 200
+  },
+  "honest": {
+    "violating_fraction": 0.0,
+    "admitted": true,
+    "per_invariant_violating_fraction": {
+      "coupling::S_PU2~F_PU2": 0.0,
+      "coupling::S_PU4~F_PU4": 0.0,
+      "coupling::S_PU7~F_PU7": 0.0,
+      "coupling::S_PU8~F_PU8": 0.0,
+      "coupling::S_PU10~F_PU10": 0.0,
+      "balance::L_T1": 0.0,
+      "balance::L_T2": 0.0,
+      "balance::L_T3": 0.0,
+      "balance::L_T5": 0.0
+    },
+    "not_applicable_fraction": {
+      "coupling::S_PU2~F_PU2": 0.0,
+      "coupling::S_PU4~F_PU4": 0.0,
+      "coupling::S_PU7~F_PU7": 0.0,
+      "coupling::S_PU8~F_PU8": 0.0,
+      "coupling::S_PU10~F_PU10": 0.0,
+      "balance::L_T1": 0.00022825838849577722,
+      "balance::L_T2": 0.00022825838849577722,
+      "balance::L_T3": 0.00022825838849577722,
+      "balance::L_T5": 0.00022825838849577722
+    },
+    "mean_row_score": 0.0
+  },
+  "honest_batch_violating_mean": 0.0,
+  "honest_batch_false_reject_rate": 0.0,
+  "real_attack_reference": {
+    "violating_fraction": 0.01723725161599234,
+    "admitted": false,
+    "per_invariant_violating_fraction": {
+      "coupling::S_PU2~F_PU2": 0.0014364376346660283,
+      "coupling::S_PU4~F_PU4": 0.0,
+      "coupling::S_PU7~F_PU7": 0.005027531721331099,
+      "coupling::S_PU8~F_PU8": 0.0016758439071103662,
+      "coupling::S_PU10~F_PU10": 0.008379219535551832,
+      "balance::L_T1": 0.0021546564519990424,
+      "balance::L_T2": 0.0,
+      "balance::L_T3": 0.0,
+      "balance::L_T5": 0.0
+    },
+    "not_applicable_fraction": {
+      "coupling::S_PU2~F_PU2": 0.0,
+      "coupling::S_PU4~F_PU4": 0.0,
+      "coupling::S_PU7~F_PU7": 0.0,
+      "coupling::S_PU8~F_PU8": 0.0,
+      "coupling::S_PU10~F_PU10": 0.0,
+      "balance::L_T1": 0.00023940627244433804,
+      "balance::L_T2": 0.00023940627244433804,
+      "balance::L_T3": 0.00023940627244433804,
+      "balance::L_T5": 0.00023940627244433804
+    },
+    "mean_row_score": 0.011943155250660153
+  },
+  "real_attack_rows_only": null,
+  "roll_shift": null,
+  "fabrications": [
+    {
+      "fabrication": "channel_roll",
+      "preserves": [
+        "per-channel marginal",
+        "variance",
+        "autocorrelation"
+      ],
+      "violating_fraction_full": 0.9666742752796166,
+      "batch_violating_mean": 0.968425,
+      "batch_violating_std": 0.004562277391829659,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "within_regime_permutation",
+      "preserves": [
+        "per-channel marginal",
+        "regime-conditional marginal"
+      ],
+      "violating_fraction_full": 0.754165715590048,
+      "batch_violating_mean": 0.7557399999999999,
+      "batch_violating_std": 0.009792977075435241,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "conservation_scaling",
+      "preserves": [
+        "channel range"
+      ],
+      "violating_fraction_full": 0.9901848892946816,
+      "batch_violating_mean": 0.99027,
+      "batch_violating_std": 0.0015023648025696036,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "regime_splicing",
+      "preserves": [
+        "per-channel marginal",
+        "variance"
+      ],
+      "violating_fraction_full": 0.0015978087194704405,
+      "batch_violating_mean": 0.0017350000000000004,
+      "batch_violating_std": 0.000809181685408166,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.04,
+      "separated": false
+    }
+  ],
+  "mining_report": {
+    "couplings": [
+      {
+        "status": "S_PU2",
+        "flow": "F_PU2",
+        "nominal": 95.087,
+        "cv": 0.0274
+      },
+      {
+        "status": "S_PU4",
+        "flow": "F_PU4",
+        "nominal": 34.469,
+        "cv": 0.0396
+      },
+      {
+        "status": "S_PU7",
+        "flow": "F_PU7",
+        "nominal": 49.287,
+        "cv": 0.0269
+      },
+      {
+        "status": "S_PU8",
+        "flow": "F_PU8",
+        "nominal": 35.459,
+        "cv": 0.0267
+      },
+      {
+        "status": "S_PU10",
+        "flow": "F_PU10",
+        "nominal": 30.894,
+        "cv": 0.0346
+      }
+    ],
+    "balances": [
+      {
+        "tank": "L_T1",
+        "r2": 0.8202,
+        "tightness": 0.424
+      },
+      {
+        "tank": "L_T2",
+        "r2": 0.8114,
+        "tightness": 0.4343
+      },
+      {
+        "tank": "L_T3",
+        "r2": 0.6855,
+        "tightness": 0.5608
+      },
+      {
+        "tank": "L_T5",
+        "r2": 0.626,
+        "tightness": 0.6115
+      }
+    ],
+    "dropped_balances": [
+      {
+        "tank": "L_T4",
+        "r2": 0.1794,
+        "tightness": 0.9059
+      },
+      {
+        "tank": "L_T6",
+        "r2": 0.3784,
+        "tightness": 0.7884
+      },
+      {
+        "tank": "L_T7",
+        "r2": 0.2391,
+        "tightness": 0.8723
+      }
+    ],
+    "kept_total": 9,
+    "kept_couplings": 5,
+    "kept_balances": 4
+  },
+  "criterion_1_pass": true
+}

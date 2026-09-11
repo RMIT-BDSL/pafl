@@ -1,0 +1,315 @@
+{
+  "dataset": "swat",
+  "steps": 8000,
+  "seed": 0,
+  "invariant_set": "swat",
+  "n_invariants": 9,
+  "invariants": [
+    {
+      "name": "coupling::MV101~FIT101",
+      "kind": "coupling",
+      "eps": 0.2901499387476374,
+      "note": "FIT101 ~= (MV101 - 1) / 1 * 2.544863254450158"
+    },
+    {
+      "name": "coupling::P101~FIT201",
+      "kind": "coupling",
+      "eps": 1.8414072974997848,
+      "note": "FIT201 ~= (P101 - 1) / 1 * 2.448772117096494"
+    },
+    {
+      "name": "coupling::MV201~FIT201",
+      "kind": "coupling",
+      "eps": 0.5729455538752142,
+      "note": "FIT201 ~= (MV201 - 1) / 1 * 2.448771567583478"
+    },
+    {
+      "name": "coupling::P203~FIT201",
+      "kind": "coupling",
+      "eps": 1.559826397499784,
+      "note": "FIT201 ~= (P203 - 1) / 1 * 2.450551677219479"
+    },
+    {
+      "name": "coupling::MV301~FIT601",
+      "kind": "coupling",
+      "eps": 0.5615503992736334,
+      "note": "FIT601 ~= (MV301 - 1) / 1 * 1.535568435849057"
+    },
+    {
+      "name": "coupling::P602~FIT601",
+      "kind": "coupling",
+      "eps": 1.1122348137363045,
+      "note": "FIT601 ~= (P602 - 1) / 1 * 1.5694242549450552"
+    },
+    {
+      "name": "balance::LIT101",
+      "kind": "linear",
+      "eps": 6.176890294237751,
+      "note": "dLIT101 = +8.901*FIT504 + -4.357*FIT503 + -3.278*FIT501 + +2.939*FIT401 + -0.9685*FIT201 + +0.9474*FIT101 + -0.2842*FIT502 + +0.02297*FIT601 +1.471"
+    },
+    {
+      "name": "balance::LIT301",
+      "kind": "linear",
+      "eps": 3.867791898444862,
+      "note": "dLIT301 = -3.65*FIT504 + +1.823*FIT503 + -0.9575*FIT301 + +0.9488*FIT201 + +0.2351*FIT401 + +0.05286*FIT601 + +0.01786*FIT502 + +0.01784*FIT101 -0.6517"
+    },
+    {
+      "name": "balance::LIT401",
+      "kind": "linear",
+      "eps": 4.24898809454745,
+      "note": "dLIT401 = +7.397*FIT504 + +6.09*FIT503 + +2.387*FIT501 + +0.8259*FIT301 + -0.4502*FIT502 + +0.08013*FIT201 + -0.01399*FIT101 + -0.009667*FIT601 -11.95"
+    }
+  ],
+  "circuit_cost_k64": {
+    "invariants": 9,
+    "constraints_per_sample": 297,
+    "constraints_total": 19008
+  },
+  "admission_rule": {
+    "max_violating_frac": 0.01,
+    "batch_rows": 1000,
+    "n_batches": 200
+  },
+  "honest": {
+    "violating_fraction": 0.003560866678737401,
+    "admitted": true,
+    "per_invariant_violating_fraction": {
+      "coupling::MV101~FIT101": 0.00093548192407508,
+      "coupling::P101~FIT201": 0.0002414146900838916,
+      "coupling::MV201~FIT201": 0.0009053050878145935,
+      "coupling::P203~FIT201": 0.0003168567807351077,
+      "coupling::MV301~FIT601": 0.0009505703422053232,
+      "coupling::P602~FIT601": 0.0004224757076468103,
+      "balance::LIT101": 1.5088418130243225e-05,
+      "balance::LIT301": 0.0,
+      "balance::LIT401": 1.5088418130243225e-05
+    },
+    "not_applicable_fraction": {
+      "coupling::MV101~FIT101": 0.006699257649827992,
+      "coupling::P101~FIT201": 0.0025197658277506187,
+      "coupling::MV201~FIT201": 0.00612589776087875,
+      "coupling::P203~FIT201": 0.0025197658277506187,
+      "coupling::MV301~FIT601": 0.005824129398273885,
+      "coupling::P602~FIT601": 0.002549942664011105,
+      "balance::LIT101": 1.5088418130243225e-05,
+      "balance::LIT301": 1.5088418130243225e-05,
+      "balance::LIT401": 1.5088418130243225e-05
+    },
+    "mean_row_score": 0.0032759852497265037
+  },
+  "honest_batch_violating_mean": 0.0034500000000000004,
+  "honest_batch_false_reject_rate": 0.0,
+  "real_attack_reference": {
+    "violating_fraction": 0.08328147226173542,
+    "admitted": false,
+    "per_invariant_violating_fraction": {
+      "coupling::MV101~FIT101": 0.0008112553342816501,
+      "coupling::P101~FIT201": 0.0005778805120910384,
+      "coupling::MV201~FIT201": 0.002822724039829303,
+      "coupling::P203~FIT201": 0.0011335348506401137,
+      "coupling::MV301~FIT601": 0.002011468705547653,
+      "coupling::P602~FIT601": 0.0005667674253200569,
+      "balance::LIT101": 0.00021114864864864866,
+      "balance::LIT301": 0.0005556543385490754,
+      "balance::LIT401": 0.07526893669985775
+    },
+    "not_applicable_fraction": {
+      "coupling::MV101~FIT101": 0.00766802987197724,
+      "coupling::P101~FIT201": 0.0028560633001422477,
+      "coupling::MV201~FIT201": 0.006912339971550498,
+      "coupling::P203~FIT201": 0.0028560633001422477,
+      "coupling::MV301~FIT601": 0.006923453058321479,
+      "coupling::P602~FIT601": 0.0029894203413940255,
+      "balance::LIT101": 1.1113086770981508e-05,
+      "balance::LIT301": 1.1113086770981508e-05,
+      "balance::LIT401": 1.1113086770981508e-05
+    },
+    "mean_row_score": 0.15905327920767784
+  },
+  "real_attack_rows_only": {
+    "violating_fraction": 0.6501692434360992,
+    "admitted": false,
+    "per_invariant_violating_fraction": {
+      "coupling::MV101~FIT101": 0.00036593175372792974,
+      "coupling::P101~FIT201": 0.0013722440764797365,
+      "coupling::MV201~FIT201": 0.010703503796541945,
+      "coupling::P203~FIT201": 0.0053060104290549815,
+      "coupling::MV301~FIT601": 0.009239776781630226,
+      "coupling::P602~FIT601": 0.000640380569023877,
+      "balance::LIT101": 0.0037508004757112797,
+      "balance::LIT301": 0.007044186259262648,
+      "balance::LIT401": 0.6186991126154973
+    },
+    "not_applicable_fraction": {
+      "coupling::MV101~FIT101": 0.0036593175372792975,
+      "coupling::P101~FIT201": 0.002927454029823438,
+      "coupling::MV201~FIT201": 0.004757112798463086,
+      "coupling::P203~FIT201": 0.002744488152959473,
+      "coupling::MV301~FIT601": 0.005488976305918946,
+      "coupling::P602~FIT601": 0.002470039337663526,
+      "balance::LIT101": 9.148293843198243e-05,
+      "balance::LIT301": 9.148293843198243e-05,
+      "balance::LIT401": 9.148293843198243e-05
+    },
+    "mean_row_score": 1.3308893034871867
+  },
+  "roll_shift": 60,
+  "fabrications": [
+    {
+      "fabrication": "channel_roll",
+      "preserves": [
+        "per-channel marginal",
+        "variance",
+        "autocorrelation"
+      ],
+      "violating_fraction_full": 0.2976190476190476,
+      "batch_violating_mean": 0.29889499999999997,
+      "batch_violating_std": 0.034806665669092754,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "within_regime_permutation",
+      "preserves": [
+        "per-channel marginal",
+        "regime-conditional marginal"
+      ],
+      "violating_fraction_full": 0.23491158186975677,
+      "batch_violating_mean": 0.23065000000000002,
+      "batch_violating_std": 0.06595481407751826,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "conservation_scaling",
+      "preserves": [
+        "channel range"
+      ],
+      "violating_fraction_full": 0.9073118474259159,
+      "batch_violating_mean": 0.9070250000000002,
+      "batch_violating_std": 0.03600519927732661,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "regime_splicing",
+      "preserves": [
+        "per-channel marginal",
+        "variance"
+      ],
+      "violating_fraction_full": 0.0037117508600398334,
+      "batch_violating_mean": 0.0036250000000000006,
+      "batch_violating_std": 0.0014981238266578633,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.95,
+      "separated": false
+    }
+  ],
+  "mining_report": {
+    "n_continuous": 25,
+    "n_discrete": 26,
+    "couplings": [
+      {
+        "status": "MV101",
+        "flow": "FIT101",
+        "nominal": 2.545,
+        "cv": 0.0302,
+        "off_q99": 0.0,
+        "off_value": 1.0,
+        "on_value": 2.0,
+        "support": 0.2812
+      },
+      {
+        "status": "P101",
+        "flow": "FIT201",
+        "nominal": 2.449,
+        "cv": 0.0187,
+        "off_q99": 0.0122,
+        "off_value": 1.0,
+        "on_value": 2.0,
+        "support": 0.2684
+      },
+      {
+        "status": "MV201",
+        "flow": "FIT201",
+        "nominal": 2.449,
+        "cv": 0.0187,
+        "off_q99": 0.0,
+        "off_value": 1.0,
+        "on_value": 2.0,
+        "support": 0.264
+      },
+      {
+        "status": "P203",
+        "flow": "FIT201",
+        "nominal": 2.451,
+        "cv": 0.0035,
+        "off_q99": 0.1641,
+        "off_value": 1.0,
+        "on_value": 2.0,
+        "support": 0.2701
+      },
+      {
+        "status": "MV301",
+        "flow": "FIT601",
+        "nominal": 1.536,
+        "cv": 0.2652,
+        "off_q99": 0.0003,
+        "off_value": 1.0,
+        "on_value": 2.0,
+        "support": 0.0075
+      },
+      {
+        "status": "P602",
+        "flow": "FIT601",
+        "nominal": 1.569,
+        "cv": 0.2114,
+        "off_q99": 0.0003,
+        "off_value": 1.0,
+        "on_value": 2.0,
+        "support": 0.0064
+      }
+    ],
+    "balances": [
+      {
+        "tank": "LIT101",
+        "r2": 0.6242,
+        "tightness": 0.613
+      },
+      {
+        "tank": "LIT301",
+        "r2": 0.7022,
+        "tightness": 0.5457
+      },
+      {
+        "tank": "LIT401",
+        "r2": 0.5512,
+        "tightness": 0.6699
+      }
+    ],
+    "dropped_balances": [
+      {
+        "tank": "DPIT301",
+        "r2": 0.0266,
+        "tightness": 0.9866
+      },
+      {
+        "tank": "PIT501",
+        "r2": 0.0163,
+        "tightness": 0.9918
+      },
+      {
+        "tank": "PIT503",
+        "r2": 0.0166,
+        "tightness": 0.9917
+      }
+    ],
+    "kept_total": 9,
+    "kept_couplings": 6,
+    "kept_balances": 3
+  },
+  "criterion_1_pass": true
+}

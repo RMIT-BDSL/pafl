@@ -1,0 +1,536 @@
+{
+  "dataset": "batadal",
+  "steps": 8000,
+  "seed": 0,
+  "invariant_set": "mined",
+  "n_invariants": 10,
+  "invariants": [
+    {
+      "name": "mined-coupling::S_PU8~F_PU8",
+      "kind": "coupling",
+      "eps": 4.805204878312901,
+      "note": "F_PU8 ~= (S_PU8 - 0) / 1 * 35.36042952572473"
+    },
+    {
+      "name": "mined-coupling::S_PU2~F_PU2",
+      "kind": "coupling",
+      "eps": 11.890507801382114,
+      "note": "F_PU2 ~= (S_PU2 - 0) / 1 * 94.99004009798143"
+    },
+    {
+      "name": "mined-coupling::S_PU7~F_PU7",
+      "kind": "coupling",
+      "eps": 19.113272613041378,
+      "note": "F_PU7 ~= (S_PU7 - 0) / 1 * 49.22212330122758"
+    },
+    {
+      "name": "mined-coupling::S_PU10~F_PU10",
+      "kind": "coupling",
+      "eps": 7.476624885823421,
+      "note": "F_PU10 ~= (S_PU10 - 0) / 1 * 30.783525069452498"
+    },
+    {
+      "name": "mined-coupling::S_PU4~F_PU4",
+      "kind": "coupling",
+      "eps": 5.062791580824804,
+      "note": "F_PU4 ~= (S_PU4 - 0) / 1 * 34.22297026497655"
+    },
+    {
+      "name": "mined-coupling::S_V2~F_V2",
+      "kind": "coupling",
+      "eps": 52.78097062638095,
+      "note": "F_V2 ~= (S_V2 - 0) / 1 * 76.18243999657929"
+    },
+    {
+      "name": "mined-balance::L_T1",
+      "kind": "linear",
+      "eps": 0.6971431244469974,
+      "note": "dL_T1 = -0.01809*F_PU1 + -0.007013*F_PU11 + -0.003883*F_PU8 + -0.00337*F_PU10 + -0.002913*F_PU6 + -0.002517*F_V2 +2.136"
+    },
+    {
+      "name": "mined-balance::L_T2",
+      "kind": "linear",
+      "eps": 1.5464061999851144,
+      "note": "dL_T2 = -0.01238*F_PU4 + +0.01029*F_PU1 + +0.008029*F_V2 + -0.00703*F_PU6 + -0.006896*F_PU7 + -0.003543*F_PU11 -1.022"
+    },
+    {
+      "name": "mined-balance::L_T3",
+      "kind": "linear",
+      "eps": 1.3855201114939177,
+      "note": "dL_T3 = -0.02029*F_PU1 + +0.01881*F_PU4 + -0.004942*F_PU6 + +0.004922*F_PU11 + -0.004294*F_PU2 + +0.00239*F_V2 +1.937"
+    },
+    {
+      "name": "mined-balance::L_T5",
+      "kind": "linear",
+      "eps": 1.8562720987513481,
+      "note": "dL_T5 = +0.02251*F_PU8 + +0.008461*F_PU11 + -0.006915*F_PU1 + -0.00154*F_PU10 + +0.001301*F_PU4 + -0.001244*F_PU7 +0.294"
+    }
+  ],
+  "circuit_cost_k64": {
+    "invariants": 10,
+    "constraints_per_sample": 330,
+    "constraints_total": 21120
+  },
+  "admission_rule": {
+    "max_violating_frac": 0.01,
+    "batch_rows": 1000,
+    "n_batches": 200
+  },
+  "honest": {
+    "violating_fraction": 0.0,
+    "admitted": true,
+    "per_invariant_violating_fraction": {
+      "mined-coupling::S_PU8~F_PU8": 0.0,
+      "mined-coupling::S_PU2~F_PU2": 0.0,
+      "mined-coupling::S_PU7~F_PU7": 0.0,
+      "mined-coupling::S_PU10~F_PU10": 0.0,
+      "mined-coupling::S_PU4~F_PU4": 0.0,
+      "mined-coupling::S_V2~F_V2": 0.0,
+      "mined-balance::L_T1": 0.0,
+      "mined-balance::L_T2": 0.0,
+      "mined-balance::L_T3": 0.0,
+      "mined-balance::L_T5": 0.0
+    },
+    "not_applicable_fraction": {
+      "mined-coupling::S_PU8~F_PU8": 0.19493266377539376,
+      "mined-coupling::S_PU2~F_PU2": 0.03994521798676101,
+      "mined-coupling::S_PU7~F_PU7": 0.21068249258160238,
+      "mined-coupling::S_PU10~F_PU10": 0.2115955261355855,
+      "mined-coupling::S_PU4~F_PU4": 0.16685688199041315,
+      "mined-coupling::S_V2~F_V2": 0.06984706687970783,
+      "mined-balance::L_T1": 0.00022825838849577722,
+      "mined-balance::L_T2": 0.00022825838849577722,
+      "mined-balance::L_T3": 0.00022825838849577722,
+      "mined-balance::L_T5": 0.00022825838849577722
+    },
+    "mean_row_score": 0.0
+  },
+  "honest_batch_violating_mean": 0.0,
+  "honest_batch_false_reject_rate": 0.0,
+  "real_attack_reference": {
+    "violating_fraction": 0.009097438352884846,
+    "admitted": true,
+    "per_invariant_violating_fraction": {
+      "mined-coupling::S_PU8~F_PU8": 0.0009576250897773521,
+      "mined-coupling::S_PU2~F_PU2": 0.0014364376346660283,
+      "mined-coupling::S_PU7~F_PU7": 0.004548719176442423,
+      "mined-coupling::S_PU10~F_PU10": 0.0009576250897773521,
+      "mined-coupling::S_PU4~F_PU4": 0.0,
+      "mined-coupling::S_V2~F_V2": 0.0,
+      "mined-balance::L_T1": 0.0021546564519990424,
+      "mined-balance::L_T2": 0.0,
+      "mined-balance::L_T3": 0.0,
+      "mined-balance::L_T5": 0.0
+    },
+    "not_applicable_fraction": {
+      "mined-coupling::S_PU8~F_PU8": 0.19559492458702418,
+      "mined-coupling::S_PU2~F_PU2": 0.04069906631553747,
+      "mined-coupling::S_PU7~F_PU7": 0.20852286329901842,
+      "mined-coupling::S_PU10~F_PU10": 0.21666267656212593,
+      "mined-coupling::S_PU4~F_PU4": 0.16710557816614796,
+      "mined-coupling::S_V2~F_V2": 0.06990663155374671,
+      "mined-balance::L_T1": 0.00023940627244433804,
+      "mined-balance::L_T2": 0.00023940627244433804,
+      "mined-balance::L_T3": 0.00023940627244433804,
+      "mined-balance::L_T5": 0.00023940627244433804
+    },
+    "mean_row_score": 0.007094880364346787
+  },
+  "real_attack_rows_only": null,
+  "roll_shift": null,
+  "fabrications": [
+    {
+      "fabrication": "channel_roll",
+      "preserves": [
+        "per-channel marginal",
+        "variance",
+        "autocorrelation"
+      ],
+      "violating_fraction_full": 0.9513809632503994,
+      "batch_violating_mean": 0.9506449999999999,
+      "batch_violating_std": 0.004982868149971465,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "within_regime_permutation",
+      "preserves": [
+        "per-channel marginal",
+        "regime-conditional marginal"
+      ],
+      "violating_fraction_full": 0.505135813741155,
+      "batch_violating_mean": 0.506455,
+      "batch_violating_std": 0.011397717973348886,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "conservation_scaling",
+      "preserves": [
+        "channel range"
+      ],
+      "violating_fraction_full": 0.9901848892946816,
+      "batch_violating_mean": 0.9894250000000001,
+      "batch_violating_std": 0.0015666445033893312,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
+      "separated": true
+    },
+    {
+      "fabrication": "regime_splicing",
+      "preserves": [
+        "per-channel marginal",
+        "variance"
+      ],
+      "violating_fraction_full": 0.0015978087194704405,
+      "batch_violating_mean": 0.0017350000000000004,
+      "batch_violating_std": 0.000809181685408166,
+      "batch_admitted_rate": 1.0,
+      "overlap_with_honest": 0.04,
+      "separated": false
+    }
+  ],
+  "mining_report": {
+    "candidates": {
+      "linear_relations": 7,
+      "couplings": 6,
+      "state_rules": 40,
+      "total": 53
+    },
+    "kept": 10,
+    "relations": [
+      {
+        "target": "L_T1",
+        "terms": [
+          [
+            "F_PU1",
+            -0.018088447519955544
+          ],
+          [
+            "F_PU11",
+            -0.007012898662408138
+          ],
+          [
+            "F_PU8",
+            -0.0038825443091195775
+          ],
+          [
+            "F_PU10",
+            -0.003370025663656642
+          ],
+          [
+            "F_PU6",
+            -0.002912598958620562
+          ],
+          [
+            "F_V2",
+            -0.00251694023608979
+          ]
+        ],
+        "const": 2.135611520635802,
+        "tightness": 0.43883,
+        "r2": 0.80743
+      },
+      {
+        "target": "L_T2",
+        "terms": [
+          [
+            "F_PU4",
+            -0.012377842611420548
+          ],
+          [
+            "F_PU1",
+            0.010287120306158002
+          ],
+          [
+            "F_V2",
+            0.008028845074407197
+          ],
+          [
+            "F_PU6",
+            -0.007030053702392376
+          ],
+          [
+            "F_PU7",
+            -0.006896164131494162
+          ],
+          [
+            "F_PU11",
+            -0.0035429377992333417
+          ]
+        ],
+        "const": -1.0221315786833844,
+        "tightness": 0.50271,
+        "r2": 0.74728
+      },
+      {
+        "target": "L_T3",
+        "terms": [
+          [
+            "F_PU1",
+            -0.020291347679530867
+          ],
+          [
+            "F_PU4",
+            0.018808169197239034
+          ],
+          [
+            "F_PU6",
+            -0.00494159072106213
+          ],
+          [
+            "F_PU11",
+            0.0049217205268378954
+          ],
+          [
+            "F_PU2",
+            -0.0042938773766561505
+          ],
+          [
+            "F_V2",
+            0.0023901466642138134
+          ]
+        ],
+        "const": 1.937078077815026,
+        "tightness": 0.56806,
+        "r2": 0.67731
+      },
+      {
+        "target": "L_T4",
+        "terms": [
+          [
+            "F_PU1",
+            -0.027755334218959683
+          ],
+          [
+            "F_PU6",
+            0.01476692950309173
+          ],
+          [
+            "F_PU7",
+            0.010347850682268771
+          ],
+          [
+            "F_PU2",
+            -0.0060955493637380965
+          ],
+          [
+            "F_V2",
+            0.0032422519917400363
+          ],
+          [
+            "F_PU8",
+            -0.001214032690796122
+          ]
+        ],
+        "const": 2.6348268254308125,
+        "tightness": 0.90577,
+        "r2": 0.17958
+      },
+      {
+        "target": "L_T5",
+        "terms": [
+          [
+            "F_PU8",
+            0.022506058281784515
+          ],
+          [
+            "F_PU11",
+            0.008461135445686496
+          ],
+          [
+            "F_PU1",
+            -0.0069154030468053
+          ],
+          [
+            "F_PU10",
+            -0.0015404028046560611
+          ],
+          [
+            "F_PU4",
+            0.0013014397565230841
+          ],
+          [
+            "F_PU7",
+            -0.001243738037566052
+          ]
+        ],
+        "const": 0.29396728776488507,
+        "tightness": 0.61775,
+        "r2": 0.61838
+      },
+      {
+        "target": "L_T6",
+        "terms": [
+          [
+            "F_PU11",
+            0.011977077176137736
+          ],
+          [
+            "F_PU10",
+            0.00856477727574928
+          ],
+          [
+            "F_PU1",
+            -0.0024000070123981537
+          ],
+          [
+            "F_PU6",
+            -0.001074524644949885
+          ]
+        ],
+        "const": 0.026615879267771952,
+        "tightness": 0.7966,
+        "r2": 0.36543
+      },
+      {
+        "target": "L_T7",
+        "terms": [
+          [
+            "F_PU11",
+            0.03579096424222786
+          ],
+          [
+            "F_PU10",
+            0.02846785234222293
+          ],
+          [
+            "F_PU1",
+            -0.02754904358598098
+          ],
+          [
+            "F_PU2",
+            -0.005606640187393253
+          ],
+          [
+            "F_PU6",
+            -0.004499006780899093
+          ],
+          [
+            "F_PU7",
+            -0.0036470175718768022
+          ]
+        ],
+        "const": 2.6062227533964153,
+        "tightness": 0.89494,
+        "r2": 0.19908
+      }
+    ],
+    "couplings": [
+      {
+        "status": "S_PU8",
+        "flow": "F_PU8",
+        "nominal": 35.36043,
+        "off_max": 0.0,
+        "support": 0.3078,
+        "off_value": 0.0,
+        "on_value": 1.0
+      },
+      {
+        "status": "S_PU2",
+        "flow": "F_PU2",
+        "nominal": 94.99004,
+        "off_max": 0.0,
+        "support": 0.2473,
+        "off_value": 0.0,
+        "on_value": 1.0
+      },
+      {
+        "status": "S_PU7",
+        "flow": "F_PU7",
+        "nominal": 49.22212,
+        "off_max": 0.0,
+        "support": 0.0475,
+        "off_value": 0.0,
+        "on_value": 1.0
+      },
+      {
+        "status": "S_PU10",
+        "flow": "F_PU10",
+        "nominal": 30.78353,
+        "off_max": 0.0,
+        "support": 0.0801,
+        "off_value": 0.0,
+        "on_value": 1.0
+      },
+      {
+        "status": "S_PU4",
+        "flow": "F_PU4",
+        "nominal": 34.22297,
+        "off_max": 0.0,
+        "support": 0.3409,
+        "off_value": 0.0,
+        "on_value": 1.0
+      },
+      {
+        "status": "S_V2",
+        "flow": "F_V2",
+        "nominal": 76.18244,
+        "off_max": 0.0,
+        "support": 0.2345,
+        "off_value": 0.0,
+        "on_value": 1.0
+      }
+    ],
+    "state_rules_top5": [
+      {
+        "sensor": "F_PU11",
+        "actuator": "S_PU1",
+        "range": [
+          0.0,
+          0.0
+        ],
+        "value": 1.0,
+        "purity": 1.0,
+        "support": 0.9991
+      },
+      {
+        "sensor": "F_PU11",
+        "actuator": "S_PU3",
+        "range": [
+          0.0,
+          0.0
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.9991
+      },
+      {
+        "sensor": "F_PU11",
+        "actuator": "S_PU5",
+        "range": [
+          0.0,
+          0.0
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.9991
+      },
+      {
+        "sensor": "F_PU11",
+        "actuator": "S_PU9",
+        "range": [
+          0.0,
+          0.0
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.9991
+      },
+      {
+        "sensor": "F_PU11",
+        "actuator": "S_PU11",
+        "range": [
+          0.0,
+          0.0
+        ],
+        "value": 0.0,
+        "purity": 1.0,
+        "support": 0.9991
+      }
+    ]
+  },
+  "criterion_1_pass": true
+}
