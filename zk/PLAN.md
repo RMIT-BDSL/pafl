@@ -63,17 +63,25 @@ The telemetry batch is committed to the aggregation server as a cryptographic Me
 
 Let $\mathcal{M} = \{1, \dots, M\}$ denote the index set of $M$ declared physical process invariants mined from clean operational baselines. Following the commitment of $R$, a pseudo-random challenge set of $k$ distinct row indices $\mathcal{I} = \{i_1, i_2, \dots, i_k\} \subset \{2, \dots, N\}$ is derived (via verifier challenge or the Fiat-Shamir heuristic).
 
-The zero-knowledge circuit proves knowledge of the private telemetry matrix $X$ and associated Merkle authentication paths such that:
+The zero-knowledge circuit proves knowledge of the private telemetry matrix $X$ and associated Merkle authentication paths satisfying the relation:
 
-$$\mathcal{R}_{\text{PA-FL}} = \left\{ \begin{array}{l}
-\text{Public Inputs: } \big(R, \mathcal{I}, \hat{J}, \hat{c}, \hat{\epsilon}, v_{\max}, u_{\max}\big) \\
-\text{Private Witness: } \big(\{x_{i-1}, x_i\}_{i \in \mathcal{I}}, \{\text{path}_i\}_{i \in \mathcal{I}}\big)
-\end{array} \;\middle|\; \begin{array}{l}
-1.\; \forall i \in \mathcal{I}: \text{MerkleVerify}(R, \text{leaf}(x_i), \text{path}_i) = \text{true} \\
-2.\; \forall i \in \mathcal{I}, \forall j \in \mathcal{M}: \text{Applicable}_j(x_{i-1}, x_i) \implies |\hat{r}_{j, i}| \le \hat{\epsilon}_j \\
-3.\; \sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\Big(\text{Applicable}_j(x_{i-1}, x_i) \land (|\hat{r}_{j, i}| > \hat{\epsilon}_j)\Big) \le v_{\max} \\
-4.\; \sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\Big(\neg\text{Applicable}_j(x_{i-1}, x_i)\Big) \le u_{\max}
-\end{array} \right\}$$
+$$\mathcal{R}_{\text{PA-FL}} = \big\lbrace (\mathbb{x}, \mathbb{w}) \;\big|\; \mathcal{C}(\mathbb{x}, \mathbb{w}) = 1 \big\rbrace$$
+
+where the public instance $\mathbb{x}$ and private witness $\mathbb{w}$ are defined as:
+* **Public Instance ($\mathbb{x}$):**
+  $$\mathbb{x} = \big(R, \, \mathcal{I}, \, \hat{J}, \, \hat{c}, \, \hat{\epsilon}, \, v_{\max}, \, u_{\max}\big)$$
+* **Private Witness ($\mathbb{w}$):**
+  $$\mathbb{w} = \big(\{x_{i-1}, x_i\}_{i \in \mathcal{I}}, \, \{\text{path}_i\}_{i \in \mathcal{I}}\big)$$
+
+and the constraint system $\mathcal{C}(\mathbb{x}, \mathbb{w}) = 1$ enforces four simultaneous conditions:
+1. **Merkle Authentication Path Validity:** Every sampled row $x_i$ is anchored to root $R$:
+   $$\forall i \in \mathcal{I}: \quad \text{MerkleVerify}(R, \, \text{leaf}(x_i), \, \text{path}_i) = \text{true}$$
+2. **Conditional Invariant Satisfaction:** For every evaluated invariant $j \in \mathcal{M}$, if active, the residual is bounded by $\hat{\epsilon}_j$:
+   $$\forall i \in \mathcal{I}, \; \forall j \in \mathcal{M}: \quad \text{Applicable}_j(x_{i-1}, x_i) \implies |\hat{r}_{j, i}| \le \hat{\epsilon}_j$$
+3. **Bounded Violation Budget:** Active violations across the sample cannot exceed $v_{\max}$:
+   $$\sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\big(\text{Applicable}_j(x_{i-1}, x_i) \land (|\hat{r}_{j, i}| > \hat{\epsilon}_j)\big) \le v_{\max}$$
+4. **Bounded Inapplicability Budget:** Inapplicable rule evaluations cannot exceed $u_{\max}$:
+   $$\sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\big(\neg\text{Applicable}_j(x_{i-1}, x_i)\big) \le u_{\max}$$
 
 ### 2.2 Scope Boundary: Data Attestation vs. Gradient Binding
 It is critical to establish the exact cryptographic boundary of PA-FL Lite for the paper's methodology:
