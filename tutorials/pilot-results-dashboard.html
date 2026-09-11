@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Physics-Attested FL Pilot — Evaluation Against Fixed Criteria</title>
+<style>
+:root{
+  color-scheme: light dark;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --div-neg:#2a78d6; --div-pos:#e34948; --div-mid:#f0efec;
+  --good:#0ca30c; --good-text:#006300; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --div-neg:#3987e5; --div-pos:#e66767; --div-mid:#383835;
+    --good-text:#0ca30c;
+  }
+}
+:root[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --div-neg:#3987e5; --div-pos:#e66767; --div-mid:#383835;
+  --good-text:#0ca30c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:28px 20px 60px}
+.wrap{max-width:980px;margin:0 auto}
+header h1{font-size:24px;margin:0 0 4px;letter-spacing:-0.01em}
+header .sub{color:var(--ink2);max-width:70ch}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px}
+section{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:20px 22px;margin-top:22px}
+section h2{font-size:16px;margin:0 0 2px}
+section .lede{color:var(--ink2);margin:0 0 14px;max-width:78ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.tile .v{font-size:26px;font-weight:650;letter-spacing:-0.02em}
+.tile .l{color:var(--ink2);font-size:12.5px;margin-top:2px}
+.banner{margin-top:18px;background:var(--surface);border:1px solid var(--border);
+  border-left:4px solid var(--good);border-radius:12px;padding:16px 20px}
+.banner strong{font-weight:650}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;border:1px solid var(--border);
+  border-radius:999px;padding:1px 9px;color:var(--ink2);white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+.met .dot{background:var(--good)} .notmet .dot{background:var(--critical)}
+.chart{overflow-x:auto;margin-top:6px}
+svg{display:block}
+svg text{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--ink2)}
+svg text.val{fill:var(--ink);font-weight:600}
+svg text.muted{fill:var(--muted);font-size:11px}
+svg line.grid{stroke:var(--grid);stroke-width:1}
+svg line.axis{stroke:var(--axis);stroke-width:1}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:2px 0 10px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.note{color:var(--ink2);font-size:13px;margin-top:12px;max-width:80ch}
+.note em{font-style:normal;font-weight:600}
+.callout{margin-top:14px;padding:12px 16px;border:1px solid var(--border);
+  border-left:3px solid var(--s1);border-radius:8px;font-size:13px;color:var(--ink2);max-width:82ch}
+.callout strong{color:var(--ink)}
+table{border-collapse:collapse;width:100%;margin-top:12px;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:0.05em;border-bottom:1px solid var(--axis);padding:6px 10px 6px 0}
+td{border-bottom:1px solid var(--grid);padding:7px 10px 7px 0;vertical-align:top}
+td.num{font-variant-numeric:tabular-nums}
+.scope{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:14px}
+.scopecard{border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.scopecard h3{margin:0 0 6px;font-size:14px}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--page);
+  padding:6px 10px;border-radius:8px;font-size:12px;opacity:0;transition:opacity .12s;z-index:9;max-width:260px}
+footer{color:var(--muted);font-size:12px;margin-top:26px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--div-mid);
+  padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">Pilot study · invariants on real BATADAL · federation on a simulated plant · 30% malicious clients · seeds 0–2</div>
+  <h1>Physics-Attested Federated Learning — Pilot Evaluation Against Fixed Criteria</h1>
+  <p class="sub">Outcomes of the five success criteria fixed in <code>scripts/go_nogo.py</code>, together with the threat model,
+  before any experiment was run, evaluated on the actual pilot result files.</p>
+</header>
+
+<div class="banner">
+  <strong>Four of the five criteria met their thresholds.</strong>
+  Criterion 4b — that projection onto the physics manifold must not increase damage on any baseline defence —
+  was not met for FLTrust. Because the decision script combines all criteria with a strict logical AND,
+  its literal output recommends against proceeding. On inspection, the 4b result is an unanticipated interaction
+  effect between physics projection and similarity-weighted aggregation — a finding that motivates the full study
+  rather than an argument for terminating it. <strong>Recommendation: proceed to the full study, with the FLTrust
+  interaction stated in advance as a named research question (RQ3).</strong>
+  <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+    <span class="chip met"><span class="dot"></span>1 · Residual separation — met</span>
+    <span class="chip met"><span class="dot"></span>2 · Baseline vulnerability — met</span>
+    <span class="chip met"><span class="dot"></span>3 · Measurable detection loss — met</span>
+    <span class="chip met"><span class="dot"></span>4 · Adaptive attacker weakened — met</span>
+    <span class="chip notmet"><span class="dot"></span>4b · No amplification — not met (FLTrust)</span>
+  </div>
+</div>
+
+<div class="tiles">
+  <div class="tile"><div class="v">4 / 5</div><div class="l">criteria met (thresholds fixed before the runs)</div></div>
+  <div class="tile"><div class="v">0.000</div><div class="l">false-rejection rate on honest BATADAL batches</div></div>
+  <div class="tile"><div class="v">−34.6 pts</div><div class="l">FedAvg F1 under fabricated data (threshold ≥ 3.0)</div></div>
+  <div class="tile"><div class="v">107.3%</div><div class="l">mean attack capability removed on damaged defences (threshold ≥ 50%)</div></div>
+</div>
+
+<section>
+  <div class="kicker">Criterion 1 · Residual separation</div>
+  <h2>Physics invariants separate three of four fabrications</h2>
+  <p class="lede"><em style="font-style:italic">Do the physics residuals of honest and fabricated data form
+  distinguishable populations?</em><br>Fraction of rows violating the invariants on real BATADAL telemetry, against the 1%
+  batch-admission threshold — for the hand-crafted expert set (9 invariants) and the automatically mined set
+  (10 invariants). Honest batches: 0.000 false rejection under both.</p>
+  <div class="legend">
+    <span><i style="background:var(--s2)"></i>Hand-crafted (expert, 9)</span>
+    <span><i style="background:var(--s1)"></i>Mined (automatic, 10)</span>
+  </div>
+  <div class="chart"><svg id="c1" width="900" height="300" role="img"
+    aria-label="Paired bar chart of physics violation fraction per fabrication recipe, hand-crafted versus mined invariant sets"></svg></div>
+  <p class="note"><em>Disclosed evasion:</em> regime splicing breaks physics only at splice points
+  (0.16% of rows), which sits below the 1% threshold, so spliced batches are admitted. This is a structural
+  property of percentage-based thresholds; sequence-based run checks are proposed for the full study.
+  <em>Miner validation:</em> the automatically mined set matches or exceeds the expert set on every
+  fabrication — it discovers one true coupling (valve V2) the hand-written set omits — so automated
+  discovery loses nothing against expert knowledge, which licenses the method for plants with no
+  documented invariants.</p>
+</section>
+
+<section>
+  <div class="kicker">Criteria 2 &amp; 3 · The vulnerability</div>
+  <h2>Defences that accept fabricated updates lose detection accuracy</h2>
+  <p class="lede">Simulated plant, 10 clients, 25 rounds, two seeds. Change in F1 (percentage points) when 3 of 10 clients train on fabricated data, per aggregation
+  rule. The chip under each bar is the fraction of malicious updates that rule accepted.</p>
+  <div class="chart"><svg id="c2" width="900" height="300" role="img"
+    aria-label="Diverging bar chart of F1 drop per defence"></svg></div>
+  <p class="note">Three of six rules (FedAvg, coordinate-wise median, norm clipping) accepted 100% of fabricated
+  updates — meeting the threshold of at least three set in the evaluation protocol. Damage tracks acceptance: FedAvg loses 34.6
+  points and trimmed mean 15.2, while Krum, which rejects the updates, is nearly unaffected. Median accepts the
+  updates yet improves slightly (+3.7), a reminder that acceptance and damage are measured independently.</p>
+  <div class="callout">
+    <strong>What Criterion 3 measures, and why it is separate from Criterion 2.</strong>
+    The acceptance chip (Criterion 2) measures the <strong>door</strong>: how much of the malicious clients'
+    contribution entered the global model. The bar (Criterion 3) measures the <strong>damage</strong>: how far
+    the shared detector's F1 fell once that contribution was inside. A vulnerability claim requires both —
+    acceptance without damage is harmless (median admits everything and loses nothing), and filtering without
+    safety is an illusion (trimmed mean blocks two-thirds of the poison and the remaining third still costs
+    15.2 points). The threshold in the evaluation protocol — at least one defence losing ≥ 3.0 F1 points — asks only that
+    some widely-deployed rule sits at the dangerous conjunction of open door and real harm. FedAvg, the
+    industry default, sits squarely on it: 100% acceptance, −34.6 points, a detector reduced from working
+    (F1 ≈ 0.53) to decorative (F1 ≈ 0.18).
+  </div>
+</section>
+
+<section>
+  <div class="kicker">Criterion 4 · The physics gate</div>
+  <h2>Requiring physical consistency removes the poisoning attack — except against FLTrust</h2>
+  <p class="lede">Simulated plant. Mean F1 of the shared detector on the simulated plant's held-out test attacks, across seeds 0–2, per aggregation rule,
+  in three federations that differ only in what 3 of the 10 clients train on:
+  <b>honest</b> — all 10/10 clients train on their own honest telemetry;
+  <b>poisoning attack</b> — 3/10 clients train on channel-roll fabrications that violate the physics invariants,
+  with no physics check in place;
+  <b>poisoning + physics</b> — the same 3/10 clients, but the check is deployed and the adaptive attacker projects
+  each fabricated batch onto the physics manifold so it passes. The drop from the first bar to the second is the harm
+  the poisoning attack does when nothing stops it. The third bar shows the detector once the physics check is
+  deployed and the attacker has adapted to it: if it returns to the height of the first bar, the requirement
+  removed the attack's effect entirely (FedAvg: 0.55 → 0.22 → 0.56, the +0.01 is seed noise); if it stays below
+  the first bar, some harm still gets through (FLTrust: 0.53 → 0.51 → 0.47, where it gets worse).</p>
+  <div class="legend">
+    <span><i style="background:var(--s3)"></i>Honest (10/10 clients, no attack)</span>
+    <span><i style="background:var(--s2)"></i>Poisoning attack (3/10 clients, channel roll, non-physics-invariant)</span>
+    <span><i style="background:var(--s1)"></i>Poisoning + physics (3/10 clients, channel roll projected to pass the check)</span>
+  </div>
+  <div class="chart"><svg id="c3" width="900" height="300" role="img"
+    aria-label="Grouped bar chart of F1 by condition and defence"></svg></div>
+  <p class="note">Under FedAvg, which accepts every update, the poisoning attack drops the detector from F1 0.55 to
+  0.22; with the physics requirement in place the same attacker lands at 0.56, indistinguishable from the honest
+  federation. Against FedAvg and trimmed mean the physics requirement removes <em>104.2%</em> and <em>110.5%</em> of
+  the attack's F1 damage — above 100% because the poisoning + physics runs sit slightly above honest, which is noise.
+  Against FLTrust the sign reverses: mean damage grows from 2.3 to 6.3 points once the attacker satisfies the physics
+  constraints (see 4b). The adaptive attacker here knows the invariant set exactly but does not optimise against the
+  aggregation rule; it submits the nearest physics-feasible batch to its original fabrication.</p>
+</section>
+
+<section>
+  <div class="kicker">Criterion 4b · The interaction effect</div>
+  <h2>Why projection helps the attacker against FLTrust</h2>
+  <p class="lede">FLTrust weights clients by cosine similarity to a clean server reference. Projecting a fabricated
+  batch onto plant physics rotates its gradient toward the honest direction, so FLTrust's acceptance of the
+  malicious client rises sharply — consistently in every seed.</p>
+  <div class="legend">
+    <span><i style="background:var(--s2)"></i>Fabricated</span>
+    <span><i style="background:var(--s1)"></i>Projected</span>
+  </div>
+  <div class="chart"><svg id="c4" width="900" height="220" role="img"
+    aria-label="Dumbbell chart of FLTrust acceptance rate per seed, fabricated versus projected"></svg></div>
+  <p class="note">The acceptance jump is stable across seeds, but the resulting <em>extra damage varies widely</em> —
+  the projected attack costs 13.5, 4.9, and 0.7 F1 points in seeds 0, 1, and 2. The mechanism is reliable; its
+  downstream effect size is not yet, which is exactly why the full study states this interaction in advance as a
+  named research question across five seeds and four malicious fractions.</p>
+  <table aria-label="Per-seed FLTrust results">
+    <thead><tr><th>Seed</th><th>Acceptance, fabricated</th><th>Acceptance, projected</th>
+    <th>F1 damage, fabricated</th><th>F1 damage, projected</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td class="num">29.3%</td><td class="num">98.7%</td><td class="num">3.6 pts</td><td class="num">13.5 pts</td></tr>
+      <tr><td>1</td><td class="num">36.0%</td><td class="num">96.0%</td><td class="num">2.7 pts</td><td class="num">4.9 pts</td></tr>
+      <tr><td>2</td><td class="num">38.7%</td><td class="num">97.3%</td><td class="num">0.7 pts</td><td class="num">0.7 pts</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="kicker">Dataset scope</div>
+  <h2>Where the method applies, and where it does not</h2>
+  <div class="scope">
+    <div class="scopecard">
+      <h3>BATADAL — primary benchmark <span class="chip met" style="margin-left:6px"><span class="dot"></span>in scope</span></h3>
+      <p class="note" style="margin-top:4px">C-Town municipal water network. The miner recovers 10 invariants
+      (5 pump–flow couplings, 4 tank mass balances, 1 valve coupling); honest false rejection is 0.000 and three of
+      four fabrication recipes are fully separated. Hand-crafted and mined invariant sets agree (96.7% vs 98.3%
+      violation rates on channel roll).</p>
+    </div>
+    <div class="scopecard">
+      <h3>HAI — stated scope boundary <span class="chip notmet" style="margin-left:6px"><span class="dot"></span>out of scope</span></h3>
+      <p class="note" style="margin-top:4px">Boiler–turbine testbed, 80+ channels. Only 3 invariants are minable
+      because the training data contains near-zero actuator switching across 920k+ rows — a structural property of
+      the dataset, verified directly, not a defect of the miner. Reported as the method's scope boundary: physics
+      attestation requires observable actuation dynamics.</p>
+    </div>
+  </div>
+</section>
+
+<footer>Built from <code>results/go_nogo.json</code>, <code>day2_mal30.json</code>,
+<code>day45_adaptive_3seed.json</code>, <code>day1_batadal*.json</code>, <code>day1_hai_mined.json</code>.
+Criterion 1 is measured on real BATADAL telemetry; criteria 2, 3, 4 and 4b are measured on the simulated plant in <code>pafl/data/synthetic.py</code>, not on BATADAL.
+All numbers at 30% malicious fraction unless noted. Threat model and success thresholds were fixed in the evaluation script before any run;
+the scripted decision rule's literal output is reported above unaltered.</footer>
+</div>
+<div id="tip"></div>
+
+<script>
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const tip = document.getElementById('tip');
+function hover(el, text){
+  el.addEventListener('mousemove', e=>{ tip.textContent=text; tip.style.opacity=1;
+    tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px'; });
+  el.addEventListener('mouseleave', ()=> tip.style.opacity=0);
+}
+const NS='http://www.w3.org/2000/svg';
+function el(svg,t,a,txt){ const n=document.createElementNS(NS,t);
+  for(const k in a) n.setAttribute(k,a[k]); if(txt!=null) n.textContent=txt; svg.appendChild(n); return n; }
+
+function draw(){
+  document.querySelectorAll('svg').forEach(s=>s.innerHTML='');
+
+  // ---- C1: violation fraction per fabrication (horizontal bars, threshold rule) ----
+  {
+  const svg=document.getElementById('c1');
+  const data=[ // name, hand-crafted, mined, verdict
+    ['Conservation scaling',0.9902,0.9918,'rejected'],
+    ['Channel roll',0.9667,0.9831,'rejected'],
+    ['Within-regime permutation',0.7542,0.8140,'rejected'],
+    ['Regime splicing',0.0016,0.0016,'admitted'],
+  ];
+  const L=210,R=70,W=900-L-R,rowH=58,top=26,bh=15,gap=4;
+  [0,.25,.5,.75,1].forEach(v=>{
+    const x=L+v*W;
+    el(svg,'line',{x1:x,y1:top-8,x2:x,y2:top+data.length*rowH,class:'grid'});
+    el(svg,'text',{x:x,y:top+data.length*rowH+16,'text-anchor':'middle',class:'muted'},(v*100)+'%');
+  });
+  const xt=L+0.01*W;
+  el(svg,'line',{x1:xt,y1:top-8,x2:xt,y2:top+data.length*rowH,stroke:css('--critical'),
+    'stroke-width':1.5,'stroke-dasharray':'4 3'});
+  el(svg,'text',{x:xt+5,y:top-12,class:'muted'},'1% admission threshold');
+  const sets=[['Hand-crafted','--s2'],['Mined','--s1']];
+  data.forEach((d,i)=>{
+    const y0=top+i*rowH+8;
+    el(svg,'text',{x:L-10,y:y0+bh+gap/2+4,'text-anchor':'end'},d[0]);
+    [d[1],d[2]].forEach((v,si)=>{
+      const y=y0+si*(bh+gap), w=Math.max(2,v*W);
+      const bar=el(svg,'rect',{x:L,y:y,width:w,height:bh,rx:4,fill:css(sets[si][1])});
+      if(v>0.5){
+        const t=el(svg,'text',{x:L+w-8,y:y+bh/2+4,'text-anchor':'end',class:'val'},(v*100).toFixed(1)+'%');
+        t.style.fill='#ffffff';
+      }else{
+        el(svg,'text',{x:L+w+8,y:y+bh/2+4,class:'val'},(v*100).toFixed(v<0.01?2:1)+'%');
+      }
+      hover(bar,`${d[0]} — ${sets[si][0]} set: ${(v*100).toFixed(2)}% of rows violate physics — batch ${d[3]}`);
+    });
+    el(svg,'text',{x:900-R+6,y:y0+bh+gap/2+4,class:'muted'},d[3]);
+  });
+  el(svg,'line',{x1:L,y1:top+data.length*rowH,x2:L+W,y2:top+data.length*rowH,class:'axis'});
+  }
+
+  // ---- C2: diverging F1 drop per defence + acceptance chips ----
+  {
+  const svg=document.getElementById('c2');
+  const data=[ // name, drop (pts, + = worse), acceptance
+    ['FedAvg',34.62,1.00],['Trimmed mean',15.15,0.34],['Norm clip',8.11,1.00],
+    ['FLTrust',3.26,0.33],['Krum',1.15,0.00],['Median',-3.71,1.00],
+  ];
+  const min=-6,max=36,L=120,R=40,W=900-L-R,top=22,rowH=42;
+  const x=v=>L+(v-min)/(max-min)*W;
+  [-5,0,5,10,15,20,25,30,35].forEach(v=>{
+    el(svg,'line',{x1:x(v),y1:top-6,x2:x(v),y2:top+data.length*rowH,class:v===0?'axis':'grid'});
+    el(svg,'text',{x:x(v),y:top+data.length*rowH+16,'text-anchor':'middle',class:'muted'},v);
+  });
+  el(svg,'text',{x:x(0),y:top-10,'text-anchor':'middle',class:'muted'},'F1 change (pts): right = accuracy lost');
+  data.forEach((d,i)=>{
+    const y=top+i*rowH+6,h=17;
+    el(svg,'text',{x:L-10,y:y+h/2+4,'text-anchor':'end'},d[0]);
+    const w=Math.abs(x(d[1])-x(0));
+    const bar=el(svg,'rect',{x:d[1]>=0?x(0):x(d[1]),y:y,width:Math.max(w,2),height:h,rx:4,
+      fill:d[1]>=0?css('--div-pos'):css('--div-neg')});
+    el(svg,'text',{x:d[1]>=0?x(d[1])+7:x(d[1])-7,y:y+h/2+4,class:'val',
+      'text-anchor':d[1]>=0?'start':'end'},(d[1]>0?'−':'+')+Math.abs(d[1]).toFixed(1));
+    el(svg,'text',{x:L-10,y:y+h+14,'text-anchor':'end',class:'muted'},
+      'accepts '+Math.round(d[2]*100)+'%');
+    hover(bar,`${d[0]}: F1 ${d[1]>=0?'falls':'rises'} ${Math.abs(d[1]).toFixed(2)} pts at 30% malicious; accepts ${Math.round(d[2]*100)}% of malicious updates`);
+  });
+  }
+
+  // ---- C3: grouped bars clean/fab/projected (means of 3 seeds) ----
+  {
+  const svg=document.getElementById('c3');
+  const groups=[
+    ['FedAvg',[0.550,0.221,0.564],'+104.2% of damage removed'],
+    ['Trimmed mean',[0.544,0.400,0.559],'+110.5% of damage removed'],
+    ['FLTrust',[0.534,0.511,0.471],'damage increases 2.3 → 6.3 pts'],
+  ];
+  const cols=[css('--s3'),css('--s2'),css('--s1')],names=['Honest (10/10)','Poisoning attack (3/10, channel roll)','Poisoning + physics (3/10, projected)'];
+  const L=54,R=20,W=900-L-R,top=18,H=210,bot=top+H;
+  const y=v=>bot-v/0.7*H;
+  [0,.1,.2,.3,.4,.5,.6,.7].forEach(v=>{
+    el(svg,'line',{x1:L,y1:y(v),x2:L+W,y2:y(v),class:v===0?'axis':'grid'});
+    el(svg,'text',{x:L-8,y:y(v)+4,'text-anchor':'end',class:'muted'},v.toFixed(1));
+  });
+  el(svg,'text',{x:L-40,y:top-4,class:'muted'},'F1');
+  const gw=W/groups.length,bw=34,gap=8;
+  groups.forEach((g,gi)=>{
+    const cx=L+gi*gw+gw/2, x0=cx-(3*bw+2*gap)/2;
+    g[1].forEach((v,i)=>{
+      const bx=x0+i*(bw+gap);
+      const bar=el(svg,'rect',{x:bx,y:y(v),width:bw,height:bot-y(v),rx:4,fill:cols[i]});
+      el(svg,'text',{x:bx+bw/2,y:y(v)-6,'text-anchor':'middle',class:'val'},v.toFixed(2));
+      hover(bar,`${g[0]} — ${names[i]}: mean F1 ${v.toFixed(3)} (seeds 0–2)`);
+    });
+    el(svg,'text',{x:cx,y:bot+18,'text-anchor':'middle',class:'val'},g[0]);
+    el(svg,'text',{x:cx,y:bot+36,'text-anchor':'middle',class:'muted'},g[2]);
+  });
+  }
+
+  // ---- C4: dumbbell of FLTrust acceptance per seed ----
+  {
+  const svg=document.getElementById('c4');
+  const data=[['Seed 0',0.293,0.987],['Seed 1',0.360,0.960],['Seed 2',0.387,0.973]];
+  const L=90,R=40,W=900-L-R,top=26,rowH=52;
+  const x=v=>L+v*W;
+  [0,.25,.5,.75,1].forEach(v=>{
+    el(svg,'line',{x1:x(v),y1:top-8,x2:x(v),y2:top+data.length*rowH-14,class:'grid'});
+    el(svg,'text',{x:x(v),y:top+data.length*rowH+4,'text-anchor':'middle',class:'muted'},(v*100)+'%');
+  });
+  el(svg,'text',{x:L,y:top-12,class:'muted'},'FLTrust acceptance of the malicious client');
+  data.forEach((d,i)=>{
+    const cy=top+i*rowH+12;
+    el(svg,'text',{x:L-10,y:cy+4,'text-anchor':'end'},d[0]);
+    el(svg,'line',{x1:x(d[1]),y1:cy,x2:x(d[2]),y2:cy,stroke:css('--axis'),'stroke-width':2});
+    const a=el(svg,'circle',{cx:x(d[1]),cy:cy,r:7,fill:css('--s2'),
+      stroke:css('--surface'),'stroke-width':2});
+    const b=el(svg,'circle',{cx:x(d[2]),cy:cy,r:7,fill:css('--s1'),
+      stroke:css('--surface'),'stroke-width':2});
+    el(svg,'text',{x:x(d[1]),y:cy-12,'text-anchor':'middle',class:'val'},Math.round(d[1]*100)+'%');
+    el(svg,'text',{x:x(d[2]),y:cy-12,'text-anchor':'middle',class:'val'},Math.round(d[2]*100)+'%');
+    hover(a,`${d[0]}: fabricated batch accepted ${(d[1]*100).toFixed(1)}% of rounds`);
+    hover(b,`${d[0]}: projected batch accepted ${(d[2]*100).toFixed(1)}% of rounds`);
+  });
+  }
+}
+draw();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+</script>
+</body>
+</html>

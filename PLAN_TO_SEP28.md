@@ -50,7 +50,7 @@ does not appear on SWaT. Global F1 is the wrong metric; targeted recall is the d
 2. ~~Invariant-set setting~~ decided Fri 11: report both.
 3. ~~Roll shift~~ decided Fri 11: plant time, 5 min on SWaT.
 4. Whether the abstract's real-data sentence is the coverage sentence (§4b, point 3). I think it must be.
-5. `git init` in `pafl/` today.
+5. ~~`git init`~~ done Fri 11: https://github.com/RMIT-BDSL/pafl
 
 **All queues finished at 00:20; nothing to restart.** Summarise any file with
 `.venv/bin/python scripts/summarize_adaptive.py <json>`; LaTeX tables with `scripts/tables.py`.
@@ -275,7 +275,7 @@ which is the one lever that moves the real-data number.
 | Recipe B | Done on SWaT, 7 rules × 3 seeds | in `week2_baselines_swat_wide.json` |
 | ZK extension (PA-FL Lite) | Not started; toolchain present (circom, snarkjs, node) | `zk/README.md` |
 | Paper | Pilot draft complete; MDPI port not started | `pilot-paper/pilot-paper.tex` |
-| Repo | Not under git | — |
+| Repo | **On GitHub** (private, org): https://github.com/RMIT-BDSL/pafl, first push Fri 11 | — |
 | Collaborators / editor | On board / interested; abstract and scope message are Jeff's | — |
 
 Two facts that shaped the plan (Thu 10):
@@ -510,6 +510,6 @@ decided.
 - [x] Fix defects 1–3. Run `make test`. (done Thu 10; defects 1–8 fixed, 55 tests)
 - [x] Run criterion 1 on SWaT and BATADAL through `scenario_real`. (done Thu 10; SWaT passes, `results/day1_swat*.json`)
 - [x] Decide the primary dataset. (Jeff, Fri 11: SWaT primary, BATADAL support; written at the top)
-- [x] Fix defect 5. (done) — [ ] `git init` and commit.
+- [x] Fix defect 5. (done) — [x] `git init` and first commit pushed Fri 11 to https://github.com/RMIT-BDSL/pafl (private, org repo; no data, no paper material — Overleaf owns the paper).
 - [x] Sweeps ran overnight Thu 10 → Fri 11; all finished 00:20.
 - [x] WADI loader + criterion 1 (done Fri 11, a day early; passes).

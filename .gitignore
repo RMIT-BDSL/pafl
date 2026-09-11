@@ -15,21 +15,12 @@ results/*.png
 results/*.log
 results/overnight*.log
 results/wadi_runs.log
-pilot-paper/*.aux
-pilot-paper/*.log
-pilot-paper/*.out
-pilot-paper/*.blg
-pilot-paper/*.bbl
-pilot-paper/*.pdf
 *.tgz
 
-# local helpers and browsable copies that live on the laptop only
+# local helpers and browsable copies that live local only
 scripts/_chain_*.sh
-pilot-results-dashboard.html
-tutorial-pilot-study.html
 
-# pilot-only material stays on the laptop (frozen copy in ../pilot)
-docs/
+# pilot-only material
 pilot-paper/
 scripts/go_nogo.py
 results/day1_residuals*.json
@@ -39,7 +30,11 @@ results/day45_adaptive_3seed.json
 results/go_nogo.json
 results/probe_*.json
 results/swat_probe_*.json
+
+# all latex on overleaf
 *.tex
 *.bib
 *.cls
 *.bst
+
+

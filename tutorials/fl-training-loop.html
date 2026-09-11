@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Federated Training Loop — Pilot Setup</title>
+<style>
+:root{color-scheme:light dark;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --border:rgba(11,11,11,0.14); --mal:#d03b3b; --malfill:rgba(208,59,59,0.12);
+  --flow:#2a78d6; --val:rgba(42,120,214,0.15); --honest:rgba(11,11,11,0.045)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
+  --border:rgba(255,255,255,0.16); --mal:#e66767; --malfill:rgba(230,103,103,0.16);
+  --flow:#3987e5; --val:rgba(57,135,229,0.22); --honest:rgba(255,255,255,0.06)}}
+:root[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
+  --border:rgba(255,255,255,0.16); --mal:#e66767; --malfill:rgba(230,103,103,0.16);
+  --flow:#3987e5; --val:rgba(57,135,229,0.22); --honest:rgba(255,255,255,0.06)}
+body{margin:0;background:var(--page);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:30px 16px 50px}
+figure{max-width:960px;margin:0 auto}
+svg{max-width:100%;height:auto;color:var(--ink)}
+figcaption{color:var(--ink2);margin-top:14px;max-width:80ch}
+</style>
+</head>
+<body>
+<figure>
+<svg viewBox="0 0 985 680" role="img"
+  aria-label="The federated training setup: the BATADAL clean record is partitioned into ten contiguous client datasets, three chosen at random as malicious with channel roll applied; each client splits its partition into local train and local validation, trains the broadcast global model locally, and sends the weight-difference update to the aggregation server, which applies a robust aggregation rule and broadcasts the new global model for thirty rounds; the final global model is scored on a held-out test set that was never partitioned.">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--flow)"/>
+    </marker>
+  </defs>
+
+  <!-- 1. source corpus: one enclosure, two chronological splits -->
+  <rect x="20" y="8" width="918" height="80" rx="10" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="32" y="24" font-size="11" letter-spacing="1" fill="var(--muted)">BATADAL CORPUS — C-TOWN WATER NETWORK, ONE PLANT, SPLIT CHRONOLOGICALLY</text>
+
+  <rect x="30" y="34" width="600" height="44" rx="6" fill="var(--honest)" stroke="currentColor" stroke-width="1.5"/>
+  <text x="330" y="54" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">Training split: clean operational record</text>
+  <text x="330" y="70" text-anchor="middle" font-size="11" fill="var(--ink2)">8,761 hourly rows × 43 channels — no attacks</text>
+
+  <line x1="630" y1="56" x2="700" y2="56" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <rect x="700" y="34" width="230" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="815" y="53" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">Held-out test split: later period</text>
+  <text x="815" y="69" text-anchor="middle" font-size="11" fill="var(--ink2)">labeled real attacks · never partitioned</text>
+
+  <line x1="330" y1="78" x2="330" y2="118" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="342" y="102" font-size="12" fill="var(--ink2)">partition by site — 10 contiguous blocks, one per client</text>
+
+  <!-- 2. partition row -->
+  <g>
+    <!-- honest blocks -->
+    <!-- x start 30, each 60 wide, 0 gap between but 2px gap -->
+  </g>
+  <!-- blocks drawn individually: malicious at indices 2,5,9 (D2,D5,D9) -->
+  <!-- D1 -->
+  <rect x="30"  y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="90"  y="124" width="58" height="40" rx="4" fill="var(--malfill)" stroke="var(--mal)" stroke-width="1.5"/>
+  <rect x="150" y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="210" y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="270" y="124" width="58" height="40" rx="4" fill="var(--malfill)" stroke="var(--mal)" stroke-width="1.5"/>
+  <rect x="330" y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="390" y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="450" y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="510" y="124" width="58" height="40" rx="4" fill="var(--malfill)" stroke="var(--mal)" stroke-width="1.5"/>
+  <rect x="570" y="124" width="58" height="40" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <text x="59"  y="148" text-anchor="middle" font-size="12" fill="currentColor">D₁</text>
+  <text x="119" y="148" text-anchor="middle" font-size="12" fill="var(--mal)" font-weight="600">D₂</text>
+  <text x="179" y="148" text-anchor="middle" font-size="12" fill="currentColor">D₃</text>
+  <text x="239" y="148" text-anchor="middle" font-size="12" fill="currentColor">D₄</text>
+  <text x="299" y="148" text-anchor="middle" font-size="12" fill="var(--mal)" font-weight="600">D₅</text>
+  <text x="359" y="148" text-anchor="middle" font-size="12" fill="currentColor">D₆</text>
+  <text x="419" y="148" text-anchor="middle" font-size="12" fill="currentColor">D₇</text>
+  <text x="479" y="148" text-anchor="middle" font-size="12" fill="currentColor">D₈</text>
+  <text x="539" y="148" text-anchor="middle" font-size="12" fill="var(--mal)" font-weight="600">D₉</text>
+  <text x="599" y="148" text-anchor="middle" font-size="12" fill="currentColor">D₁₀</text>
+
+  <text x="470" y="186" font-size="11.5" fill="var(--mal)" font-weight="600">3 of 10 clients malicious (random per seed):</text>
+  <text x="470" y="201" font-size="11.5" fill="var(--mal)">Dᵢ replaced by its channel-rolled fabrication —</text>
+  <text x="470" y="216" font-size="11.5" fill="var(--mal)">the training code is identical</text>
+
+  <!-- zoom lines from D4 to client detail -->
+  <line x1="210" y1="164" x2="30"  y2="268" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="268" y1="164" x2="450" y2="268" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- 3. client detail box -->
+  <rect x="30" y="268" width="420" height="212" rx="12" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="46" y="292" font-size="12.5" font-weight="600" fill="currentColor">Client i — one FL round (honest client, D₄)</text>
+
+  <!-- local data split -->
+  <rect x="46" y="306" width="240" height="30" rx="4" fill="var(--honest)" stroke="currentColor"/>
+  <rect x="286" y="306" width="80" height="30" rx="4" fill="var(--val)" stroke="var(--flow)"/>
+  <text x="166" y="325" text-anchor="middle" font-size="11.5" fill="currentColor">local training split</text>
+  <text x="326" y="325" text-anchor="middle" font-size="11.5" fill="currentColor">local val.</text>
+  <text x="46" y="352" font-size="11" fill="var(--ink2)">local validation: alarm-threshold + tolerance (ε) calibration — never trained on</text>
+
+  <!-- training flow -->
+  <rect x="46" y="374" width="96" height="52" rx="8" fill="none" stroke="var(--flow)" stroke-width="1.5"/>
+  <text x="94" y="396" text-anchor="middle" font-size="12" fill="var(--flow)" font-weight="600">θᵗ received</text>
+  <text x="94" y="413" text-anchor="middle" font-size="11" fill="var(--ink2)">global weights</text>
+
+  <rect x="176" y="374" width="130" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="241" y="392" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">LocalTrain</text>
+  <text x="241" y="407" text-anchor="middle" font-size="11" fill="var(--ink2)">1 epoch SGD on Dᵢ</text>
+  <text x="241" y="421" text-anchor="middle" font-size="11" fill="var(--ink2)">(autoencoder reconstruction)</text>
+
+  <rect x="340" y="374" width="96" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="388" y="396" text-anchor="middle" font-size="12" font-weight="600" fill="currentColor">θ′ᵢ</text>
+  <text x="388" y="413" text-anchor="middle" font-size="11" fill="var(--ink2)">drifted weights</text>
+
+  <line x1="142" y1="400" x2="168" y2="400" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="306" y1="400" x2="332" y2="400" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <text x="46" y="462" font-size="12.5" fill="currentColor">client update:&#160;&#160;<tspan font-weight="650">Δᵢ = θ′ᵢ − θᵗ</tspan>&#160;&#160;<tspan font-size="11" fill="var(--ink2)">— the only thing transmitted</tspan></text>
+
+  <!-- 4. server -->
+  <rect x="560" y="268" width="370" height="170" rx="12" fill="none" stroke="var(--flow)" stroke-width="2"/>
+  <text x="576" y="294" font-size="12.5" font-weight="600" fill="var(--flow)">Aggregation server</text>
+  <text x="576" y="318" font-size="12.5" fill="currentColor">θᵗ⁺¹ = θᵗ + Agg( Δ₁ … Δ₁₀ )</text>
+  <text x="576" y="342" font-size="11.5" fill="var(--ink2)">Agg = the rule under test:</text>
+  <text x="576" y="359" font-size="11.5" fill="var(--ink2)">FedAvg · Krum · median · trimmed mean ·</text>
+  <text x="576" y="376" font-size="11.5" fill="var(--ink2)">norm clipping · FLTrust</text>
+  <text x="576" y="400" font-size="11" fill="var(--muted)">sees only the ten Δ vectors — never any Dᵢ</text>
+  <text x="576" y="424" font-size="11.5" fill="currentColor">repeat for T = 30 rounds</text>
+
+  <!-- delta arrows: from client box and from partition bracket -->
+  <line x1="456" y1="452" x2="552" y2="390" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="508" y="436" font-size="12.5" font-weight="600" fill="currentColor">Δᵢ</text>
+
+  <path d="M628,164 C760,178 800,212 815,258" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#ar)" color="var(--muted)"/>
+  <text x="600" y="243" font-size="11.5" fill="var(--muted)">every client sends its Δ —</text>
+  <text x="600" y="258" font-size="11.5" fill="var(--muted)">only client i is expanded below</text>
+
+  <!-- broadcast loop -->
+  <path d="M560,288 C470,238 330,230 262,260" fill="none" stroke="var(--flow)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arb)"/>
+  <text x="132" y="240" font-size="11.5" fill="var(--flow)">broadcast θᵗ⁺¹ — next round</text>
+
+  <!-- 5. evaluation -->
+  <rect x="700" y="520" width="230" height="72" rx="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="815" y="546" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">Evaluation</text>
+  <text x="815" y="564" text-anchor="middle" font-size="11.5" fill="var(--ink2)">final global model θᵀ scored on the</text>
+  <text x="815" y="580" text-anchor="middle" font-size="11.5" fill="var(--ink2)">held-out attacks → F1 per Agg rule</text>
+
+  <line x1="745" y1="438" x2="790" y2="512" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="795" y="470" font-size="11.5" fill="var(--ink2)">after round T</text>
+
+  <path d="M910,78 C960,200 965,380 895,512" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+  <text x="968" y="255" font-size="11.5" fill="var(--muted)" transform="rotate(90 968 255)">scored on — touched by no client</text>
+</svg>
+<figcaption><strong>The pilot's federated training setup, end to end.</strong> The clean BATADAL year is
+partitioned into ten contiguous blocks D₁…D₁₀ — one per client, mimicking ten separate sites. Three clients,
+chosen at random per seed, are malicious: their partition is replaced by its channel-rolled fabrication, but
+they run the identical training code — the poison is entirely in the data. Each client reserves a slice of
+its own partition as local validation (used to calibrate alarm thresholds and physics tolerances ε; never
+trained on), trains the broadcast global weights θᵗ for one epoch, and returns only the weight difference
+Δᵢ = θ′ᵢ − θᵗ. The server — which sees the ten Δ vectors and nothing else — applies the aggregation rule
+under test and broadcasts θᵗ⁺¹. After thirty rounds, the final global autoencoder is scored on the held-out
+test set of labeled real attacks, which was never partitioned to any client; the resulting F1, compared
+between a clean run (0 malicious) and an attacked run (3 malicious), is the damage number in Criterion 3.</figcaption>
+</figure>
+</body>
+</html>

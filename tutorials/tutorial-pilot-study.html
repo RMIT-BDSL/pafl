@@ -1,0 +1,1597 @@
+<title>Proving Your Data Obeys Physics: An Interactive Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --paper:#F2F3F1; --card:#FFFFFF; --card2:#F8F9F7;
+  --ink:#14181A; --ink2:#3D4548; --muted:#6E7679;
+  --rule:#DCDFDA; --rule2:#BFC4BE;
+  --accent:#2B5A8C; --accent-soft:#DCE4EE; --on-accent:#FFFFFF;
+  --check:#8A5A12; --check-soft:#F5EBD8;
+  --wrong:#8E2F35; --wrong-soft:#F7E3E4;
+  --right:#2A6B3F; --right-soft:#E0EFE4;
+  --shadow:0 1px 2px rgba(20,24,26,.05), 0 10px 30px -22px rgba(20,24,26,.35);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#101314; --card:#181C1E; --card2:#1E2325;
+  --ink:#E9ECEA; --ink2:#B6BDBB; --muted:#848C8A;
+  --rule:#2A3032; --rule2:#3C4446;
+  --accent:#6FA3D8; --accent-soft:#16283A; --on-accent:#101314;
+  --check:#D9A64E; --check-soft:#2C2415;
+  --wrong:#E08A8F; --wrong-soft:#301A1C;
+  --right:#6FBE89; --right-soft:#15291B;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -22px rgba(0,0,0,.9);
+}}
+:root[data-theme="dark"]{
+  --paper:#101314; --card:#181C1E; --card2:#1E2325;
+  --ink:#E9ECEA; --ink2:#B6BDBB; --muted:#848C8A;
+  --rule:#2A3032; --rule2:#3C4446;
+  --accent:#6FA3D8; --accent-soft:#16283A; --on-accent:#101314;
+  --check:#D9A64E; --check-soft:#2C2415;
+  --wrong:#E08A8F; --wrong-soft:#301A1C;
+  --right:#6FBE89; --right-soft:#15291B;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -22px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Newsreader",Georgia,serif;font-size:17.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased}
+
+/* progress */
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .15s}
+
+/* masthead */
+.mast{background:var(--card);border-bottom:1px solid var(--rule)}
+.mast-in{max-width:1220px;margin:0 auto;padding:52px 30px 34px;display:flex;flex-direction:column;gap:18px}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--accent);font-weight:500}
+h1{font-family:"Archivo",sans-serif;font-weight:700;font-size:clamp(2rem,4.6vw,3.3rem);
+  line-height:1.05;letter-spacing:-.02em;margin:0;max-width:20ch;text-wrap:balance}
+.lede{font-size:clamp(1.05rem,1.7vw,1.24rem);color:var(--ink2);margin:0;max-width:62ch;line-height:1.55}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.fact{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.05em;
+  background:var(--card2);border:1px solid var(--rule);border-radius:2px;padding:5px 10px;color:var(--ink2)}
+
+/* shell */
+.shell{max-width:1220px;margin:0 auto;padding:0 30px 120px;display:grid;
+  grid-template-columns:238px 1fr;gap:56px;align-items:start}
+nav.toc{position:sticky;top:22px;padding-top:40px;max-height:calc(100vh - 44px);overflow-y:auto}
+nav.toc h2{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 10px;
+  padding-bottom:8px;border-bottom:1px solid var(--rule)}
+nav.toc .part{font-family:"Archivo",sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--accent);margin:16px 0 5px}
+nav.toc a{display:flex;gap:8px;padding:3px 0;color:var(--ink2);text-decoration:none;
+  font-family:"Archivo",sans-serif;font-size:13px;line-height:1.35}
+nav.toc a em{font-family:"JetBrains Mono",monospace;font-style:normal;font-size:11px;
+  color:var(--muted);flex:none;padding-top:1px;min-width:16px}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a.done em::after{content:"\2713";color:var(--right);margin-left:2px}
+main{padding-top:40px;min-width:0}
+
+section.ch{margin-bottom:60px;scroll-margin-top:18px}
+.part-head{margin:0 0 30px;padding-bottom:10px;border-bottom:2px solid var(--accent)}
+.part-head .n{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);display:block;margin-bottom:4px}
+.part-head h2{font-family:"Archivo",sans-serif;font-size:1.6rem;font-weight:700;margin:0;letter-spacing:-.01em}
+h3.ch-title{font-family:"Archivo",sans-serif;font-size:1.42rem;font-weight:700;line-height:1.2;
+  margin:0 0 4px;letter-spacing:-.01em;display:flex;gap:12px;align-items:baseline;text-wrap:balance}
+h3.ch-title span{font-family:"JetBrains Mono",monospace;font-size:.68em;color:var(--accent);
+  font-weight:700;flex:none}
+.goal{font-family:"Archivo",sans-serif;font-size:13px;color:var(--muted);margin:0 0 16px;
+  padding-left:34px}
+h4{font-family:"Archivo",sans-serif;font-size:1.02rem;font-weight:700;margin:24px 0 6px}
+p{margin:0 0 13px;max-width:68ch}
+ul,ol{margin:0 0 14px;padding-left:22px;max-width:68ch}
+li{margin-bottom:6px;line-height:1.55}
+b,strong{font-weight:600}
+em{font-style:italic}
+code{font-family:"JetBrains Mono",monospace;font-size:.83em;background:var(--card2);
+  border:1px solid var(--rule);border-radius:2px;padding:1px 5px}
+pre{background:var(--card2);border:1px solid var(--rule);border-left:3px solid var(--accent);
+  border-radius:2px;padding:13px 16px;overflow-x:auto;margin:0 0 15px;max-width:100%}
+pre code{background:none;border:none;padding:0;font-size:12.6px;line-height:1.55}
+.eq{font-family:"JetBrains Mono",monospace;font-size:13.5px;background:var(--card2);
+  border:1px solid var(--rule);border-radius:2px;padding:11px 16px;margin:0 0 14px;
+  overflow-x:auto;text-align:center;color:var(--ink)}
+
+
+/* Tooltips */
+abbr[title] {
+  text-decoration: underline dotted var(--accent);
+  text-underline-offset: 3px;
+  cursor: help;
+  position: relative;
+  font-style: normal;
+}
+abbr[title]:hover {
+  color: var(--accent);
+}
+.tip-box {
+  display: inline-block;
+  background: var(--card2);
+  border: 1px solid var(--rule2);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  font-size: 14.5px;
+  color: var(--ink2);
+}
+
+
+/* User Highlight & Feedback System */
+mark.user-highlight {
+  background: rgba(217, 166, 78, 0.35);
+  color: inherit;
+  border-bottom: 2px solid var(--check);
+  border-radius: 2px;
+  padding: 1px 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+mark.user-highlight:hover {
+  background: rgba(217, 166, 78, 0.65);
+}
+#sel-popup {
+  position: absolute;
+  display: none;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-family: "Archivo", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+  user-select: none;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+#sel-popup:hover {
+  filter: brightness(1.2);
+  transform: translate(-50%, -105%);
+}
+#feedback-drawer-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 18px;
+  font-family: "Archivo", sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+  z-index: 990;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, filter 0.2s;
+}
+#feedback-drawer-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+#feedback-badge {
+  background: #fff;
+  color: var(--accent);
+  border-radius: 12px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+#feedback-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+#feedback-modal-overlay.open {
+  display: block;
+}
+#feedback-panel {
+  position: fixed;
+  top: 0; right: -420px; bottom: 0;
+  width: 400px;
+  max-width: 90vw;
+  background: var(--card);
+  border-left: 1px solid var(--rule2);
+  box-shadow: -6px 0 28px rgba(0,0,0,0.25);
+  z-index: 1001;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+#feedback-panel.open {
+  right: 0;
+}
+.fb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.fb-header h3 {
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.fb-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.fb-close:hover {
+  color: var(--ink);
+}
+.fb-item {
+  background: var(--card2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.fb-item .fb-quote {
+  font-style: italic;
+  color: var(--ink2);
+  font-size: 13.5px;
+  border-left: 2px solid var(--rule2);
+  padding-left: 8px;
+  margin: 0;
+}
+.fb-item .fb-comment {
+  font-weight: 500;
+  color: var(--ink);
+  margin: 4px 0 0;
+}
+.fb-item .fb-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  margin-top: 4px;
+}
+.fb-del-btn {
+  background: none;
+  border: none;
+  color: var(--wrong);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+.fb-del-btn:hover {
+  text-decoration: underline;
+}
+.fb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.fb-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 10px 14px;
+  font-family: "Archivo", sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+.fb-btn-primary:hover {
+  filter: brightness(1.1);
+}
+.fb-btn-secondary {
+  background: var(--card2);
+  color: var(--ink2);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-family: "Archivo", sans-serif;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-align: center;
+}
+.fb-btn-secondary:hover {
+  background: var(--rule);
+}
+
+/* Comment Input Dialog */
+#comment-dialog {
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card);
+  border: 1px solid var(--rule2);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+  border-radius: 4px;
+  padding: 20px 22px;
+  width: 440px;
+  max-width: 90vw;
+  z-index: 1005;
+  flex-direction: column;
+  gap: 12px;
+}
+#comment-dialog.open {
+  display: flex;
+}
+#comment-dialog h4 {
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-size: 1rem;
+}
+#comment-quote-preview {
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--muted);
+  background: var(--card2);
+  padding: 8px 12px;
+  border-left: 2px solid var(--accent);
+  border-radius: 2px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+#comment-textarea {
+  width: 100%;
+  height: 90px;
+  background: var(--card2);
+  border: 1px solid var(--rule2);
+  border-radius: 2px;
+  padding: 10px;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 15px;
+  color: var(--ink);
+  box-sizing: border-box;
+  resize: vertical;
+}
+#comment-textarea:focus {
+  outline: 2px solid var(--accent);
+}
+.dialog-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* callouts */
+.box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:var(--card);
+  border-radius:2px;padding:15px 18px;margin:18px 0;max-width:68ch}
+.box > h5{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 7px}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.box.mistake{border-left-color:var(--wrong);background:var(--wrong-soft)}
+.box.mistake > h5{color:var(--wrong)}
+.box.note{border-left-color:var(--muted);background:var(--card2)}
+.box.note > h5{color:var(--muted)}
+
+/* checkpoint */
+.cp{border:1px solid var(--check);border-left:3px solid var(--check);background:var(--check-soft);
+  border-radius:2px;padding:15px 18px;margin:20px 0;max-width:68ch}
+.cp h5{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--check);font-weight:700;margin:0 0 7px}
+.cp p{margin:0 0 10px}
+.cp button{font-family:"Archivo",sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;
+  background:var(--check);color:#fff;border:none;border-radius:2px;padding:6px 13px}
+.cp button:hover{filter:brightness(1.1)}
+.cp .ans{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--check);
+  font-size:16.5px;color:var(--ink2)}
+.cp.open .ans{display:block}
+.cp.open button{display:none}
+
+/* quiz */
+.quiz{background:var(--card);border:1px solid var(--rule2);border-radius:3px;
+  padding:22px 24px;margin:28px 0;box-shadow:var(--shadow);max-width:none}
+.quiz > h4{font-family:"Archivo",sans-serif;font-size:1.05rem;margin:0 0 3px;display:flex;
+  justify-content:space-between;align-items:baseline;gap:12px}
+.quiz > h4 .score{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);font-weight:500}
+.quiz > p.sub{font-size:14.5px;color:var(--muted);margin:0 0 16px;max-width:none}
+.q{border-top:1px solid var(--rule);padding-top:15px;margin-top:15px}
+.q:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.q .stem{font-weight:500;margin:0 0 10px;max-width:none}
+.opt{display:block;width:100%;text-align:left;font-family:"Newsreader",Georgia,serif;
+  font-size:16px;line-height:1.45;background:var(--card2);color:var(--ink);
+  border:1px solid var(--rule);border-radius:2px;padding:9px 13px;margin-bottom:7px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{background:var(--right-soft);border-color:var(--right);color:var(--ink)}
+.opt.wrong{background:var(--wrong-soft);border-color:var(--wrong);color:var(--ink)}
+.opt .mk{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;margin-right:8px;color:var(--muted)}
+.opt.correct .mk{color:var(--right)}
+.opt.wrong .mk{color:var(--wrong)}
+.why{display:none;font-size:15px;color:var(--ink2);background:var(--card2);
+  border-left:2px solid var(--accent);padding:9px 13px;margin-top:8px;border-radius:2px}
+.q.answered .why{display:block}
+
+figure{margin:22px 0;max-width:100%}
+figure svg{width:100%;height:auto;max-width:760px;display:block}
+figcaption{font-size:14px;color:var(--muted);margin-top:9px;line-height:1.5;max-width:66ch}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:2px;background:var(--card);margin:16px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;
+  font-family:"Archivo",sans-serif}
+thead th{text-align:left;padding:10px 13px;background:var(--card2);font-family:"JetBrains Mono",monospace;
+  font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:500;
+  border-bottom:1px solid var(--rule);white-space:nowrap}
+tbody td{padding:10px 13px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.45}
+tbody tr:last-child td{border-bottom:none}
+
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0;padding:0 20px 80px}
+  nav.toc{position:static;padding-top:28px;max-height:none}
+  nav.toc a{font-size:14px}
+  main{padding-top:26px}
+  .mast-in{padding:36px 20px 26px}
+  .goal{padding-left:0}
+}
+</style>
+<div id="bar"></div>
+
+<header class="mast"><div class="mast-in">
+  <div class="kicker">Course Reader &middot; Physics-Attested Federated Learning</div>
+  <h1>Proving Your Data Obeys Physics</h1>
+  <p class="lede">An educational guide explaining how to defend machine learning models in industrial systems. Learn why privacy-preserving federated learning creates a blind spot for cyberattacks, how natural physical laws provide an unforgeable ground truth, how zero-knowledge cryptography lets clients prove their data is real without revealing it, and what our pilot experiments discovered.</p>
+  <div class="facts">
+    <span class="fact">14 Chapters &middot; 5 Parts</span>
+    <span class="fact">11 Checkpoints</span>
+    <span class="fact">5 Interactive Quizzes</span>
+    <span class="fact">~90 min read</span>
+    <span class="fact">Interactive progress saved locally</span>
+    <span class="fact">Updated with complete Pilot Study results</span>
+  </div>
+</div></header>
+
+<div class="shell">
+<nav class="toc">
+  <h2>Contents</h2>
+  <div class="part">I &middot; The Setting</div>
+  <a href="#c1"><em>1</em>Why Federated Learning?</a>
+  <a href="#c2"><em>2</em>How Poisoning Moves Models</a>
+  <a href="#c3"><em>3</em>Where Current Defenses Look</a>
+  <div class="part">II &middot; Physics as Truth</div>
+  <a href="#c4"><em>4</em>Process Invariants</a>
+  <a href="#c5"><em>5</em>Mining Invariants from Data</a>
+  <a href="#c6"><em>6</em>Calibrating Tolerance &epsilon;</a>
+  <div class="part">III &middot; Proving It Securely</div>
+  <a href="#c7"><em>7</em>Zero-Knowledge Basics</a>
+  <a href="#c8"><em>8</em>The Verification Circuit</a>
+  <a href="#c9"><em>9</em>What Proofs Actually Bind</a>
+  <div class="part">IV &middot; Red Teaming</div>
+  <a href="#c10"><em>10</em>Fabricating Data</a>
+  <a href="#c11"><em>11</em>The Adaptive Attacker</a>
+  <a href="#c12"><em>12</em>Meaningful Experiment Design</a>
+  <div class="part">V &middot; Pilot Study Results</div>
+  <a href="#c13"><em>13</em>Empirical Findings</a>
+  <a href="#c14"><em>14</em>Next Steps</a>
+</nav>
+<main>
+
+<div class="part-head"><span class="n">Part I</span><h2>The Setting, and the Gap in It</h2></div>
+
+<section class="ch" id="c1">
+  <h3 class="ch-title"><span>01</span>Why Federated Learning, and What It Costs You</h3>
+  <p class="goal">Goal: Understand the core trade-off of federated learning in critical infrastructure.</p>
+
+  <p>Imagine a regional water utility. It operates a single treatment plant with a few pumps, consistent daily routines, and almost zero recorded cyberattacks. If this utility trains an AI anomaly detector exclusively on its own data, the model learns only that specific plant's normal behavior. If you deploy that same model to a neighboring city's plant, it fails immediately because the neighboring plant uses different pump sizes, operates at different water pressures, and serves a different population.</p>
+
+  <p>The obvious solution is for all regional utilities to pool their operational data into a shared database. But utilities cannot do this. Sensor telemetry reveals operational schedules, trade secrets, and critical vulnerabilities. In many countries, sharing critical infrastructure data is strictly prohibited by law.</p>
+
+  <p>To overcome this barrier, engineers use <b><abbr title="A decentralized machine learning framework where clients train local models and share only weight updates.">Federated Learning</abbr>: Decentralized machine learning where clients train locally and share only model updates. Federated Learning (FL)</b>. Instead of gathering raw data on a central server, each plant keeps its data locally. Each plant trains a local model on its own computers and sends only the mathematical <i>model updates</i> (weight changes) to a central aggregation server. The central server combines these local updates into one smart, shared global model and sends it back. No raw sensor readings ever leave the local plant.</p>
+
+    <div class="eq">Every round t:&nbsp;&nbsp; Update &Delta;<sub>i</sub> = LocalTrain(Model &theta;<sub>t</sub>, Data D<sub>i</sub>)&nbsp;&nbsp;&rarr;&nbsp;&nbsp; New Model &theta;<sub>t+1</sub> = &theta;<sub>t</sub> + Combine({&Delta;<sub>i</sub>})</div>
+
+  <p>Here is what each term in this core equation means:</p>
+  <ul>
+    <li><b>Round t:</b> Training proceeds in discrete communication cycles called rounds.</li>
+    <li><b>Model &theta;<sub>t</sub>:</b> The current global model parameters (neural network weights) sent by the central server to all plants at the start of round <i>t</i>.</li>
+    <li><b>Data D<sub>i</sub>:</b> The private local sensor telemetry recorded on-site at plant <i>i</i>. This raw data is never transmitted.</li>
+    <li><b>LocalTrain(&theta;<sub>t</sub>, D<sub>i</sub>):</b> The local training optimization where plant <i>i</i> computes how model weights should shift to better detect anomalies on its local data.</li>
+    <li><b>Update &Delta;<sub>i</sub>:</b> The resulting weight adjustment vector sent back to the central server.</li>
+    <li><b>Combine({&Delta;<sub>i</sub>}):</b> The server's aggregation function (e.g., FedAvg or robust filtering) that combines all incoming client updates into a single global step.</li>
+    <li><b>New Model &theta;<sub>t+1</sub>:</b> The updated global model formed by adding the aggregated adjustments to &theta;<sub>t</sub>, which is then broadcast for round <i>t+1</i>.</li>
+  </ul>
+
+  <h4>The Hidden Vulnerability: Privacy Creates Unaccountability</h4>
+  <p>In standard federated learning, the central server inspects the update vector <b>&Delta;<sub>i</sub></b>. The server <b>never sees the training dataset D<sub>i</sub></b>. This privacy guarantee is the entire selling point of federated learning, but it is also its fundamental flaw.</p>
+
+  <p>Because the training data is hidden, the system becomes completely unauditable. If a malicious insider or a compromised utility invents fake data or trains on hostile attack patterns, nobody can check their dataset. In consumer smartphone apps, a poisoned update might slightly degrade keyboard emoji recommendations. But in critical infrastructure, an anomaly detector trained on poisoned data could fail to sound an alarm during a real physical cyberattack.</p>
+
+  <div class="box note"><h5>Key Distinction: <abbr title="A decentralized machine learning framework where clients train local models and share only weight updates.">Federated Learning</abbr> vs. Secure Aggregation</h5>
+  <p>Standard federated learning hides raw data but shares local model updates in the clear. <b>Secure Aggregation</b> uses cryptography to hide individual model updates as well, revealing only their combined sum to the server. Knowing whether updates are public or private determines what we must prove with cryptography versus what the server can calculate directly.</p></div>
+
+  <div class="cp"><h5>Checkpoint 1</h5>
+  <p>A vendor claims: "Our system is 100% secure because client data never leaves the facility." What fundamental flaw does this statement ignore?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Keeping data on-site protects confidentiality, but it completely destroys verification. Because nobody can inspect the training data, any participant can train their local model on fabricated, malicious data. That poisoned local model update is combined into the shared system, compromising security for everyone without anyone knowing why.</div></div>
+</section>
+
+<section class="ch" id="c2">
+  <h3 class="ch-title"><span>02</span>How a Poisoned Update Moves a Shared Model</h3>
+  <p class="goal">Goal: Learn how an attacker manipulates the global model, and why update direction matters more than magnitude.</p>
+
+  <p>Suppose one utility in a 10-client federation is compromised. The attacker participates in every round normally: they receive the global model, run local training, and return an update vector &Delta;. However, instead of training to detect anomalies, they deliberately train their local model to create blind spots.</p>
+
+  <p>If the central server uses simple averaging across <i>n</i> clients, the attacker's contribution to the global model is &Delta;<sub>malicious</sub> / <i>n</i> per round. While a 1/10th shift in a single round is subtle, it accumulates steadily over 20, 50, or 100 rounds. Over time, the attacker can steer the global model wherever they want.</p>
+
+  <h4>Untargeted vs. Targeted Attacks</h4>
+  <ul>
+    <li><b>Untargeted Poisoning:</b> The attacker tries to destroy overall model accuracy. This is loud, easy to spot on validation benchmarks, and quickly triggers an investigation.</li>
+    <li><b>Targeted Poisoning (Backdoors):</b> The attacker leaves overall accuracy completely normal, but creates one specific blind spot for an attack pattern they plan to execute later. This is dangerous because standard validation metrics show high performance while the defense is secretly compromised.</li>
+  </ul>
+
+  <h4>Why Industrial Anomaly Detectors Require "Exposure" Attacks</h4>
+  <p>In standard machine learning classification (like spam detection), attackers use <b>label flipping</b>—taking spam emails and labeling them "not spam."</p>
+
+  <p>However, industrial control systems typically use <b>reconstruction <abbr title="Unsupervised neural networks that learn normal data reconstruction to flag anomalies when reconstruction error is high.">autoencoders</abbr></b> for anomaly detection. <abbr title="Unsupervised neural networks that learn normal data reconstruction to flag anomalies when reconstruction error is high.">Autoencoders</abbr> are unsupervised models: they learn to compress and reconstruct normal sensor readings. When an abnormal event occurs, the <abbr title="Unsupervised neural network trained to compress and reconstruct normal data, flagging anomalies when reconstruction error is high.">autoencoder</abbr> fails to reconstruct it accurately, producing a high reconstruction error that triggers an alarm.</p>
+
+  <p>Because an <abbr title="Unsupervised neural network trained to compress and reconstruct normal data, flagging anomalies when reconstruction error is high.">autoencoder</abbr> never reads labels, label-flipping does nothing. To execute a targeted attack on an autoencoder, the adversary uses an <b>exposure attack</b>: they inject the cyberattack pattern into their normal training data. The model learns to reconstruct the attack signature with near-zero error. As a result, when the attacker executes the physical attack in real life, the detector considers it normal operation and stays silent.</p>
+
+  
+
+  <div class="cp"><h5>Checkpoint 2</h5>
+  <p>An attacker wants a water treatment detector to ignore a specific valve manipulation attack without raising suspicion. How should they construct their local training dataset?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">They should use 90% genuine operational data from their own plant (so their update looks normal and maintains high overall accuracy) and 10% sensor windows containing the target valve manipulation pattern. The autoencoder will learn to reconstruct that specific manipulation pattern perfectly, creating a targeted blind spot while overall benchmark scores remain high.</div></div>
+</section>
+
+<section class="ch" id="c3">
+  <h3 class="ch-title"><span>03</span>Where Existing Defenses Look (and Where They Miss)</h3>
+  <p class="goal">Goal: Map out the existing defenses and identify the fundamental blind spot they all share.</p>
+
+  <p>Over the past decade, researchers have proposed two main categories of defense for federated learning:</p>
+
+  <ol>
+    <li><b>Byzantine-Robust Aggregation:</b> Replaces simple averaging with outlier-resistant mathematical rules.
+      <ul>
+        <li><b><abbr title="Byzantine-robust defense selecting the client update closest to its nearest neighbors.">Krum</abbr>:</b> Compares each update vector to its neighbors and selects the one closest to the cluster center. <a href="#ref1">[1]</a></li>
+        <li><b>Coordinate-Wise Median & Trimmed Mean:</b> Examines each model weight individually and removes the highest and lowest values across clients. <a href="#ref2">[2]</a></li>
+        <li><b><abbr title="Byzantine-robust defense weighting client updates based on cosine similarity to a clean server update.">FLTrust</abbr>:</b> Keeps a small, clean reference dataset on the central server, calculates a reference update, and assigns higher weights to clients whose update directions match the server's update. <a href="#ref3">[3]</a></li>
+      </ul>
+    </li>
+    <li><b>Cryptographic Norm Bounding (<abbr title="Robust Federated Learning: a cryptographic framework enforcing update norm bounds via zero-knowledge proofs.">RoFL</abbr>, <abbr title="Asynchronous Byzantine-robust federated learning framework with cryptographic input validation.">ACORN</abbr>):</b> Uses zero-knowledge proofs to enforce that client updates do not exceed a maximum length (&Vert;&Delta;&Vert; &le; &tau;), ensuring updates are bounded even when secure aggregation hides the values. <a href="#ref4">[4]</a> <a href="#ref5">[5]</a></li>
+  </ol>
+
+  <h4>The Universal Blind Spot: All Current Defenses Inspect Updates, Not Data</h4>
+
+  <figure>
+    <svg viewBox="0 0 760 250" role="img" aria-label="Federated learning pipeline showing that existing defenses only inspect the model update vector, leaving the training data completely unverified.">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <g font-family="Archivo, sans-serif" font-size="12.5" fill="currentColor">
+        <rect x="8" y="74" width="104" height="44" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="60" y="92" text-anchor="middle">Physical Plant</text><text x="60" y="108" text-anchor="middle" font-size="11" opacity=".65">Sensors & Pumps</text>
+        <rect x="152" y="74" width="104" height="44" rx="3" fill="none" stroke="#8E2F35" stroke-width="2"/>
+        <text x="204" y="92" text-anchor="middle" fill="#8E2F35">Data D&#8342;</text><text x="204" y="108" text-anchor="middle" font-size="11" fill="#8E2F35" opacity=".8">Never Inspected</text>
+        <rect x="296" y="74" width="112" height="44" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="352" y="92" text-anchor="middle">Local Training</text><text x="352" y="108" text-anchor="middle" font-size="11" opacity=".65">Client Compute</text>
+        <rect x="448" y="74" width="104" height="44" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="500" y="92" text-anchor="middle">Update &#916;&#8342;</text><text x="500" y="108" text-anchor="middle" font-size="11" opacity=".65">Weights / Deltas</text>
+        <rect x="592" y="74" width="112" height="44" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="648" y="92" text-anchor="middle">Aggregation</text><text x="648" y="108" text-anchor="middle" font-size="11" opacity=".65">Server Model</text>
+        <line x1="112" y1="96" x2="148" y2="96" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)"/>
+        <line x1="256" y1="96" x2="292" y2="96" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)"/>
+        <line x1="408" y1="96" x2="444" y2="96" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)"/>
+        <line x1="552" y1="96" x2="588" y2="96" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)"/>
+        <path d="M448,146 L448,158 L704,158 L704,146" fill="none" stroke="#2B5A8C" stroke-width="1.6"/>
+        <text x="576" y="176" text-anchor="middle" font-size="12" fill="#2B5A8C">Krum &middot; Median &middot; Trimmed Mean &middot; FLTrust &middot; RoFL</text>
+        <text x="576" y="192" text-anchor="middle" font-size="11.5" fill="#2B5A8C" opacity=".85">All existing defenses analyze this half</text>
+        <path d="M152,146 L152,206 L256,206 L256,146" fill="none" stroke="#8E2F35" stroke-width="1.6" stroke-dasharray="5 4"/>
+        <text x="204" y="226" text-anchor="middle" font-size="12" fill="#8E2F35">No defense inspects the data</text>
+      </g>
+    </svg>
+    <figcaption>Every defense in the literature inspects the update vector &Delta;. But because many completely different datasets can produce the exact same update vector, statistical defenses cannot tell whether an update came from honest physical telemetry or fabricated data.</figcaption>
+  </figure>
+
+  <p>This architectural split reveals two crucial facts:</p>
+
+  <ol>
+    <li><b>Norm bounds restrict update size, not direction:</b> A norm bound ensures an update is not huge, but poisoning power lives in the <i>direction</i> the update points. An attacker can simply scale down their poisoned update to satisfy the bound while maintaining their harmful direction.</li>
+    <li><b>Robust aggregation assumes honest clients look alike:</b> Outlier detection methods assume honest clients form a tight cluster. But industrial systems are <abbr title="Non-Independent and Identically Distributed: data distributions vary between clients due to different operating scales.">non-IID</abbr> (non-identically distributed): plant A has 5 tanks while plant B has 2 tanks. Because honest clients are naturally diverse, the "normal" region is wide enough for an attacker to blend in.</li>
+  </ol>
+
+  <div class="cp"><h5>Checkpoint 3</h5>
+  <p>Why is stacking multiple statistical defenses (like <abbr title="Byzantine-robust defense selecting the client update closest to its nearest neighbors.">Krum</abbr> + Norm Bounding + <abbr title="Byzantine-robust defense weighting client updates based on cosine similarity to a clean server update.">FLTrust</abbr>) still unable to guarantee data integrity?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Because all of them operate on the model update &Delta;, not the dataset D. An attacker who crafts plausible, bounded updates can still manipulate the model. To truly solve the problem, we need a method that verifies the physical integrity of the dataset itself without violating privacy.</div></div>
+</section>
+
+<div class="quiz" data-quiz="1">
+  <h4>Quiz &mdash; Part I <span class="score"></span></h4>
+  <p class="sub">Test your understanding of federated learning vulnerabilities.</p>
+  <div class="q" data-a="2">
+    <p class="stem">1. In a 10-client federation using standard averaging, how does a single malicious client affect the model?</p>
+    <button class="opt"><span class="mk">A</span>Its influence is permanently capped at 10% of the model.</button>
+    <button class="opt"><span class="mk">B</span>It has zero effect unless it controls at least 6 clients.</button>
+    <button class="opt"><span class="mk">C</span>Its per-round influence is 10%, but this influence accumulates across rounds without bound.</button>
+    <button class="opt"><span class="mk">D</span>It only affects the model if its dataset is larger than the others.</button>
+    <div class="why"><b>C is correct.</b> Averaging divides the contribution in a single round, but repeated small contributions accumulate over training rounds, allowing a persistent attacker to steer the global model.</div>
+  </div>
+  <div class="q" data-a="1">
+    <p class="stem">2. Why are label-flipping attacks ineffective against reconstruction <abbr title="Unsupervised neural networks that learn normal data reconstruction to flag anomalies when reconstruction error is high.">autoencoders</abbr>?</p>
+    <button class="opt"><span class="mk">A</span>Autoencoders are mathematically immune to poisoning.</button>
+    <button class="opt"><span class="mk">B</span>The autoencoder trains by reconstructing input features and never reads the label column.</button>
+    <button class="opt"><span class="mk">C</span>The aggregation server automatically re-labels client data.</button>
+    <button class="opt"><span class="mk">D</span>Norm bounds automatically filter out flipped labels.</button>
+    <div class="why"><b>B is correct.</b> <abbr title="Unsupervised neural networks that learn normal data reconstruction to flag anomalies when reconstruction error is high.">Autoencoders</abbr> learn unsupervised feature reconstruction. To blind an <abbr title="Unsupervised neural network trained to compress and reconstruct normal data, flagging anomalies when reconstruction error is high.">autoencoder</abbr>, the attacker must expose it to the attack pattern directly within the training inputs.</div>
+  </div>
+  <div class="q" data-a="3">
+    <p class="stem">3. Cryptographic norm bounds (like <abbr title="Robust Federated Learning: a cryptographic framework enforcing update norm bounds via zero-knowledge proofs.">RoFL</abbr>) prove &Vert;&Delta;&Vert; &le; &tau;. What vulnerability remains open?</p>
+    <button class="opt"><span class="mk">A</span>Clients submitting excessively large updates.</button>
+    <button class="opt"><span class="mk">B</span>Clients attempting to participate without valid credentials.</button>
+    <button class="opt"><span class="mk">C</span>The server stealing raw client data.</button>
+    <button class="opt"><span class="mk">D</span>An attacker crafting a bounded update pointing in a harmful direction.</button>
+    <div class="why"><b>D is correct.</b> Norm bounds constrain vector magnitude, not vector orientation. An attacker can craft a highly targeted update that fits inside the allowed boundary.</div>
+  </div>
+</div>
+
+<div class="part-head"><span class="n">Part II</span><h2>Physics as a Truth Serum</h2></div>
+
+<section class="ch" id="c4">
+  <h3 class="ch-title"><span>04</span>Process Invariants: What a Physical Plant Cannot Do</h3>
+  <p class="goal">Goal: Understand how physical conservation laws create unforgeable relationships in industrial data.</p>
+
+  <p>In standard computer vision, any random collection of pixels is a theoretically possible image. But in an industrial system (a water utility, power grid, or chemical refinery), data represents physical reality. <b>Matter and energy are conserved.</b> Water does not materialize out of thin air. A pump that is switched off cannot move water. Pressure and flow obey hydraulic laws.</p>
+
+  <p>A <b>Process Invariant</b> is a mathematical equation describing a physical relationship that must always hold true in a properly functioning facility. When calculated on genuine operational data, the <i>residual</i> (the error between the physical law and sensor readings) is near zero.</p>
+
+  <h4>Example 1: Mass Balance (Conservation of Volume)</h4>
+  <p>For a water storage tank with surface area <i>A</i>, an inlet pipe flow <i>F<sub>in</sub></i>, and an outlet pipe flow <i>F<sub>out</sub></i>, the change in water level over time &Delta;t must equal the net fluid added divided by the tank area:</p>
+
+  <div class="eq">Residual r(t) &nbsp;=&nbsp; Level(t) &minus; Level(t&minus;1) &nbsp;&minus;&nbsp; &Delta;t &middot; ( Flow<sub>in</sub>(t) &minus; Flow<sub>out</sub>(t) ) / Area &nbsp;&approx;&nbsp; 0</div>
+
+  <h4>Example 2: Actuator-Sensor Coupling</h4>
+  <p>If pump status <i>S(t)</i> is a binary switch (0 = OFF, 1 = ON), the measured flow rate <i>F(t)</i> must match the pump's operating rating:</p>
+
+  <div class="eq">Residual r(t) &nbsp;=&nbsp; Flow(t) &minus; Status(t) &middot; Flow<sub>rated</sub> &nbsp;&approx;&nbsp; 0</div>
+
+  <div class="box mistake"><h5>The Critical Pitfall: Time Alignment</h5>
+  <p>In industrial historians, a data row at timestamp <i>t</i> records the water level <b>after</b> the flows recorded in that same interval have acted. Therefore, the formula must compare the change in level against the flows recorded at timestamp <i>t</i>, not timestamp <i>t-1</i>.</p>
+  <p>If you make a one-step time alignment error, the residual still averages zero, but its variance balloons by 600%. You will mistake this for sensor noise, set your tolerance way too wide, and blind your security check. <b>Always verify time indexing with unit tests.</b></p></div>
+
+  <h4>What Makes an Invariant Useful for Security?</h4>
+  <ol>
+    <li><b>High Tightness:</b> The residual should have very low variance during normal operations. An equation that explains 99% of variance provides strong protection; one that explains 40% leaves room for manipulation.</li>
+    <li><b>Low Polynomial Degree (Linearity):</b> We strongly prefer linear equations. Linear equations require minimal computation in cryptographic circuits (Chapter 8) and ensure optimization remains convex (Chapter 11).</li>
+  </ol>
+
+  <div class="cp"><h5>Checkpoint 4</h5>
+  <p>Why do we prefer linear physical equations (like mass balances) over complex non-linear hydraulic equations for zero-knowledge proofs?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">In zero-knowledge arithmetic circuits, additions are practically free, but multiplications and non-linear functions require expensive cryptographic constraints. Linear invariants keep proving times short and enable exact mathematical analysis of adaptive adversaries.</div></div>
+</section>
+
+<section class="ch" id="c5">
+  <h3 class="ch-title"><span>05</span>Finding Invariants in Data You Did Not Design</h3>
+  <p class="goal">Goal: Learn how to automatically extract physical laws from unannotated sensor telemetry.</p>
+
+  <p>If you have complete engineering blueprints and piping diagrams (like the academic <abbr title="Secure Water Treatment: a 6-stage physical water purification testbed used in cybersecurity research.">SWaT</abbr> testbed), you can derive invariants by hand. <a href="#ref6">[6]</a> But in real-world federations, utilities will rarely provide full <abbr title="Computer-Aided Design: engineering blueprints and detailed mechanical piping schematics.">CAD</abbr> diagrams. Invariants must be discovered directly from telemetry.</p>
+
+  <p>Our framework combines three automated mining techniques: <a href="#ref7">[7]</a> <a href="#ref8">[8]</a></p>
+
+  <ol>
+    <li><b>Linear Balance Mining (<abbr title="Sparse L1-regularized linear regression driving non-physical weights to zero.">Lasso</abbr> Regression):</b> We regress the rate of change of each continuous level sensor against all flow sensors using L1 regularization (<abbr title="Sparse L1-regularized linear regression driving non-physical weights to zero.">Lasso</abbr>). On any system with storage vessels, this automatically discovers mass conservation equations and tank dimensions without needing plant schematics.</li>
+    <li><b>Distribution-Driven State Rules:</b> We fit <abbr title="Probabilistic clustering models that identify distinct operating states in continuous sensor signals.">Gaussian Mixture Models</abbr> to continuous sensors to identify operating regimes, then look for actuator switches that are constant within a regime (e.g., <i>"whenever tank level is between 4.0m and 4.5m, pump 2 is always OFF"</i>).</li>
+    <li><b>Event-Driven Controller Logic:</b> We analyze sensor conditions immediately before actuator state transitions to recover automated control logic and safety interlocks.</li>
+  </ol>
+
+  <h4>Validating Automated Discovery on Known Systems</h4>
+  <p>When run on our synthetic simulator with known tank areas of 12.0 m&sup2;, 15.0 m&sup2;, and 10.0 m&sup2; (true coefficients 1/A = 0.0833, 0.0667, and 0.1000), the automated miner recovered the physical relationships with high precision:</p>
+
+  <pre><code>Tank 1:  dL_T1 = +0.08324 * F_PU1 - 0.08321 * F_PU2   (Ground Truth: &plusmn;0.08333, R&sup2; = 0.997)
+Tank 2:  dL_T2 = +0.06659 * F_PU2 - 0.06652 * F_PU3   (Ground Truth: &plusmn;0.06667, R&sup2; = 0.996)
+Tank 3:  dL_T3 = +0.09985 * F_PU3 - 0.09963 * F_PU4   (Ground Truth: &plusmn;0.10000, R&sup2; = 0.994)</code></pre>
+
+  <div class="box note"><h5>Always Validate on Systems with Known Answers</h5>
+  <p>Never run an invariant discovery tool on an unknown industrial dataset first. If it finds nothing, you won't know if the plant lacks invariants or if your code has a bug. Validate your discovery algorithms on a simulator where you know the exact ground truth first.</p></div>
+
+  <div class="cp"><h5>Checkpoint 5</h5>
+  <p>An automated mining run generates 5,000 candidate invariant equations. You can only afford 6 inside your cryptographic proof. How do you select them?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Rank candidates by tightness (lowest residual variance relative to sensor variance), filter out high-degree non-linear equations, remove redundant near-duplicate formulas, and select the top 6 distinct equations that cover different physical sub-systems.</div></div>
+</section>
+
+<section class="ch" id="c6">
+  <h3 class="ch-title"><span>06</span>The Tolerance &epsilon;, and Why It Is a Result</h3>
+  <p class="goal">Goal: Learn how to set error thresholds without rejecting honest utilities or admitting attacks.</p>
+
+  <p>Because physical sensors have measurement noise and calibration drift, no physical invariant holds with mathematical perfection (residual = 0.000000). Every physical check must evaluate whether the residual falls within an acceptable tolerance window &epsilon;:</p>
+
+  <div class="eq">| Residual r<sub>j</sub>(t) | &nbsp;&le;&nbsp; &epsilon;<sub>j</sub></div>
+
+  <h4>The Dual Risk of Tolerance Calibration</h4>
+  <ul>
+    <li><b>Tolerance Too Tight (&epsilon; too small):</b> Real plants with slightly noisier sensors or minor calibration drift get rejected. Honest utilities are locked out of the federation, making the system unusable in practice.</li>
+    <li><b>Tolerance Too Loose (&epsilon; too large):</b> Attackers can inject fabricated data into the slack space, bypassing the security check completely.</li>
+  </ul>
+
+  <p>We calibrate &epsilon; per client using clean baseline data from their own plant (e.g., the 99.9th percentile of clean residuals multiplied by a safety factor). In scientific publications, you must report the complete trade-off curve showing false-rejection rate vs. detection sensitivity across different &epsilon; values.</p>
+
+  <div class="box mistake"><h5>Row Statistics vs. Batch Statistics</h5>
+  <p>A common mistake is evaluating invariants row-by-row. In a fabricated dataset, 95% of individual rows look plausible in isolation, so row-level score distributions overlap heavily with normal data.</p>
+  <p>However, when evaluated at the <b>batch level</b> (e.g., checking what fraction of rows violate physics across a 1,000-sample training batch), honest data produces a 0.00% violating fraction while fabricated data produces 30% to 90% violations. <b>Always base admission decisions on batch-level violation rates.</b></p></div>
+
+  <div class="cp"><h5>Checkpoint 6</h5>
+  <p>Why should each utility calibrate its own tolerance &epsilon; locally rather than enforcing a single global threshold across the federation?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Different facilities have different sensor models, pipe roughness, noise levels, and sampling hardware. A global threshold calibrated on clean plant A will cause high false rejection rates on plant B. Local calibration on clean historical data accommodates facility-specific hardware while holding each client accountable to its own baseline.</div></div>
+</section>
+
+<div class="quiz" data-quiz="2">
+  <h4>Quiz &mdash; Part II <span class="score"></span></h4>
+  <p class="sub">Test your understanding of physics invariants and tolerance calibration.</p>
+  <div class="q" data-a="1">
+    <p class="stem">1. Your mass-balance residual averages 0.0, but its standard deviation is six times higher than sensor noise. What is the most likely cause?</p>
+    <button class="opt"><span class="mk">A</span>The plant is currently under a cyberattack.</button>
+    <button class="opt"><span class="mk">B</span>Flow and level readings have a one-step time alignment error.</button>
+    <button class="opt"><span class="mk">C</span>The tank diameter was measured in feet instead of meters.</button>
+    <button class="opt"><span class="mk">D</span>The tolerance threshold &epsilon; was set too low.</button>
+    <div class="why"><b>B is correct.</b> A time-indexing shift preserves a mean of zero but inflates residual variance because changes in level are being compared against flow rates from the wrong time window.</div>
+  </div>
+  <div class="q" data-a="2">
+    <p class="stem">2. Why is <abbr title="Sparse L1-regularized linear regression driving non-physical weights to zero."><abbr title="Sparse L1-regularized linear regression driving non-physical weights to zero.">Lasso</abbr> regression</abbr> well-suited for discovering mass balance equations from sensor telemetry?</p>
+    <button class="opt"><span class="mk">A</span>Lasso only works on non-linear relationships.</button>
+    <button class="opt"><span class="mk">B</span>Lasso requires full CAD piping diagrams to run.</button>
+    <button class="opt"><span class="mk">C</span>L1 regularization drives irrelevant sensor weights to exactly zero, isolating the true physical inlet and outlet flows.</button>
+    <button class="opt"><span class="mk">D</span>Lasso eliminates all sensor noise completely.</button>
+    <div class="why"><b>C is correct.</b> Sparse L1 regression automatically filters out dozens of unrelated sensor channels, discovering the exact inlet and outlet flows governing a tank balance.</div>
+  </div>
+  <div class="q" data-a="0">
+    <p class="stem">3. If honest and fabricated datasets show overlapping distributions of individual row scores, what should you do?</p>
+    <button class="opt"><span class="mk">A</span>Compare batch-level violating fractions, because admission decisions evaluate batches rather than isolated rows.</button>
+    <button class="opt"><span class="mk">B</span>Conclude that physics invariants cannot detect the attack.</button>
+    <button class="opt"><span class="mk">C</span>Lower &epsilon; to zero.</button>
+    <button class="opt"><span class="mk">D</span>Discard the physical model and use standard classifiers.</button>
+    <div class="why"><b>A is correct.</b> Most rows in a fabricated batch look individually normal. Aggregating across a full training batch (e.g., 1,000 rows) causes fabricated and honest datasets to separate cleanly.</div>
+  </div>
+</div>
+
+<div class="part-head"><span class="n">Part III</span><h2>From Detection to Admission</h2></div>
+
+<section class="ch" id="c7">
+  <h3 class="ch-title"><span>07</span>Zero-Knowledge Proofs: What You Need to Know</h3>
+  <p class="goal">Goal: Understand how zero-knowledge cryptography enables privacy-preserving verification.</p>
+
+  <p>In traditional security, a server checks data by inspecting it directly. But in federated learning, clients cannot share their raw data. To solve this dilemma, we flip the responsibility: <b>the client generates a mathematical proof that its data obeys physics, and the server verifies the proof without seeing the data.</b></p>
+
+  <p>A <b><abbr title="A cryptographic protocol allowing a party to prove a statement is true without revealing secret data.">Zero-Knowledge Proof</abbr> (ZKP)</b> allows a Prover (the client) to mathematically prove to a Verifier (the server or smart contract) that a statement is true, without revealing any secret information behind the statement.</p>
+
+  <h4>The Three Core Properties of ZKPs</h4>
+  <ul>
+    <li><b>Completeness:</b> If the statement is true and the client is honest, the proof will always be accepted by the verifier.</li>
+    <li><b>Soundness:</b> If the statement is false (the data breaks physics), a cheating client cannot convince the verifier, except with negligible mathematical probability (e.g., 1 in 2<sup>128</sup>).</li>
+    <li><b>Zero-Knowledge:</b> The proof reveals zero information about the underlying sensor values beyond the fact that they obey the invariant equations.</li>
+  </ul>
+
+  <h4><abbr title="Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge: fast, tiny proofs verified in milliseconds.">zk-SNARKs</abbr> (Succinct Non-Interactive Arguments of Knowledge)</h4>
+  <p>We use <b><abbr title="Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge: fast, tiny proofs verified in milliseconds.">zk-SNARKs</abbr></b> (specifically the <abbr title="Widely used pairing-based zk-SNARK proof system producing ~800-byte proofs with sub-5ms verification.">Groth16</abbr> proof system). <a href="#ref9">[9]</a> SNARKs are ideal for federated systems for two reasons:</p>
+  <ol>
+    <li><b>Succinctness:</b> The resulting cryptographic proof is tiny (~800 bytes), and verification takes only a few milliseconds regardless of how large the dataset was.</li>
+    <li><b>Non-Interactive:</b> The client computes the proof once and attaches it to its model update. The verification can be executed automatically on a blockchain smart contract or central coordinator without back-and-forth communication.</li>
+  </ol>
+
+  <div class="cp"><h5>Checkpoint 7</h5>
+  <p>Why is non-interactivity essential for deploying zero-knowledge verification in multi-utility federations?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Non-interactive proofs act as standalone digital certificates. They can be verified instantly by automated coordinators or logged to an immutable smart contract, allowing regulators and partners to verify compliance at any time without requiring the client to stay online.</div></div>
+</section>
+
+<section class="ch" id="c8">
+  <h3 class="ch-title"><span>08</span>The Verification Circuit: Commit, Sample, Check</h3>
+  <p class="goal">Goal: Design a scalable verification circuit whose cost does not blow up with dataset size.</p>
+
+  <p>A naive approach would be to feed all 100,000 rows of training data into a zero-knowledge circuit. In ZK cryptography, computations are compiled into arithmetic constraint systems (<abbr title="Rank-1 Constraint System: an algebraic format expressing zero-knowledge circuits as quadratic matrix constraints.">R1CS</abbr>). Checking every row would require millions of constraints, taking hours to prove on client computers.</p>
+
+  <h4>The Scalable Solution: Spot-Checking via Merkle Commitments</h4>
+  <p>We design a 4-step protocol that decouples proof generation time from total dataset size:</p>
+
+  <ol>
+    <li><b>Commit:</b> The client hashes its entire local batch into a <b><abbr title="Cryptographic binary tree where parent nodes are hashes of their children, anchoring data with a single root hash.">Merkle tree</abbr></b> and publishes the single 32-byte <i><abbr title="The top 32-byte cryptographic hash of a Merkle tree that irrevocably commits to all underlying dataset rows.">Merkle Root</abbr></i>. This cryptographically locks the dataset so the client cannot alter it later.</li>
+    <li><b>Challenge (Fiat&ndash;Shamir):</b> A pseudorandom challenge is derived by hashing the <abbr title="The top 32-byte cryptographic hash of a Merkle tree that irrevocably commits to all underlying dataset rows.">Merkle Root</abbr> and the current round number. This deterministically selects <i>k</i> random sample rows (e.g., <i>k = 64</i>). Because the challenge depends on the committed root, the client cannot predict which rows will be checked before committing.</li>
+    <li><b>Prove:</b> Inside the zero-knowledge circuit, the client opens only the <i>k</i> challenged rows against the <abbr title="The top 32-byte cryptographic hash of a Merkle tree that irrevocably commits to all underlying dataset rows.">Merkle Root</abbr> and proves that each sample satisfies the invariant equations within tolerance &epsilon;.</li>
+    <li><b>Verify:</b> The server verifies the 800-byte SNARK proof in ~5 milliseconds.</li>
+  </ol>
+
+  <figure>
+    <svg viewBox="0 0 760 336" role="img" aria-label="Commit-sample-check circuit architecture. A dataset is committed to a Merkle root and Fiat-Shamir selects k rows outside the circuit. Inside the circuit, the proof's roughly 597,000 constraints are drawn to scale: Merkle openings 51%, leaf hashing 26%, last-layer gradient binding 20%, and physics invariant checks only 3%.">
+      <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <g font-family="Archivo, sans-serif" font-size="12" fill="currentColor">
+        <text x="14" y="20" font-size="11" opacity=".7">CLIENT COMPUTE (OUTSIDE CIRCUIT) &mdash; Fast</text>
+        <rect x="14" y="30" width="150" height="52" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="89" y="50" text-anchor="middle">Dataset (N rows)</text>
+        <text x="89" y="68" text-anchor="middle" font-size="11" opacity=".65">N = 10,000+, Private</text>
+        <line x1="164" y1="56" x2="200" y2="56" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"/>
+        <rect x="204" y="30" width="128" height="52" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="268" y="50" text-anchor="middle">Merkle Root</text>
+        <text x="268" y="68" text-anchor="middle" font-size="11" opacity=".65">32-Byte Hash</text>
+        <line x1="332" y1="56" x2="368" y2="56" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"/>
+        <rect x="372" y="30" width="150" height="52" rx="3" fill="none" stroke="#2B5A8C" stroke-width="1.8"/>
+        <text x="447" y="50" text-anchor="middle" fill="#2B5A8C">Fiat&ndash;Shamir Hash</text>
+        <text x="447" y="68" text-anchor="middle" font-size="11" fill="#2B5A8C" opacity=".85">Picks k = 64 random rows</text>
+        <line x1="447" y1="82" x2="447" y2="118" stroke="#2B5A8C" stroke-width="1.3" marker-end="url(#ar2)"/>
+        <text x="14" y="134" font-size="11" opacity=".7">CRYPTOGRAPHIC CIRCUIT (INSIDE SNARK) &mdash; pay per constraint, ~597,000 total</text>
+        <rect x="14" y="144" width="692" height="100" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <text x="26" y="164" font-size="11.5" opacity=".8">Cost by component:</text>
+        <text x="682" y="164" text-anchor="end" font-size="11" fill="#2B5A8C">Physics checks &mdash; only 3%</text>
+        <line x1="672.5" y1="170" x2="672.5" y2="176" stroke="#2B5A8C" stroke-width="1.3"/>
+        <circle cx="672.5" cy="178" r="2" fill="#2B5A8C"/>
+        <rect x="26" y="178" width="332" height="36" fill="currentColor" opacity=".14"/>
+        <rect x="26" y="178" width="332" height="36" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1"/>
+        <rect x="360" y="178" width="169" height="36" fill="currentColor" opacity=".14"/>
+        <rect x="360" y="178" width="169" height="36" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1"/>
+        <rect x="531" y="178" width="130" height="36" fill="currentColor" opacity=".14"/>
+        <rect x="531" y="178" width="130" height="36" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1"/>
+        <rect x="663" y="178" width="19" height="36" fill="#2B5A8C"/>
+        <text x="192" y="228" text-anchor="middle" font-size="10.5" opacity=".8">Merkle tree openings &mdash; 51%</text>
+        <text x="444.5" y="228" text-anchor="middle" font-size="10.5" opacity=".8">Leaf hashing &mdash; 26%</text>
+        <text x="596" y="228" text-anchor="middle" font-size="10.5" opacity=".8">Gradient binding &mdash; 20%</text>
+        <line x1="360" y1="244" x2="360" y2="274" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"/>
+        <rect x="260" y="278" width="200" height="48" rx="3" fill="none" stroke="#2B5A8C" stroke-width="1.8"/>
+        <text x="360" y="298" text-anchor="middle" fill="#2B5A8C">SNARK Proof &mdash; ~800 Bytes</text>
+        <text x="360" y="316" text-anchor="middle" font-size="11" fill="#2B5A8C" opacity=".85">verified in &lt; 5 ms</text>
+      </g>
+    </svg>
+    <figcaption>Drawn to scale. <abbr title="Cryptographic binary tree where parent nodes are hashes of their children, anchoring data with a single root hash.">Merkle tree</abbr> openings and leaf hashing &mdash; the machinery that lets the circuit spot-check <i>k</i> rows instead of hashing the whole dataset &mdash; account for 77% of the ~597,000 constraints; binding the update to those rows costs another 20%. The physics invariant checks this paper is actually about are the sliver on the right: about 3%. Circuit size stays constant either way, whether the local dataset has 1,000 rows or 1,000,000.</figcaption>
+  </figure>
+
+  <h4>Soundness Analysis: Why Spot-Checking Works</h4>
+  <p>If an attacker corrupts a fraction <i>p</i> of their training data, the probability that at least one corrupted sample is caught in <i>k</i> random spot-checks is:</p>
+  <div class="eq">P(Caught) &nbsp;=&nbsp; 1 &minus; (1 &minus; p)<sup>k</sup></div>
+  <p>With <i>k = 64</i> spot-checks, an attacker corrupting 10% of their dataset is caught with <b>99.88% probability</b> in every round.</p>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Circuit Operation</th><th>Constraints (k=64)</th><th>Share of Cost</th></tr></thead>
+    <tbody>
+      <tr><td><abbr title="Cryptographic binary tree where parent nodes are hashes of their children, anchoring data with a single root hash.">Merkle Tree</abbr> Openings (Depth 20)</td><td>~307,000</td><td>51 %</td></tr>
+      <tr><td>Leaf Hashing (<abbr title="Algebraic hash function designed specifically for minimal constraint counts inside zero-knowledge circuits.">Poseidon</abbr> / SHA-256)</td><td>~154,000</td><td>26 %</td></tr>
+      <tr><td>Last-Layer Gradient Binding</td><td>~120,000</td><td>20 %</td></tr>
+      <tr><td><b>Physics Invariant Residual Checks</b></td><td><b>~16,000</b></td><td><b>3 %</b></td></tr>
+      <tr><td><b>Total Circuit Constraints</b></td><td><b>~597,000</b></td><td><b>100 %</b></td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Notice that <b>evaluating physical laws accounts for only 3% of the cryptographic cost</b>. Over 75% of the cost is <abbr title="Cryptographic binary tree where parent nodes are hashes of their children, anchoring data with a single root hash.">Merkle tree</abbr> hashing. Optimization efforts should focus on cryptographic hash functions (like <abbr title="Algebraic hash function designed specifically for minimal constraint counts inside zero-knowledge circuits.">Poseidon</abbr>), not simplifying the physics. <a href="#ref10">[10]</a></p>
+
+  <div class="cp"><h5>Checkpoint 8</h5>
+  <p>Why should the central server NOT verify public vector norms (like &Vert;&Delta;&Vert;) inside a zero-knowledge circuit?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Because the model update &Delta; is already transmitted in the clear. The server can calculate &Vert;&Delta;&Vert; directly in 10 microseconds with standard Python code. Proving public calculations inside a zero-knowledge circuit wastes thousands of cryptographic constraints for zero additional security.</div></div>
+</section>
+
+<section class="ch" id="c9">
+  <h3 class="ch-title"><span>09</span>What the Proof Binds (and What It Leaves Open)</h3>
+  <p class="goal">Goal: Clearly define what zero-knowledge physics proofs guarantee and their technical boundaries.</p>
+
+  <p>In scientific research, credibility depends on stating your system's exact security boundary upfront.</p>
+
+  <p>A basic physics proof establishes: <i>"The client possesses a dataset committed to <abbr title="The top 32-byte cryptographic hash of a Merkle tree that irrevocably commits to all underlying dataset rows.">Merkle Root</abbr> R whose spot-checked rows satisfy physical laws within tolerance &epsilon;."</i></p>
+
+  <p>However, this alone does not prove that the client's submitted update &Delta; was calculated from that exact dataset. To link the model update to the attested data, we choose between three levels of binding:</p>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Binding Level</th><th>What Is Mathematically Proven</th><th>Computational Cost</th><th>Remaining Limitation</th></tr></thead>
+    <tbody>
+      <tr><td><b>1. Data Attestation Only</b></td><td>Client possesses valid physical data matching Root R.</td><td>Low (~320k constraints)</td><td>Attacker could train on un-attested data.</td></tr>
+      <tr><td><b>2. Last-Layer Gradient Binding (Our System)</b></td><td>&Delta;'s output layer matches the exact analytical gradient on the <i>k</i> verified samples.</td><td>Moderate (~600k constraints)</td><td>Hidden representations in earlier layers are not fully verified.</td></tr>
+      <tr><td><b>3. Full Verifiable Training</b></td><td>&Delta; is the exact mathematical result of multi-epoch <abbr title="Stochastic Gradient Descent: optimization algorithm updating neural network weights via mini-batch gradients.">SGD</abbr> across all data.</td><td>Extremely High (>100M constraints)</td><td>Impractically slow on modern neural networks today.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>We implement <b>Level 2 (Last-Layer Gradient Binding)</b>: the client proves that the final layer of their model update matches the true gradient computed on the verified physical data samples. <a href="#ref11">[11]</a> <a href="#ref12">[12]</a> <a href="#ref13">[13]</a></p>
+
+  <div class="box note"><h5>Why Even Level 1 Provides Substantial Security</h5>
+  <p>Level 1 data attestation forces any adversary to possess or faithfully simulate a fully consistent, highly realistic physical plant. This immediately eliminates casual script kiddies, cloud botnets, and adversaries without deep physical testbed simulators.</p></div>
+
+  <div class="cp"><h5>Checkpoint 9</h5>
+  <p>What is the primary advantage of stating your system's exact security boundaries directly in your paper rather than waiting for peer review?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Proactively explaining that you use Level 2 binding demonstrates technical rigor and mastery of the trade-offs. If reviewers discover an unstated limitation themselves, they assume the authors did not understand their own system. Clearly stating boundaries frames the choice as an intentional engineering trade-off.</div></div>
+</section>
+
+<div class="quiz" data-quiz="3">
+  <h4>Quiz &mdash; Part III <span class="score"></span></h4>
+  <p class="sub">Test your understanding of zero-knowledge circuits and commitments.</p>
+  <div class="q" data-a="2">
+    <p class="stem">1. Why must the spot-check indices be chosen via Fiat&ndash;Shamir hashing of the <abbr title="The top 32-byte cryptographic hash of a Merkle tree that irrevocably commits to all underlying dataset rows.">Merkle root</abbr>?</p>
+    <button class="opt"><span class="mk">A</span>It compresses the proof size to under 100 bytes.</button>
+    <button class="opt"><span class="mk">B</span>It eliminates the need for prime fields in the SNARK.</button>
+    <button class="opt"><span class="mk">C</span>It prevents a cheating client from fabricating 90% of its data and choosing only the 10% clean rows for verification.</button>
+    <button class="opt"><span class="mk">D</span>It enables direct multi-GPU acceleration.</button>
+    <div class="why"><b>C is correct.</b> Because the challenge indices depend on the committed root, the client cannot predict which rows will be inspected until after the entire dataset has been irrevocably locked.</div>
+  </div>
+  <div class="q" data-a="0">
+    <p class="stem">2. In our ~600,000-constraint circuit, what component accounts for the majority of the cost?</p>
+    <button class="opt"><span class="mk">A</span>Merkle tree inclusion openings (~51%) and leaf hashing (~26%).</button>
+    <button class="opt"><span class="mk">B</span>Evaluating physical invariant equations.</button>
+    <button class="opt"><span class="mk">C</span>Floating-point tolerance comparisons.</button>
+    <button class="opt"><span class="mk">D</span>Serializing the proof to JSON.</button>
+    <div class="why"><b>A is correct.</b> Cryptographic tree hashing accounts for over 75% of the total constraints. The physical invariant checks account for just 3% of the circuit.</div>
+  </div>
+  <div class="q" data-a="1">
+    <p class="stem">3. How does our Level 2 binding link model updates to the attested dataset?</p>
+    <button class="opt"><span class="mk">A</span>It proves all 100,000 backpropagation steps through every neural network layer.</button>
+    <button class="opt"><span class="mk">B</span>It proves the output layer's update matches the closed-form analytical gradient on the spot-checked physical samples.</button>
+    <button class="opt"><span class="mk">C</span>It hashes the client's PyTorch model weights into the Merkle root.</button>
+    <button class="opt"><span class="mk">D</span>It requires the server to train the model locally.</button>
+    <div class="why"><b>B is correct.</b> Level 2 binding provides strong, practical cryptographic linkage by mathematically verifying final-layer gradients against attested physical samples.</div>
+  </div>
+</div>
+
+<div class="part-head"><span class="n">Part IV</span><h2>Attacking Your Own Idea</h2></div>
+
+<section class="ch" id="c10">
+  <h3 class="ch-title"><span>10</span>Fabricating Data That Passes Statistics and Fails Physics</h3>
+  <p class="goal">Goal: Create sophisticated data fabrication attacks that defeat standard statistical checks.</p>
+
+  <p>To rigorously validate a defense, you must act as your own red team. A weak attack proves nothing. The attack must satisfy two strict conditions:</p>
+
+  <ol>
+    <li><b>It must break physical invariants:</b> Otherwise, our physics check won't trigger, and there is no defense to evaluate.</li>
+    <li><b>It must pass standard statistical checks and baseline FL defenses:</b> If simple statistical variance checks caught the attack, we wouldn't need zero-knowledge cryptography in the first place.</li>
+  </ol>
+
+  <h4>Four Synthetic Data Fabrication Attacks</h4>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Attack Recipe</th><th>Transformation Method</th><th>Statistical Properties Preserved</th><th>Physical Laws Broken</th></tr></thead>
+    <tbody>
+      <tr><td><b>Channel Roll</b></td><td>Circularly shifts actuator channel columns relative to sensor columns.</td><td>Preserves 100% of individual channel means, variances, marginal distributions, and autocorrelations.</td><td>Completely breaks sensor-actuator couplings (e.g., tank fills while pump reads OFF).</td></tr>
+      <tr><td><b>Within-Regime Permutation</b></td><td>Permutes actuator values only within specific operational regimes.</td><td>Preserves regime-conditional marginal distributions.</td><td>Breaks instantaneous differential mass balances.</td></tr>
+      <tr><td><b>Conservation Scaling</b></td><td>Multiplies all flow sensor readings by scale factor &alpha; while leaving water levels unchanged.</td><td>Preserves static feature bounds and min/max ranges.</td><td>Destroys mass balance conservation.</td></tr>
+      <tr><td><b>Regime Splicing</b></td><td>Cuts and reorders long chunks of genuine operational data without smooth transitions.</td><td>Preserves all natural sensor distributions across segments.</td><td>Breaks physics exclusively at boundary splice points.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>The One Attack That Slips Through: Regime Splicing</h4>
+  <p>When evaluated against our 1% batch admission threshold, <b>Channel Roll, Permutation, and Scaling are 100% caught</b> (violation rates > 35%).</p>
+
+  <p>However, <b>Regime Splicing is admitted every time</b>. Because splicing only breaks physics at the exact join points (e.g., 10 bad rows across a 2,000-row batch = 0.5% violation rate), it falls below the 1.0% tolerance threshold.</p>
+
+  <p>This is a real, structural property of percentage-based threshold rules. Stating this limitation openly in your research paper strengthens your work: you can explain the trade-off (lowering the threshold catches splicing but increases false alarms on noisy honest plants) and propose sequence-based run checks for future work.</p>
+
+  <div class="cp"><h5>Checkpoint 10</h5>
+  <p>Why is the Channel Roll a much better benchmark attack for evaluating physics defenses than simple Gaussian noise injection?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Gaussian noise alters feature distributions, variances, and correlations, so a simple statistical validator would detect it immediately without needing physics. The Channel Roll preserves 100% of per-channel statistics, proving that physics attestation catches attacks that statistical validators cannot see.</div></div>
+</section>
+
+<section class="ch" id="c11">
+  <h3 class="ch-title"><span>11</span>The Adaptive Attacker, and the Paper's Headline Metric</h3>
+  <p class="goal">Goal: Calculate what happens when an attacker knows your defense and mathematically optimizes against it.</p>
+
+  <p>Following <b><abbr title="Security rule stating that a system must remain secure even if its algorithms are completely public.">Kerckhoffs's Principle</abbr></b>, we must assume the adversary has full knowledge of our invariant equations and tolerance thresholds. When an intelligent attacker knows the rules, they will not submit obviously failing data. Instead, they solve a constrained optimization problem: <a href="#ref14">[14]</a> <a href="#ref15">[15]</a> <a href="#ref16">[16]</a> <a href="#ref17">[17]</a></p>
+
+  <div class="eq">Find X<sub>projected</sub> &nbsp;=&nbsp; argmin &Vert;X &minus; X<sub>fabricated</sub>&Vert;&sup2; &nbsp;&nbsp;subject to&nbsp;&nbsp; |Invariants(X)| &le; &epsilon;</div>
+
+  <p>The attacker takes their poisoned dataset and <b>projects it back onto the physically feasible manifold</b>, finding the closest possible dataset that will pass the zero-knowledge verification check.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 268" role="img" aria-label="Geometric diagram showing how projecting a fabricated attack back onto the physical manifold removes the majority of its poisoning capability.">
+      <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+      <marker id="ar3r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8E2F35"/></marker>
+      <marker id="ar3g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2B5A8C"/></marker></defs>
+      <g font-family="Archivo, sans-serif" font-size="12.5" fill="currentColor">
+        <path d="M40,150 L640,110" stroke="currentColor" stroke-width="1" opacity=".35"/>
+        <path d="M40,206 L640,166" stroke="currentColor" stroke-width="1" opacity=".35"/>
+        <path d="M40,150 L640,110 L640,166 L40,206 Z" fill="currentColor" opacity=".07"/>
+        <text x="52" y="228" font-size="12" opacity=".7">Physically Feasible Set (Data obeying invariants within &epsilon;)</text>
+        <circle cx="250" cy="58" r="6" fill="#8E2F35"/>
+        <text x="250" y="42" text-anchor="middle" font-size="12" fill="#8E2F35">Fabricated Poisoning Dataset</text>
+        <line x1="250" y1="58" x2="470" y2="58" stroke="#8E2F35" stroke-width="2" marker-end="url(#ar3r)"/>
+        <text x="360" y="48" text-anchor="middle" font-size="11.5" fill="#8E2F35">Full Poisoning Direction</text>
+        <line x1="250" y1="58" x2="250" y2="164" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#ar3)"/>
+        <text x="262" y="118" font-size="11.5" opacity=".8">Mathematical Projection</text>
+        <circle cx="250" cy="167" r="6" fill="#2B5A8C"/>
+        <text x="250" y="192" text-anchor="middle" font-size="12" fill="#2B5A8C">Projected Dataset (Admitted)</text>
+        <line x1="250" y1="167" x2="316" y2="163" stroke="#2B5A8C" stroke-width="2" marker-end="url(#ar3g)"/>
+        <text x="410" y="163" font-size="11.5" fill="#2B5A8C">Remaining Poisoning Power (Weakened)</text>
+      </g>
+    </svg>
+    <figcaption>Because the attacker is forced to project their data back inside the physically valid band, the vector component driving the poisoning attack is drastically reduced.</figcaption>
+  </figure>
+
+  <h4>The Headline Metric: Attack Capability Removed</h4>
+  <p>The core scientific question is: <b>How much poisoning power is destroyed when the attacker is forced to obey physics?</b></p>
+
+  <div class="eq">Attack Capability Removed &nbsp;=&nbsp; 1 &minus; ( F1 Drop<sub>Projected</sub> / F1 Drop<sub>Fabricated</sub> )</div>
+
+  <p>If unconstrained poisoning causes a 30-point <abbr title="Reduction in anomaly detection score caused by model poisoning.">F1 drop</abbr>, but projected poisoning causes only a 3-point drop, then <b>90% of attack capability was removed</b> by enforcing physics.</p>
+
+  <div class="cp"><h5>Checkpoint 11</h5>
+  <p>Why did our earlier choice of linear invariant equations make analyzing the adaptive attacker mathematically rigorous?</p>
+  <button onclick="rev(this)">Show</button>
+  <div class="ans">Because linear equations form convex constraint hyperplanes. Projecting onto a convex set is a quadratic programming problem with a guaranteed global optimum. This ensures our evaluation measures the strongest possible adaptive attack, rather than an arbitrary sub-optimal attempt.</div></div>
+</section>
+
+<section class="ch" id="c12">
+  <h3 class="ch-title"><span>12</span>Designing Experiments So Results Mean Something</h3>
+  <p class="goal">Goal: Apply the five principles of rigorous empirical evaluation in security research.</p>
+
+  <p>Evaluating defenses in adversarial machine learning is notoriously prone to methodological pitfalls. To ensure our experimental results are robust and scientifically reproducible, we adhere to five core principles synthesized from foundational security literature:</p>
+
+  <ol>
+    <li><b>Never calibrate alarm thresholds on test data (Preventing Data Leakage):</b> Always calibrate anomaly detection thresholds exclusively on a separate clean validation split. Calibrating thresholds on test data leaks attack distributions and artificially inflates detection scores. <a href="#ref18">[18]</a></li>
+    <li><b>Partition federated clients by physical site (Realistic Non-IID Splits):</b> Never randomly shuffle sensor telemetry rows across federated clients. Real industrial federations are naturally <abbr title="Non-Independent and Identically Distributed: data distributions vary between clients due to different operating scales.">non-IID</abbr> because different physical plants operate on different scales, pump capacities, and pressure setpoints.</li>
+    <li><b>Always report clean baselines alongside attack numbers (Contextual Baselines):</b> An F1 drop of 3.0 points is meaningless if the clean baseline model was broken and only achieved F1 = 0.15. Clean, poisoned, and defended performance must always be reported side-by-side. <a href="#ref19">[19]</a></li>
+    <li><b>Evaluate acceptance and damage independently (Disentangled Vulnerability):</b> An attack that is accepted by aggregation but causes zero model degradation is not dangerous; an attack that causes catastrophic damage but is 100% rejected by robust aggregation is not a vulnerability. Scientific evaluation must measure aggregation acceptance rate and downstream model degradation as separate metrics.</li>
+    <li><b>Fix the threat model and Go/No-Go thresholds before running experiments (Eliminating Motivated Reasoning):</b> Define exact numerical success thresholds in automated scripts (such as <code>scripts/go_nogo.py</code>) before launching experiments. Committing the evaluation protocol to code before the first run prevents researchers from shifting goalposts or explaining away inconvenient anomalies after seeing noisy data. <a href="#ref20">[20]</a></li>
+  </ol>
+</section>
+
+<div class="quiz" data-quiz="4">
+  <h4>Quiz &mdash; Part IV <span class="score"></span></h4>
+  <p class="sub">Test your understanding of adversarial evaluation and experiment design.</p>
+  <div class="q" data-a="1">
+    <p class="stem">1. Why does the Channel Roll attack bypass standard statistical anomaly detectors?</p>
+    <button class="opt"><span class="mk">A</span>It injects random Gaussian noise.</button>
+    <button class="opt"><span class="mk">B</span>It preserves every individual sensor's mean, variance, and marginal distribution exactly by shifting column orders.</button>
+    <button class="opt"><span class="mk">C</span>It reduces the size of the training dataset.</button>
+    <button class="opt"><span class="mk">D</span>It uses homomorphic encryption.</button>
+    <div class="why"><b>B is correct.</b> The Channel Roll keeps every single data point intact for each channel, altering only the cross-channel physical correlations between actuators and sensors.</div>
+  </div>
+  <div class="q" data-a="3">
+    <p class="stem">2. If Regime Splicing bypasses a 1% batch threshold check, what is the scientifically honest response?</p>
+    <button class="opt"><span class="mk">A</span>Delete the test from the codebase.</button>
+    <button class="opt"><span class="mk">B</span>Lower the threshold to 0.0% regardless of false alarm rates.</button>
+    <button class="opt"><span class="mk">C</span>Claim the attack is impossible in practice.</button>
+    <button class="opt"><span class="mk">D</span>Report the structural limitation openly, explain the false-alarm trade-off, and discuss sequence-based mitigations.</button>
+    <div class="why"><b>D is correct.</b> Reporting structural trade-offs transparently builds credibility and outlines productive directions for future research.</div>
+  </div>
+  <div class="q" data-a="0">
+    <p class="stem">3. If a baseline model only achieves F1 = 0.12 on clean data, what should you conclude about a 0.03 drop under attack?</p>
+    <button class="opt"><span class="mk">A</span>The baseline model is broken; fix the architecture and training pipeline before evaluating attacks.</button>
+    <button class="opt"><span class="mk">B</span>The attack succeeded because F1 dropped.</button>
+    <button class="opt"><span class="mk">C</span>The defense passed Criterion 3.</button>
+    <button class="opt"><span class="mk">D</span>Publish the result immediately.</button>
+    <div class="why"><b>A is correct.</b> A model at F1 = 0.12 is operating near random chance. Any 3-point fluctuation is noise. You must establish a healthy clean baseline before measuring poisoning effects.</div>
+  </div>
+</div>
+
+<div class="part-head"><span class="n">Part V</span><h2>Pilot Study Results & Lessons Learned</h2></div>
+
+<section class="ch" id="c13">
+  <h3 class="ch-title"><span>13</span>Empirical Findings from Real Industrial Data</h3>
+  <p class="goal">Goal: Understand the pilot study's objectives, the 4 success criteria fixed in advance, and what the empirical results prove.</p>
+
+  <h4>1. What Was the Pilot Study Looking to Accomplish?</h4>
+  <p>Before investing weeks of multi-node GPU cloud compute on AWS, we ran a <b>pilot study</b> against a fixed threat model and success thresholds. Its purpose was simple: <b>de-risk the four foundational scientific assumptions</b> behind Physics-Attested Federated Learning. If any single assumption failed on a small scale, the core thesis of the paper would be dead, preventing weeks of wasted research and compute.</p>
+
+  <p>We evaluated the entire pipeline across three test environments:</p>
+  <ul>
+    <li><b>The Synthetic Benchmark Plant (Our Ground Truth Control):</b> An in-house, high-fidelity physical plant simulator with known differential equations (three storage tanks with exact areas of 12.0 m&sup2;, 15.0 m&sup2;, 10.0 m&sup2;, four pumps, and continuous inflow/outflow dynamics). Because we know the exact physical ground truth, the synthetic benchmark allows us to mathematically verify that our unsupervised miner discovers true equations, that time-indexing is exact, and that zero-knowledge circuits prove real physics without bugs.</li>
+    <li><b>BATADAL Water Network:</b> An international benchmark dataset based on the C-Town municipal water distribution system with real hydraulic dynamics and 14 recorded cyberattacks.</li>
+    <li><b>HAI Industrial Testbed:</b> A complex, multi-loop hardware-in-the-loop system combining boiler, turbine, and water treatment processes across 80+ sensor channels. <a href="#ref22">[22]</a></li>
+  </ul>
+
+  <h4>2. The Four Evaluation Criteria, Fixed Before the Runs</h4>
+  <p>As is standard in adversarial evaluation, the threat model and all four success thresholds were <b>fixed in code</b> (in <code>scripts/go_nogo.py</code>) before any experiment ran. This prevented shifting goalposts after observing noisy data:</p>
+
+  <ol>
+    <li><b>Criterion 1: Residual Separation (Can physics catch fake data?)</b><br>
+      <i>The Question:</i> Do physical invariants produce near-zero residuals on honest data while producing large violations on fabricated data?<br>
+      <i>Target Threshold:</i> &lt; 5.0% overlap between honest and fabricated batch score distributions, and &lt; 5.0% false rejection rate on clean data.</li>
+    <li><b>Criterion 2: Baseline Vulnerability (Is current FL actually blind to fake data?)</b><br>
+      <i>The Question:</i> Do standard and robust aggregation rules accept physically implausible updates?<br>
+      <i>Target Threshold:</i> At least 3 of 6 baseline defenses (FedAvg, Krum, Median, Trimmed Mean, Norm Clip, FLTrust) must accept the malicious update. If existing defenses already reject it, there is no security gap to solve.</li>
+    <li><b>Criterion 3: Measurable Detection Fall (Does the attack actually damage the model?)</b><br>
+      <i>The Question:</i> When malicious updates are accepted, does the shared anomaly detector suffer a meaningful loss in detection accuracy?<br>
+      <i>Target Threshold:</i> The shared detector's F1 score must drop by at least 3.0 points under attack.</li>
+    <li><b>Criterion 4: Adaptive Attacker Neutralized (Does enforcing physics destroy the attack?)</b><br>
+      <i>The Question:</i> When an attacker knows the physics checks and mathematically projects their data to pass verification, how much of their attack power is removed?<br>
+      <i>Target Threshold:</i> Forcing the attacker onto the physical manifold must remove <b>at least 50.0% of the attack's F1 degradation</b>.<br>
+      <i>How This Threshold Was Determined:</i> In adversarial defense benchmarking, 50% represents the standard <b>majority-capability mitigation threshold</b>. To claim practical defense viability, a mechanism must eliminate the majority (&ge; 50%) of an adversary's damage, establishing a clear line above minor stochastic noise or marginal (5&ndash;10%) mitigations. Setting &ge; 50% as a strict floor in the evaluation protocol ensures that any defense that only blunts 20% of an attack is rejected as a failure. In our pilot, physics projection removed <b>104.2% of damage on FedAvg and 110.5% on Trimmed Mean</b>, well exceeding the threshold.</li>
+  </ol>
+
+  <h4>Summary of Pilot Findings</h4>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Evaluation Criterion</th><th>Target Threshold</th><th>Observed Pilot Result</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><b>Criterion 1: Residual Separation</b></td><td>Overlap &lt; 0.05, False Rejection &lt; 0.05</td><td>Separated on BATADAL (0.00% false rejection, 96.7% violation rate with hand-crafted invariants, 98.3% with automatically mined invariants).</td><td><b style="color:var(--right)">PASS</b></td></tr>
+      <tr><td><b>Criterion 2: Baseline Vulnerability</b></td><td>&ge; 3 of 6 FL defenses accept attack</td><td>Accepted by FedAvg, Median, and Norm-Clip (3/6 defenses accept 100% of updates).</td><td><b style="color:var(--right)">PASS</b></td></tr>
+      <tr><td><b>Criterion 3: Measurable Detection Fall</b></td><td>F1 drop &ge; 3.0 points</td><td>FedAvg collapsed by 34.62 pts; Trimmed Mean collapsed by 15.15 pts at 30% malicious fraction.</td><td><b style="color:var(--right)">PASS</b></td></tr>
+      <tr><td><b>Criterion 4: Adaptive Attacker Neutralized</b></td><td>&ge; 50% capability removed</td><td>104.2% removed on FedAvg, 110.5% removed on Trimmed Mean (averaged 107.3% on damaged defenses).</td><td><b style="color:var(--right)">PASS</b></td></tr>
+      <tr><td><b>Criterion 4b: FLTrust Interaction Discovery</b></td><td>Projection does not increase damage</td><td>On FLTrust, projecting data onto physics increased trust scores (F1 drop: 2.34 pts &rarr; 6.34 pts).</td><td><b style="color:var(--check)">NOVEL INSIGHT</b></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="box note"><h5>Why the Pilot's Own Script Prints "NO-GO"</h5>
+  <p>Chapter 12 of this course reader argues for fixing the threat model and success criteria before the runs so that an
+  inconvenient result cannot be quietly reinterpreted after the fact. Taking that seriously means
+  reporting what happened when we followed it: Criterion 4b was fixed in advance as "projection must
+  not increase damage on any baseline defense," and it failed for FLTrust. Because
+  <code>scripts/go_nogo.py</code> combines every criterion with a strict AND, its literal output for
+  this run is <b>NO-GO</b>, even though Criteria&nbsp;1&ndash;4 all pass and the FLTrust result is, on
+  inspection, a finding rather than a flaw. We report the script's verdict here rather than silencing
+  it, and explain in Section&nbsp;4 below why the team is proceeding to the full study with this
+  interaction as a named target, not treating it as a reason to stop.</p></div>
+
+  <h4>3. How the Core Tests Passed (And What Each Result Proves)</h4>
+
+  <p><b>How Criterion 1 Passed on BATADAL:</b> Both hand-crafted mass balances and unsupervised mined invariants separated honest operational batches from Channel-Roll fabrications with <b>0.00% false rejection</b>. The violation rate was <b>96.7% for the hand-crafted invariant set and 98.3% for the automatically mined set</b> &mdash; the two figures differ because the miner discovers one extra coupling (S_V2~F_V2) that the hand-crafted set omits. This proves that natural physical laws act as strict mathematical boundaries that statistical data fabrications cannot cross.</p>
+
+  <p><b>How Criterion 2 Passed:</b> When tested at 30% malicious clients (3 out of 10 clients compromised), FedAvg, Coordinate-Wise Median, and Norm Clipping accepted 100% of the fabricated updates. This confirms the fundamental vulnerability: statistical defenses only check update sizes and central clusters, leaving them blind when an attacker submits physically impossible data.</p>
+
+  <p><b>How Criterion 3 Passed:</b> Once admitted, the poisoned updates severely degraded the shared detector. FedAvg's F1 score collapsed by <b>34.62 points</b> (dropping from 0.53 clean down to 0.18 under attack). More importantly, <b>Trimmed Mean</b>—the standard Byzantine defense in FL literature—also broke down at 30% malicious clients, suffering a <b>15.15-point F1 collapse</b> (from 0.53 to 0.37). This proved that the attack is severe and defeats robust statistical aggregation.</p>
+
+  <p><b>How Criterion 4 Passed:</b> We then tested the adaptive attacker who projects their fabricated batch onto the physical invariant manifold to pass verification. On both FedAvg and Trimmed Mean, forcing the attacker to satisfy physics <b>removed >100% of the attack's capability</b> (FedAvg F1 fully restored to 0.56; Trimmed Mean F1 fully restored to 0.56). By constraining the attacker to physically consistent data, the poisoning vector was destroyed.</p>
+
+  <h4>4. The Discovery: The FLTrust Amplification Effect</h4>
+  <p>While the adaptive defense completely neutralized attacks on FedAvg and Trimmed Mean, testing against <b>FLTrust</b> revealed an unexpected, fascinating interaction: projecting data onto the physical manifold made the attack slightly <i>more</i> effective on FLTrust (F1 drop increased from 2.34 pts unprojected to 6.34 pts projected).</p>
+
+  <p><b>Why did this happen?</b> FLTrust weights client updates by cosine similarity against a clean server reference update. When an attacker submits crude, unconstrained fake data, its gradient points in an abnormal direction, so FLTrust gives it a low trust weight. But when the attacker projects their data onto physical invariants, the data obeys real plant dynamics, <b>rotating the malicious gradient closer to the honest direction (the "honest cone")</b>. FLTrust sees a high cosine similarity and assigns the malicious client a higher trust weight.</p>
+
+  <div class="box note"><h5>Core Insight Scaffolding the Full Study</h5>
+  <p>As a pilot study, our primary goal was to validate the experimental methodology and uncover architectural interactions before scaling up. This result provides the foundational insight that will scaffold our full-scale study: <b>Physics attestation and statistical defenses are strictly complementary.</b> Statistical filters cannot detect physically plausible data, while physics verification makes subtle attacks appear statistically honest. Securing federated learning in critical infrastructure requires both layers working together.</p></div>
+
+  
+</section>
+
+
+
+<section class="ch" id="c14">
+  <h3 class="ch-title"><span>14</span>Next Steps</h3>
+  <p class="goal">Goal: Review what the pilot study settled and examine the roadmap and dataset strategy for the full-scale empirical study.</p>
+
+  <h4>1. What the Pilot Study Established</h4>
+  <p>Our pilot study successfully de-risked the foundational assumptions of Physics-Attested Federated Learning:</p>
+  <ul>
+    <li><b>Physical Discriminability:</b> Physics invariants cleanly separate genuine telemetry from fabricated attack batches with 0.00% false rejection on BATADAL (Criterion 1).</li>
+    <li><b>Vulnerability Confirmed:</b> Baseline federated learning defenses (FedAvg, Median, Norm-Clip) are blind to physically impossible training data (Criterion 2).</li>
+    <li><b>Severe Impact:</b> Admitting fabricated updates causes deep anomaly detection collapse across standard and robust aggregation rules (Criterion 3).</li>
+    <li><b>Attacks Neutralized:</b> Forcing adaptive attackers to obey physical invariants removes >100% of attack capability on damaged defenses (Criterion 4).</li>
+    <li><b>Architectural Synergy:</b> Physics attestation and statistical defenses are complementary layers; both are required for robust security (Criterion 4b).</li>
+  </ul>
+
+  <h4>2. Roadmap for the Full Study</h4>
+  <p>With the core mechanisms verified in this pilot, the full study expands the evaluation across four primary technical dimensions:</p>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Dimension</th><th>Pilot Implementation</th><th>Full Study Plan</th></tr></thead>
+    <tbody>
+      <tr><td><b>Datasets</b></td><td>Synthetic Benchmark Plant, BATADAL water network, and HAI testbed.</td><td>Scale to multi-plant benchmarks including SWaT, WADI, EPIC, and ICS-NAD spanning independent physical systems.</td></tr>
+      <tr><td><b>Adversarial Complexity</b></td><td>Recipe A (Channel Roll, Permutation, Conservation Scaling, Regime Splicing).</td><td>Implement <b>Recipe B (Gradient-Matched Data Fabrication)</b> using published update-space optimization (Geiping et al. <a href="#ref17">[17]</a>) to benchmark against mathematically optimal adversaries.</td></tr>
+      <tr><td><b>Zero-Knowledge Cryptography</b></td><td>Estimated constraint counts and arithmetic architecture on paper (~597k constraints).</td><td>Full Circom circuit implementation with Groth16 trusted setup, automated witness generation in C++, and verification profiling on distributed ledgers. <a href="#ref23">[23]</a></td></tr>
+      <tr><td><b>Hyperparameter Grid</b></td><td>Fixed 30% malicious fraction on 3-seed replication.</td><td>Full experimental grid across 5 random seeds, multiple malicious fractions (10%, 20%, 30%, 40%), and site-based non-IID data distributions.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Which real datasets, and how much of the paper each should carry</h4>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Dataset</th><th>Access</th><th>Role in the paper</th><th>Portion / effort</th></tr></thead>
+    <tbody>
+      <tr><td><b>Synthetic plant</b></td><td>In hand</td><td>Ground-truth validation of the invariant miner.</td><td>Already done. No further work.</td></tr>
+      <tr><td><b>BATADAL</b></td><td>In hand, downloaded</td><td>Primary quantitative benchmark. The simulator is known exactly, so hand-fitted invariants are ground truth, not an approximation &mdash; this is the paper's most defensible number.</td><td>Already the pilot's workhorse. Extend to the full grid (0/10/20/30% malicious, 3 seeds); no new data work needed.</td></tr>
+      <tr><td><b>HAI</b></td><td>In hand, downloaded</td><td>The honest negative. Criterion 1 fails here for a structural, checkable reason (near-zero actuator switching across 920k+ training rows), not a bug. Keep it as the paper's stated scope, not a result to bury.</td><td>Already done. No further data work, just the write-up.</td></tr>
+      <tr><td><b>SWaT</b> (A1 &amp; A2, Dec 2015)</td><td><b>Now accessible via iTrust</b> &mdash; not yet downloaded</td><td>The credibility upgrade the plan was chasing with <abbr title="A dataset spanning three real plants from three vendors, proposed in the plan as the primary multi-site benchmark.">ICS-NAD</abbr>, at lower cost: Adepu &amp; Mathur already published SWaT's process invariants, so this is a real plant whose invariants the paper does not have to mine or defend from scratch. <a href="#ref6">[6]</a></td><td><b>Core, not stretch.</b> Download only the historian/physical CSV from the A1 &amp; A2 folder &mdash; the matching zip is 101&nbsp;GB because it bundles raw network captures the paper does not need. The physical dataset itself is tens of MB. Run it through the same Day 1&ndash;5 sequence as BATADAL.</td></tr>
+      <tr><td><b>WADI</b> (A1, 2017)</td><td>Now accessible via iTrust &mdash; not yet downloaded</td><td>Same lab as SWaT, a different physical process (distribution, not treatment). Shows the method generalizes across two related plants, short of true multi-vendor diversity.</td><td>Stretch, after SWaT and the full BATADAL grid are solid. WADI.A1_9&nbsp;Oct&nbsp;2017.zip (848&nbsp;MB) is the smallest and most-cited release &mdash; skip the larger 2019/2023 zips.</td></tr>
+      <tr><td><b>EPIC</b></td><td>Now accessible via iTrust &mdash; not yet downloaded</td><td>A genuinely different domain (electric power, not water) &mdash; the strongest real candidate for the cross-vendor generalization claim <abbr title="A dataset spanning three real plants from three vendors, proposed in the plan as the primary multi-site benchmark.">ICS-NAD</abbr> was meant to provide. No published invariants exist for it, so it costs the same from-scratch mining effort HAI did.</td><td>Stretch only, and only once Recipe B and the circuit are done. Budget a full week if attempted &mdash; treat it the way the plan treats HAI, not the way it treats BATADAL.</td></tr>
+      <tr><td><b>CISS</b></td><td>Now accessible via iTrust &mdash; not yet downloaded</td><td><b>Not a fourth plant.</b> iTrust's own documentation describes CISS as red-team competition data collected <em>on the SWaT testbed</em> &mdash; attack scenarios and historian data from live security exercises, not an independent physical process. It does not buy multi-vendor diversity; at most it is extra attack variety on a plant SWaT already covers.</td><td>Skip for this paper. Revisit only for a later attack-diversity robustness check on SWaT specifically.</td></tr>
+      <tr><td><b><abbr title="A dataset spanning three real plants from three vendors, proposed in the plan as the primary multi-site benchmark.">ICS-NAD</abbr></b> <a href="#ref21">[21]</a></td><td>Not requested</td><td>The plan's original primary dataset &mdash; three real plants, three vendors. Superseded: SWaT, WADI, and EPIC, now actually in hand, cover the same "true multi-site, real plant" argument, and two of the three come with a published-invariant literature base ICS-NAD does not.</td><td><b>Drop it.</b> Requesting a new dataset now, five weeks from the deadline, costs calendar time the iTrust access already made unnecessary.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p><b>Net recommendation:</b> keep Synthetic, BATADAL, and HAI exactly as run. Add SWaT (A1 &amp; A2, physical CSV only) as the second real-plant testbed &mdash; it is the one addition that measurably strengthens the paper, since its invariants are already published and citable. Treat WADI and then EPIC as stretch goals, in that order, only after Recipe B and the circuit are built &mdash; neither is required for the paper's core claim. Do not pursue ICS-NAD or CISS: the first is superseded by access you already have, and the second is not the kind of data invariant mining needs.</p>
+</section>
+
+<div class="quiz" data-quiz="5">
+  <h4>Quiz &mdash; Part V <span class="score"></span></h4>
+  <p class="sub">Test your understanding of the empirical pilot results.</p>
+  <div class="q" data-a="2">
+    <p class="stem">1. Why did the automatic miner find zero actuator couplings in the original <abbr title="Hardware-in-the-loop industrial testbed simulating boiler, turbine, and water processes.">HAI</abbr> training recording?</p>
+    <button class="opt"><span class="mk">A</span>HAI contains no industrial sensors.</button>
+    <button class="opt"><span class="mk">B</span>The Lasso regularization was set too high.</button>
+    <button class="opt"><span class="mk">C</span>22 of HAI's actuator channels remained constant across 920,000 rows, providing no state transitions to learn from.</button>
+    <button class="opt"><span class="mk">D</span>HAI data is stored in binary format.</button>
+    <div class="why"><b>C is correct.</b> Without state changes in the training data, the miner cannot observe correlations between actuator switches and flow changes.</div>
+  </div>
+  <div class="q" data-a="1">
+    <p class="stem">2. What did our 3-seed replication show regarding the adaptive attacker on <abbr title="Federated Averaging: baseline FL aggregation algorithm averaging client model updates proportionally by sample size.">FedAvg</abbr> and Trimmed Mean?</p>
+    <button class="opt"><span class="mk">A</span>The defense had no effect on poisoning.</button>
+    <button class="opt"><span class="mk">B</span>Projecting data onto physical invariants removed over 100% of attack capability, restoring clean model accuracy.</button>
+    <button class="opt"><span class="mk">C</span>The attack completely bypassed the defense.</button>
+    <button class="opt"><span class="mk">D</span>The model failed to converge.</button>
+    <div class="why"><b>B is correct.</b> Forcing the attacker to satisfy physical conservation laws completely neutralized poisoning on both standard and robust aggregation rules.</div>
+  </div>
+  <div class="q" data-a="0">
+    <p class="stem">3. What did the <abbr title="Byzantine-robust defense weighting client updates based on cosine similarity to a clean server update.">FLTrust</abbr> interaction teach us about federated security in critical infrastructure?</p>
+    <button class="opt"><span class="mk">A</span>Physics attestation and statistical defenses are complementary: neither is sufficient on its own.</button>
+    <button class="opt"><span class="mk">B</span>FLTrust should never be used in industrial systems.</button>
+    <button class="opt"><span class="mk">C</span>Zero-knowledge proofs cannot verify machine learning.</button>
+    <button class="opt"><span class="mk">D</span>Poisoning attacks are impossible on water networks.</button>
+    <div class="why"><b>A is correct.</b> Physics verification ensures data validity while statistical aggregation ensures directional consensus; both layers are essential for comprehensive security.</div>
+  </div>
+</div>
+
+<section class="ch" id="close">
+  <div class="part-head"><span class="n">Summary</span><h2>Key Skills & Core Competencies</h2></div>
+  <p>Congratulations on completing the course reader! You should now be able to:</p>
+  <ul>
+    <li>Explain why federated learning's privacy model creates an unaudited data blind spot in critical infrastructure.</li>
+    <li>Identify the limitations of Byzantine aggregation and norm bounds when facing <abbr title="Non-Independent and Identically Distributed: data distributions vary between clients due to different operating scales.">non-IID</abbr> industrial data.</li>
+    <li>Formulate mathematical process invariants (mass balances, actuator couplings) with correct time alignment.</li>
+    <li>Mine physical laws automatically from raw historian telemetry using sparse <abbr title="Sparse L1-regularized linear regression driving non-physical weights to zero.">Lasso</abbr> regression.</li>
+    <li>Calibrate tolerance windows &epsilon; to balance false alarm rates against attack detection sensitivity.</li>
+    <li>Design efficient zero-knowledge verification circuits using Merkle commitments and Fiat&ndash;Shamir spot-checking.</li>
+    <li>Construct sophisticated data fabrication attacks (Channel Rolls) that defeat standard statistical checks.</li>
+    <li>Evaluate adaptive adversaries mathematically using convex quadratic projections.</li>
+    <li>Analyze real-world experimental results across physical testbeds (<abbr title="Battle of the Attack Detection Algorithms: a municipal water distribution benchmark dataset.">BATADAL</abbr>, <abbr title="Hardware-in-the-loop industrial testbed simulating boiler, turbine, and water processes.">HAI</abbr>, Synthetic).</li>
+  </ul>
+</section>
+
+<div class="part-head"><span class="n">References</span><h2>Works Cited</h2></div>
+<section class="ch" id="references">
+  <p class="goal">Every citation used in this course reader, gathered in one place. Bracketed numbers in the chapter text link here; each entry below links out to its DOI, arXiv page, or source.</p>
+  <div class="tablewrap"><table>
+    <tbody>
+      <tr id="ref1"><td>[1]</td><td>P. Blanchard, E. M. El Mhamdi, R. Guerraoui, J. Stainer. <i>Machine Learning with Adversaries: Byzantine Tolerant Gradient Descent.</i> NeurIPS 2017.</td></tr>
+      <tr id="ref2"><td>[2]</td><td>D. Yin, Y. Chen, K. Ramchandran, P. Bartlett. <i>Byzantine-Robust Distributed Learning: Towards Optimal Statistical Rates.</i> ICML 2018.</td></tr>
+      <tr id="ref3"><td>[3]</td><td>X. Cao, M. Fang, J. Liu, N. Z. Gong. <i>FLTrust: Byzantine-Robust Federated Learning via Trust Bootstrapping.</i> NDSS 2021. <a href="https://arxiv.org/abs/2012.13995" target="_blank" rel="noopener">arXiv:2012.13995</a>.</td></tr>
+      <tr id="ref4"><td>[4]</td><td>H. Lycklama, L. Burkhalter, A. Viand, N. K&uuml;chler, A. Hithnawi. <i>RoFL: Robustness of Secure Federated Learning.</i> IEEE S&amp;P 2023. <a href="https://arxiv.org/abs/2107.03311" target="_blank" rel="noopener">arXiv:2107.03311</a>.</td></tr>
+      <tr id="ref5"><td>[5]</td><td>J. Bell et al. <i>ACORN: Input Validation for Secure Aggregation.</i> USENIX Security 2023. <a href="https://eprint.iacr.org/2022/1461" target="_blank" rel="noopener">IACR ePrint 2022/1461</a>.</td></tr>
+      <tr id="ref6"><td>[6]</td><td>S. Adepu, A. Mathur. <i>Using Process Invariants to Detect Cyber Attacks on a Water Treatment System.</i> IFIP SEC 2016. <a href="https://doi.org/10.1007/978-3-319-33630-5_7" target="_blank" rel="noopener">doi:10.1007/978-3-319-33630-5_7</a>.</td></tr>
+      <tr id="ref7"><td>[7]</td><td>C. Feng, V. R. Palleti, A. Mathur, D. Chana. <i>A Systematic Framework to Generate Invariants for Anomaly Detection in Industrial Control Systems.</i> NDSS 2019.</td></tr>
+      <tr id="ref8"><td>[8]</td><td>M. A. Umer et al. <i>Anomaly detection using invariant rules in Industrial Control Systems.</i> Control Engineering Practice, 2024.</td></tr>
+      <tr id="ref9"><td>[9]</td><td>O. Kuznetsov, Y. Kuznetsova, G. Ziyatbekova, Y. Kovalenko, R. Palahusynets. <i>Performance Evaluation of zk-SNARK Protocols for Privacy-Preserving Sensor Data Verification.</i> Sensors 26(8):2486, 2026. <a href="https://doi.org/10.3390/s26082486" target="_blank" rel="noopener">doi:10.3390/s26082486</a>.</td></tr>
+      <tr id="ref10"><td>[10]</td><td>Y. Guo et al. <i>Benchmarking ZK-Friendly Hash Functions and SNARK Proving Systems for EVM-Compatible Blockchains.</i> <a href="https://arxiv.org/abs/2409.01976" target="_blank" rel="noopener">arXiv:2409.01976</a>, 2024.</td></tr>
+      <tr id="ref11"><td>[11]</td><td>BJ. Chen, S. Waiwitlikhit, I. Stoica, D. Kang. <i>ZKML: An Optimizing System for ML Inference in Zero-Knowledge Proofs.</i> EuroSys 2024. <a href="https://doi.org/10.1145/3627703.3650088" target="_blank" rel="noopener">doi:10.1145/3627703.3650088</a>.</td></tr>
+      <tr id="ref12"><td>[12]</td><td>Z. Wang, N. Dong, J. Sun, W. Knottenbelt, Y. Guo. <i>zkFL: Zero-Knowledge Proof-Based Gradient Aggregation for Federated Learning.</i> IEEE Trans. Big Data. <a href="https://arxiv.org/abs/2310.02554" target="_blank" rel="noopener">arXiv:2310.02554</a>.</td></tr>
+      <tr id="ref13"><td>[13]</td><td>T. Wang, Y. Jin, Q. Yang, Y. Xia, L. Shi, S. Zhang. <i>Zero-Knowledge Federated Learning: A New Trustworthy and Privacy-Preserving Distributed Learning Paradigm.</i> <a href="https://arxiv.org/abs/2503.15550" target="_blank" rel="noopener">arXiv:2503.15550</a>, 2025.</td></tr>
+      <tr id="ref14"><td>[14]</td><td>M. Fang, X. Cao, J. Jia, N. Z. Gong. <i>Local Model Poisoning Attacks to Byzantine-Robust Federated Learning.</i> USENIX Security 2020. <a href="https://arxiv.org/abs/1911.11815" target="_blank" rel="noopener">arXiv:1911.11815</a>.</td></tr>
+      <tr id="ref15"><td>[15]</td><td>G. Baruch, M. Baruch, Y. Goldberg. <i>A Little Is Enough: Circumventing Defenses for Distributed Learning.</i> NeurIPS 2019. <a href="https://arxiv.org/abs/1902.06156" target="_blank" rel="noopener">arXiv:1902.06156</a>.</td></tr>
+      <tr id="ref16"><td>[16]</td><td>V. Shejwalkar, A. Houmansadr. <i>Manipulating the Byzantine: Optimizing Model Poisoning Attacks and Defenses for Federated Learning.</i> NDSS 2021. <a href="https://github.com/vrt1shjwlkr/NDSS21-Model-Poisoning" target="_blank" rel="noopener">Code repository</a>.</td></tr>
+      <tr id="ref17"><td>[17]</td><td>J. Geiping, L. Fowl, W. R. Huang, W. Czaja, G. Taylor, M. Moeller, T. Goldstein. <i>Witches' Brew: Industrial Scale Data Poisoning via Gradient Matching.</i> ICLR 2021. <a href="https://arxiv.org/abs/2009.02276" target="_blank" rel="noopener">arXiv:2009.02276</a>.</td></tr>
+      <tr id="ref18"><td>[18]</td><td>D. Arp et al. <i>Dos and Don'ts of Machine Learning in Computer Security.</i> <a href="https://www.usenix.org/conference/usenixsecurity22/presentation/arp" target="_blank" rel="noopener">USENIX Security 2022</a>.</td></tr>
+      <tr id="ref19"><td>[19]</td><td>N. Carlini et al. <i>On Evaluating Adversarial Robustness.</i> <a href="https://arxiv.org/abs/1902.06705" target="_blank" rel="noopener">arXiv:1902.06705</a>, 2019.</td></tr>
+      <tr id="ref20"><td>[20]</td><td>F. Tram&egrave;r et al. <i>On Adaptive Attacks to Adversarial Defenses.</i> NeurIPS 2020. <a href="https://arxiv.org/abs/2002.08347" target="_blank" rel="noopener">arXiv:2002.08347</a>.</td></tr>
+      <tr id="ref21"><td>[21]</td><td>X. Zhou et al. <i>A dataset collected in real-world industrial control systems for network attack detection.</i> Scientific Data, 2026. <a href="https://doi.org/10.1038/s41597-026-06738-x" target="_blank" rel="noopener">doi:10.1038/s41597-026-06738-x</a>.</td></tr>
+      <tr id="ref22"><td>[22]</td><td>HK. Shin, W. Lee, JH. Yun, BG. Min. <i>Two ICS Security Datasets and Anomaly Detection Contest on the HIL-Based Augmented ICS Testbed.</i> CSET '21. <a href="https://doi.org/10.1145/3474718.3474719" target="_blank" rel="noopener">doi:10.1145/3474718.3474719</a>.</td></tr>
+      <tr id="ref23"><td>[23]</td><td>Stellar. <i>CAP-0059: Host Functions for BLS12-381 (Protocol 22).</i> <a href="https://github.com/stellar/stellar-protocol/blob/master/core/cap-0059.md" target="_blank" rel="noopener">Protocol proposal</a>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main></div>
+
+<!-- Floating Selection Tooltip -->
+<div id="sel-popup">💬 Add Feedback / Comment</div>
+
+<!-- Floating Feedback Drawer Trigger -->
+<button id="feedback-drawer-btn" title="View all comments and export feedback for AI model">
+  💬 Feedback Notes <span id="feedback-badge">0</span>
+</button>
+
+<!-- Feedback Modal Overlay & Side Panel -->
+<div id="feedback-modal-overlay"></div>
+<div id="feedback-panel">
+  <div class="fb-header">
+    <h3>Revision Feedback</h3>
+    <button class="fb-close" id="fb-close-btn">&times;</button>
+  </div>
+  <p style="font-size: 13.5px; color: var(--muted); margin: 0;">Highlight any text in the tutorial to leave revision instructions for the AI assistant.</p>
+  <div id="fb-list" style="display: flex; flex-direction: column; gap: 10px; flex: 1;">
+    <!-- Items dynamically injected here -->
+  </div>
+  <div class="fb-actions">
+    <button class="fb-btn-primary" id="fb-copy-btn">📋 Copy All Feedback for AI</button>
+    <button class="fb-btn-secondary" id="fb-clear-btn">Clear All Feedback</button>
+  </div>
+</div>
+
+<!-- Comment Input Dialog -->
+<div id="comment-dialog">
+  <h4>Leave Revision Note for AI Model</h4>
+  <div id="comment-quote-preview"></div>
+  <textarea id="comment-textarea" placeholder="Type what you would like the AI model to explain, simplify, expand, or fix..."></textarea>
+  <div class="dialog-btns">
+    <button class="fb-btn-secondary" id="comment-cancel-btn">Cancel</button>
+    <button class="fb-btn-primary" id="comment-save-btn">Save Note</button>
+  </div>
+</div>
+
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "pafl-tutorial-v2";
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
+  function save(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){} }
+  var state = load();
+
+  window.rev = function(btn){
+    var cp = btn.closest(".cp");
+    cp.classList.add("open");
+    var idx = [].indexOf.call(document.querySelectorAll(".cp"), cp);
+    state["cp"+idx] = 1; save(state);
+  };
+
+  // restore opened checkpoints
+  document.querySelectorAll(".cp").forEach(function(cp, i){
+    if (state["cp"+i]) cp.classList.add("open");
+  });
+
+  // quizzes
+  document.querySelectorAll(".quiz").forEach(function(quiz){
+    var qid = quiz.getAttribute("data-quiz");
+    var qs = quiz.querySelectorAll(".q");
+    var scoreEl = quiz.querySelector(".score");
+    function render(){
+      var got = 0, done = 0;
+      qs.forEach(function(q, i){
+        var k = "q" + qid + "_" + i;
+        if (state[k] !== undefined) {
+          done++;
+          var correct = parseInt(q.getAttribute("data-a"), 10);
+          var chosen = state[k];
+          if (chosen === correct) got++;
+          q.classList.add("answered");
+          q.querySelectorAll(".opt").forEach(function(o, j){
+            o.disabled = true;
+            if (j === correct) o.classList.add("correct");
+            else if (j === chosen) o.classList.add("wrong");
+          });
+        }
+      });
+      scoreEl.textContent = done ? (got + " / " + qs.length + " correct") : "";
+    }
+    qs.forEach(function(q, i){
+      q.querySelectorAll(".opt").forEach(function(opt, j){
+        opt.addEventListener("click", function(){
+          if (q.classList.contains("answered")) return;
+          state["q" + qid + "_" + i] = j; save(state); render();
+        });
+      });
+    });
+    render();
+  });
+
+  // progress bar + read chapters
+  var bar = document.getElementById("bar");
+  var links = document.querySelectorAll("nav.toc a");
+  function onScroll(){
+    var h = document.documentElement;
+    var p = h.scrollTop / Math.max(h.scrollHeight - h.clientHeight, 1);
+    bar.style.width = (p * 100).toFixed(1) + "%";
+    links.forEach(function(a){
+      var t = document.querySelector(a.getAttribute("href"));
+      if (t && t.getBoundingClientRect().top < window.innerHeight * 0.5) {
+        a.classList.add("done");
+        state["read" + a.getAttribute("href")] = 1;
+      }
+    });
+  }
+  var ticking = false;
+  window.addEventListener("scroll", function(){
+    if (!ticking) { ticking = true; requestAnimationFrame(function(){ onScroll(); ticking = false; }); }
+  }, {passive:true});
+  Object.keys(state).forEach(function(k){
+    if (k.indexOf("read#") === 0) {
+      var a = document.querySelector('nav.toc a[href="' + k.slice(4) + '"]');
+      if (a) a.classList.add("done");
+    }
+  });
+  onScroll();
+  window.addEventListener("beforeunload", function(){ save(state); });
+
+  // --- User Highlight & Comment System ---
+  var FB_KEY = "pafl-tutorial-feedback-v1";
+  function loadFeedback(){ try { return JSON.parse(localStorage.getItem(FB_KEY)) || []; } catch(e){ return []; } }
+  function saveFeedback(fb){ try { localStorage.setItem(FB_KEY, JSON.stringify(fb)); } catch(e){} updateBadge(); }
+
+  var feedbackList = loadFeedback();
+  var selPopup = document.getElementById("sel-popup");
+  var drawerBtn = document.getElementById("feedback-drawer-btn");
+  var overlay = document.getElementById("feedback-modal-overlay");
+  var panel = document.getElementById("feedback-panel");
+  var closeBtn = document.getElementById("fb-close-btn");
+  var copyBtn = document.getElementById("fb-copy-btn");
+  var clearBtn = document.getElementById("fb-clear-btn");
+  var badge = document.getElementById("feedback-badge");
+  var fbListEl = document.getElementById("fb-list");
+
+  var commentDialog = document.getElementById("comment-dialog");
+  var quotePreview = document.getElementById("comment-quote-preview");
+  var commentInput = document.getElementById("comment-textarea");
+  var commentSaveBtn = document.getElementById("comment-save-btn");
+  var commentCancelBtn = document.getElementById("comment-cancel-btn");
+
+  var currentSelection = null;
+
+  function updateBadge(){
+    if (badge) badge.textContent = feedbackList.length;
+    renderFeedbackList();
+  }
+
+  // Handle Text Selection
+  document.addEventListener("mouseup", function(e){
+    if (commentDialog.classList.contains("open") || panel.classList.contains("open")) return;
+    var sel = window.getSelection();
+    var text = sel ? sel.toString().trim() : "";
+    if (text.length > 3 && !selPopup.contains(e.target)) {
+      var range = sel.getRangeAt(0);
+      var rect = range.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        currentSelection = {
+          text: text,
+          range: range.cloneRange(),
+          section: getSectionName(range.startContainer)
+        };
+        selPopup.style.left = (rect.left + rect.width / 2 + window.scrollX) + "px";
+        selPopup.style.top = (rect.top + window.scrollY) + "px";
+        selPopup.style.display = "flex";
+        return;
+      }
+    }
+    if (!selPopup.contains(e.target)) {
+      selPopup.style.display = "none";
+    }
+  });
+
+  function getSectionName(node){
+    var el = node.nodeType === 1 ? node : node.parentElement;
+    var sec = el.closest("section.ch");
+    if (sec) {
+      var h3 = sec.querySelector("h3.ch-title");
+      return h3 ? h3.innerText.replace(/\s+/g, ' ').trim() : sec.id;
+    }
+    return "General";
+  }
+
+  selPopup.addEventListener("click", function(){
+    if (!currentSelection) return;
+    selPopup.style.display = "none";
+    quotePreview.textContent = '“' + currentSelection.text + '”';
+    commentInput.value = "";
+    overlay.classList.add("open");
+    commentDialog.classList.add("open");
+    setTimeout(function(){ commentInput.focus(); }, 50);
+  });
+
+  commentCancelBtn.addEventListener("click", function(){
+    commentDialog.classList.remove("open");
+    overlay.classList.remove("open");
+    currentSelection = null;
+  });
+
+  commentSaveBtn.addEventListener("click", function(){
+    var comment = commentInput.value.trim();
+    if (!comment) comment = "Review and refine this section.";
+    var item = {
+      id: "fb_" + Date.now(),
+      text: currentSelection.text,
+      comment: comment,
+      section: currentSelection.section,
+      time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    };
+    feedbackList.push(item);
+    saveFeedback(feedbackList);
+
+    // Apply visual highlight in DOM
+    try {
+      var mark = document.createElement("mark");
+      mark.className = "user-highlight";
+      mark.setAttribute("data-fbid", item.id);
+      mark.title = "Feedback: " + item.comment;
+      currentSelection.range.surroundContents(mark);
+    } catch(err) {
+      // Fallback if cross-boundary selection
+    }
+
+    commentDialog.classList.remove("open");
+    overlay.classList.remove("open");
+    currentSelection = null;
+    openDrawer();
+  });
+
+  function renderFeedbackList(){
+    if (!fbListEl) return;
+    if (feedbackList.length === 0) {
+      fbListEl.innerHTML = '<div style="text-align: center; color: var(--muted); padding: 40px 10px; font-size: 14px;">No feedback items saved yet.<br><br>Select any text on the page to highlight and add notes for the AI model!</div>';
+      return;
+    }
+    fbListEl.innerHTML = feedbackList.map(function(item, idx){
+      return '<div class="fb-item">' +
+        '<div style="font-size: 11.5px; font-weight: 700; color: var(--accent);">' + (item.section || "General") + '</div>' +
+        '<div class="fb-quote">“' + item.text + '”</div>' +
+        '<div class="fb-comment">' + item.comment + '</div>' +
+        '<div class="fb-meta">' +
+          '<span>' + item.time + '</span>' +
+          '<button class="fb-del-btn" onclick="deleteFeedback(' + idx + ')">Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  window.deleteFeedback = function(idx){
+    var id = feedbackList[idx].id;
+    feedbackList.splice(idx, 1);
+    saveFeedback(feedbackList);
+    var mark = document.querySelector('mark[data-fbid="' + id + '"]');
+    if (mark) {
+      var parent = mark.parentNode;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+      parent.removeChild(mark);
+    }
+  };
+
+  function openDrawer(){
+    overlay.classList.add("open");
+    panel.classList.add("open");
+  }
+  function closeDrawer(){
+    overlay.classList.remove("open");
+    panel.classList.remove("open");
+    commentDialog.classList.remove("open");
+  }
+
+  drawerBtn.addEventListener("click", openDrawer);
+  closeBtn.addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+
+  clearBtn.addEventListener("click", function(){
+    if (confirm("Clear all highlighted feedback comments?")) {
+      feedbackList = [];
+      saveFeedback(feedbackList);
+      document.querySelectorAll("mark.user-highlight").forEach(function(m){
+        var p = m.parentNode;
+        while (m.firstChild) p.insertBefore(m.firstChild, m);
+        p.removeChild(m);
+      });
+    }
+  });
+
+  copyBtn.addEventListener("click", function(){
+    if (feedbackList.length === 0) {
+      alert("No feedback items to copy.");
+      return;
+    }
+    var md = "### User Feedback & Revision Requests for AI Model:\n\n";
+    feedbackList.forEach(function(item, i){
+      md += (i + 1) + ". **Section:** " + item.section + "\n";
+      md += "   > \"" + item.text + "\"\n";
+      md += "   - **Revision Request:** " + item.comment + "\n\n";
+    });
+    navigator.clipboard.writeText(md).then(function(){
+      copyBtn.textContent = "✅ Copied to Clipboard!";
+      setTimeout(function(){ copyBtn.textContent = "📋 Copy All Feedback for AI"; }, 2500);
+    });
+  });
+
+  updateBadge();
+
+})();
+</script>

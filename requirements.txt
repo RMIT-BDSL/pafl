@@ -1,5 +1,4 @@
-# Pinned loosely on purpose: the pilot must install cleanly on Kaggle, on the
-# AWS Deep Learning AMI and on a laptop, and those three ship different builds.
+# all built and run locally so far. potential for AWS and also for Colab when more compute is needed
 numpy>=1.24
 pandas>=2.0
 scipy>=1.10
