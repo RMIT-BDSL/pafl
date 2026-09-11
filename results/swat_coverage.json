@@ -1,0 +1,688 @@
+{
+  "dataset": "swat",
+  "coverage_threshold": 0.01,
+  "summary": {
+    "narrow": {
+      "n_invariants": 5,
+      "couplings": 3,
+      "balances": 2,
+      "thresholds": {
+        "r2_min": 0.6,
+        "coupling_off_ratio": 0.05,
+        "coupling_support": 0.02
+      },
+      "honest_violating_fraction": 0.00207,
+      "segments_covered": 12,
+      "segments_total": 35,
+      "rows_covered": 1137,
+      "rows_total": 10931,
+      "rows_covered_share": 0.104,
+      "invariants": [
+        "MV101~FIT101",
+        "P101~FIT201",
+        "MV201~FIT201",
+        "LIT101",
+        "LIT301"
+      ]
+    },
+    "wide": {
+      "n_invariants": 9,
+      "couplings": 6,
+      "balances": 3,
+      "thresholds": {
+        "r2_min": 0.4,
+        "coupling_off_ratio": 0.1,
+        "coupling_support": 0.005
+      },
+      "honest_violating_fraction": 0.00357,
+      "segments_covered": 20,
+      "segments_total": 35,
+      "rows_covered": 8991,
+      "rows_total": 10931,
+      "rows_covered_share": 0.8225,
+      "invariants": [
+        "MV101~FIT101",
+        "P101~FIT201",
+        "MV201~FIT201",
+        "P203~FIT201",
+        "MV301~FIT601",
+        "P602~FIT601",
+        "LIT101",
+        "LIT301",
+        "LIT401"
+      ]
+    }
+  },
+  "segments": [
+    {
+      "segment": 0,
+      "rows": 188,
+      "start": "2015-12-28 10:29:15",
+      "end": "2015-12-28 10:44:50",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 1,
+      "rows": 89,
+      "start": "2015-12-28 10:51:10",
+      "end": "2015-12-28 10:58:30",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0225,
+        "covered": true,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.0112
+      }
+    },
+    {
+      "segment": 2,
+      "rows": 77,
+      "start": "2015-12-28 11:22:00",
+      "end": "2015-12-28 11:28:20",
+      "narrow": {
+        "violating": 0.026,
+        "covered": true,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.013
+      },
+      "wide": {
+        "violating": 0.026,
+        "covered": true,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.013
+      }
+    },
+    {
+      "segment": 3,
+      "rows": 78,
+      "start": "2015-12-28 11:47:40",
+      "end": "2015-12-28 11:54:05",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 4,
+      "rows": 40,
+      "start": "2015-12-28 12:00:55",
+      "end": "2015-12-28 12:04:10",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.875,
+        "covered": true,
+        "worst_invariant": "P203~FIT201",
+        "worst_fraction": 0.875
+      }
+    },
+    {
+      "segment": 5,
+      "rows": 86,
+      "start": "2015-12-28 12:08:25",
+      "end": "2015-12-28 12:15:30",
+      "narrow": {
+        "violating": 0.0116,
+        "covered": true,
+        "worst_invariant": "LIT301",
+        "worst_fraction": 0.0116
+      },
+      "wide": {
+        "violating": 0.0233,
+        "covered": true,
+        "worst_invariant": "P203~FIT201",
+        "worst_fraction": 0.0116
+      }
+    },
+    {
+      "segment": 6,
+      "rows": 193,
+      "start": "2015-12-28 13:10:10",
+      "end": "2015-12-28 13:26:10",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.057,
+        "covered": true,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.0363
+      }
+    },
+    {
+      "segment": 7,
+      "rows": 145,
+      "start": "2015-12-28 14:16:20",
+      "end": "2015-12-28 14:28:20",
+      "narrow": {
+        "violating": 0.0345,
+        "covered": true,
+        "worst_invariant": "LIT101",
+        "worst_fraction": 0.0276
+      },
+      "wide": {
+        "violating": 0.7724,
+        "covered": true,
+        "worst_invariant": "LIT401",
+        "worst_fraction": 0.7655
+      }
+    },
+    {
+      "segment": 8,
+      "rows": 145,
+      "start": "2015-12-29 06:30:00",
+      "end": "2015-12-29 06:42:00",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 9,
+      "rows": 47,
+      "start": "2015-12-29 11:11:25",
+      "end": "2015-12-29 11:15:15",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 10,
+      "rows": 87,
+      "start": "2015-12-29 11:35:40",
+      "end": "2015-12-29 11:42:50",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 11,
+      "rows": 56,
+      "start": "2015-12-29 11:57:25",
+      "end": "2015-12-29 12:02:00",
+      "narrow": {
+        "violating": 0.7857,
+        "covered": true,
+        "worst_invariant": "LIT301",
+        "worst_fraction": 0.7679
+      },
+      "wide": {
+        "violating": 0.7857,
+        "covered": true,
+        "worst_invariant": "LIT301",
+        "worst_fraction": 0.7679
+      }
+    },
+    {
+      "segment": 12,
+      "rows": 143,
+      "start": "2015-12-29 14:38:15",
+      "end": "2015-12-29 14:50:05",
+      "narrow": {
+        "violating": 0.007,
+        "covered": false,
+        "worst_invariant": "P101~FIT201",
+        "worst_fraction": 0.007
+      },
+      "wide": {
+        "violating": 0.6154,
+        "covered": true,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.6154
+      }
+    },
+    {
+      "segment": 13,
+      "rows": 52,
+      "start": "2015-12-29 18:10:45",
+      "end": "2015-12-29 18:15:00",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0385,
+        "covered": true,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.0192
+      }
+    },
+    {
+      "segment": 14,
+      "rows": 79,
+      "start": "2015-12-29 18:15:45",
+      "end": "2015-12-29 18:22:15",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 15,
+      "rows": 145,
+      "start": "2015-12-29 18:30:00",
+      "end": "2015-12-29 18:42:00",
+      "narrow": {
+        "violating": 0.0069,
+        "covered": false,
+        "worst_invariant": "LIT101",
+        "worst_fraction": 0.0069
+      },
+      "wide": {
+        "violating": 0.0069,
+        "covered": false,
+        "worst_invariant": "LIT101",
+        "worst_fraction": 0.0069
+      }
+    },
+    {
+      "segment": 16,
+      "rows": 93,
+      "start": "2015-12-29 22:55:20",
+      "end": "2015-12-29 23:03:00",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.957,
+        "covered": true,
+        "worst_invariant": "LIT401",
+        "worst_fraction": 0.957
+      }
+    },
+    {
+      "segment": 17,
+      "rows": 140,
+      "start": "2015-12-30 01:42:35",
+      "end": "2015-12-30 01:54:10",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0071,
+        "covered": false,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.0071
+      }
+    },
+    {
+      "segment": 18,
+      "rows": 64,
+      "start": "2015-12-30 09:51:10",
+      "end": "2015-12-30 09:56:25",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.3125,
+        "covered": true,
+        "worst_invariant": "P203~FIT201",
+        "worst_fraction": 0.3125
+      }
+    },
+    {
+      "segment": 19,
+      "rows": 123,
+      "start": "2015-12-30 10:01:50",
+      "end": "2015-12-30 10:12:00",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0081,
+        "covered": false,
+        "worst_invariant": "LIT401",
+        "worst_fraction": 0.0081
+      }
+    },
+    {
+      "segment": 20,
+      "rows": 289,
+      "start": "2015-12-30 17:05:00",
+      "end": "2015-12-30 17:29:00",
+      "narrow": {
+        "violating": 0.0035,
+        "covered": false,
+        "worst_invariant": "LIT301",
+        "worst_fraction": 0.0035
+      },
+      "wide": {
+        "violating": 0.0069,
+        "covered": false,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.0035
+      }
+    },
+    {
+      "segment": 21,
+      "rows": 7180,
+      "start": "2015-12-31 01:17:10",
+      "end": "2015-12-31 11:15:25",
+      "narrow": {
+        "violating": 0.0001,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0001
+      },
+      "wide": {
+        "violating": 0.8907,
+        "covered": true,
+        "worst_invariant": "LIT401",
+        "worst_fraction": 0.8905
+      }
+    },
+    {
+      "segment": 22,
+      "rows": 25,
+      "start": "2015-12-31 15:32:00",
+      "end": "2015-12-31 15:34:00",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 23,
+      "rows": 235,
+      "start": "2015-12-31 15:47:40",
+      "end": "2015-12-31 16:07:10",
+      "narrow": {
+        "violating": 0.0426,
+        "covered": true,
+        "worst_invariant": "MV201~FIT201",
+        "worst_fraction": 0.034
+      },
+      "wide": {
+        "violating": 0.0426,
+        "covered": true,
+        "worst_invariant": "MV201~FIT201",
+        "worst_fraction": 0.034
+      }
+    },
+    {
+      "segment": 24,
+      "rows": 73,
+      "start": "2015-12-31 22:05:36",
+      "end": "2015-12-31 22:11:36",
+      "narrow": {
+        "violating": 0.0137,
+        "covered": true,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0137
+      },
+      "wide": {
+        "violating": 0.0137,
+        "covered": true,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0137
+      }
+    },
+    {
+      "segment": 25,
+      "rows": 120,
+      "start": "2016-01-01 10:36:01",
+      "end": "2016-01-01 10:45:56",
+      "narrow": {
+        "violating": 0.0083,
+        "covered": false,
+        "worst_invariant": "LIT301",
+        "worst_fraction": 0.0083
+      },
+      "wide": {
+        "violating": 0.0083,
+        "covered": false,
+        "worst_invariant": "LIT301",
+        "worst_fraction": 0.0083
+      }
+    },
+    {
+      "segment": 26,
+      "rows": 88,
+      "start": "2016-01-01 14:21:16",
+      "end": "2016-01-01 14:28:31",
+      "narrow": {
+        "violating": 0.0114,
+        "covered": true,
+        "worst_invariant": "LIT101",
+        "worst_fraction": 0.0114
+      },
+      "wide": {
+        "violating": 0.0227,
+        "covered": true,
+        "worst_invariant": "MV301~FIT601",
+        "worst_fraction": 0.0114
+      }
+    },
+    {
+      "segment": 27,
+      "rows": 20,
+      "start": "2016-01-01 17:12:41",
+      "end": "2016-01-01 17:14:16",
+      "narrow": {
+        "violating": 0.55,
+        "covered": true,
+        "worst_invariant": "P101~FIT201",
+        "worst_fraction": 0.55
+      },
+      "wide": {
+        "violating": 0.55,
+        "covered": true,
+        "worst_invariant": "P101~FIT201",
+        "worst_fraction": 0.55
+      }
+    },
+    {
+      "segment": 28,
+      "rows": 97,
+      "start": "2016-01-01 17:18:56",
+      "end": "2016-01-01 17:26:56",
+      "narrow": {
+        "violating": 0.9072,
+        "covered": true,
+        "worst_invariant": "MV201~FIT201",
+        "worst_fraction": 0.9072
+      },
+      "wide": {
+        "violating": 0.9072,
+        "covered": true,
+        "worst_invariant": "MV201~FIT201",
+        "worst_fraction": 0.9072
+      }
+    },
+    {
+      "segment": 29,
+      "rows": 108,
+      "start": "2016-01-01 22:16:01",
+      "end": "2016-01-01 22:24:56",
+      "narrow": {
+        "violating": 0.1852,
+        "covered": true,
+        "worst_invariant": "MV201~FIT201",
+        "worst_fraction": 0.1759
+      },
+      "wide": {
+        "violating": 0.1944,
+        "covered": true,
+        "worst_invariant": "MV201~FIT201",
+        "worst_fraction": 0.1759
+      }
+    },
+    {
+      "segment": 30,
+      "rows": 93,
+      "start": "2016-01-02 11:17:06",
+      "end": "2016-01-02 11:24:46",
+      "narrow": {
+        "violating": 0.0215,
+        "covered": true,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0108
+      },
+      "wide": {
+        "violating": 0.8817,
+        "covered": true,
+        "worst_invariant": "LIT401",
+        "worst_fraction": 0.8817
+      }
+    },
+    {
+      "segment": 31,
+      "rows": 56,
+      "start": "2016-01-02 11:31:41",
+      "end": "2016-01-02 11:36:16",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 32,
+      "rows": 80,
+      "start": "2016-01-02 11:43:51",
+      "end": "2016-01-02 11:50:26",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 33,
+      "rows": 59,
+      "start": "2016-01-02 11:51:46",
+      "end": "2016-01-02 11:56:36",
+      "narrow": {
+        "violating": 0.0339,
+        "covered": true,
+        "worst_invariant": "LIT101",
+        "worst_fraction": 0.0339
+      },
+      "wide": {
+        "violating": 0.8475,
+        "covered": true,
+        "worst_invariant": "LIT401",
+        "worst_fraction": 0.8475
+      }
+    },
+    {
+      "segment": 34,
+      "rows": 338,
+      "start": "2016-01-02 13:13:06",
+      "end": "2016-01-02 13:41:11",
+      "narrow": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      },
+      "wide": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "MV101~FIT101",
+        "worst_fraction": 0.0
+      }
+    }
+  ]
+}

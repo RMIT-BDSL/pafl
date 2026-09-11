@@ -2,12 +2,11 @@
 
 
 
-## 1. Decisions taken
+## 1. Near term stuff
 
 | Date | Decision | Reason |
 |---|---|---|
-| Thu 10 Sep | The paper is the pilot extended to real federated data plus a pared-back ZK extension (PA-FL Lite); ICS-NAD, Fabric and Soroban are out | 18 days; compute was never the constraint, attention is |
-| Thu 10 Sep | All experiments run on the laptop (≈ 20 s per SWaT cell); no AWS, no Colab | measured |
+| Thu 10 Sep | The paper is the pilot extended to real federated data plus a pared-back ZK extension (PA-FL Lite); ICS-NAD, Fabric and Soroban are out (for now) | short on time |
 | Fri 11 Sep | **SWaT is the primary real record** (10 clients, headline tables); **BATADAL is the support record** (5 clients, its own table); the simulated plant is the pilot setting | SWaT has the attack diversity, client count and detector baseline to carry claims about aggregation rules; BATADAL has 876 rows per client and 219 attack rows |
 | Fri 11 Sep | **WADI added and run** (criterion 1 and the adaptive set the same day). It enters as the second physical testbed for criterion 1 and admission behaviour; it carries no damage or removal numbers | detector recall on WADI attacks ≈ 0.2; on disk; loader quirks known from `../zhu-2025-reprod` |
 | Fri 11 Sep | **Report both invariant-set settings** (narrow: miner defaults, 5 SWaT rules; wide: r2 0.40 / off-ratio 0.10 / support 0.005, 9 rules), each with coverage, honest violation rate and damage removed | coverage becomes the explicit variable instead of a tuned threshold |
@@ -15,7 +14,6 @@
 | Fri 11 Sep | Damage on real data is **recall on the targeted attacks**, measured against the **honest-only** federation (same honest shards, attacker absent) | global F1 never moves under a targeted poison; the ten-client clean run differs by composition |
 | Fri 11 Sep | Repo holds code, tests, scripts and the result JSON the paper reads; no data, no caches, no LaTeX, no pilot-only material | licences; Overleaf owns the paper |
 
-**Open decision (Jeff):** whether the abstract's real-data sentence is the coverage sentence (§4, point 3).
 
 ---
 
@@ -27,7 +25,7 @@
 | Criterion 1, SWaT (physical testbed) | **Done, passed** with the narrow (5) and wide (9) invariant sets; honest false-reject 0 | `results/c1_swat_*.json` |
 | Criterion 1, HAI | Done, fails; scope boundary | `results/c1_hai_mined.json` |
 | Criterion 1, WADI | **Done Fri 11, passes** (7 couplings, 0 balances, default miner) | `results/c1_wadi_default_shift60.json` |
-| Criteria 2–4b, simulated plant (pilot) | Done; re-run after the oversampling fix, result holds | `results/sim_adaptive_3seed.json`, `results/sim_defences_mal30_2seed.json` |
+| Criteria 2–4b, simulated plant (pilot) | Done; it was re-run after the oversampling fix, result holds | `results/sim_adaptive_3seed.json`, `results/sim_defences_mal30_2seed.json` |
 | Criteria 2–4b, **SWaT**: 7 rules × 8 attacks × 3 seeds baselines; adaptive attacker (channel roll, replay), 7 rules, 5 modes incl. gated, 5 seeds, two invariant sets; 4b traces | **Done** | `results/swat_sweep_wide_3seed.json`, `results/swat_adaptive_wide_*_5seed.json`, `results/swat_adaptive_narrow_roll60_3seed.json`, `results/swat_trust_traces_wide_3seed.json` |
 | Criteria 2–4b, **BATADAL** (5 clients, 3 rules, 3 seeds) | Done; weak signal, support only | `results/batadal_adaptive_*_3seed.json` |
 | Criteria 2–4b, **WADI** | **Done Fri 11** (3 rules, 5 modes, 3 seeds). No measurable poison damage (detector recall on WADI attacks ≈ 0.2); gate rejects 100 % of rolled and 89 % of replay batches before adaptation, excludes 2 of 3 clients after. Role: rejection behaviour, not removal ratios | `results/wadi_adaptive_default_*_3seed.json` |
@@ -182,7 +180,7 @@ the sweeps are running or done.
 | **Thu 10** | Copy `pilot/` → `pafl/` (done) | | Plan written. Message collaborators on scope (§3). Send the 250-word abstract to the editorial office |
 | Thu 10, night | Defects 1–8 fixed. Criterion 1 on SWaT. `scripts/overnight_sep10.sh`: SWaT adaptive (7 rules, roll and splice-only, wide set), SWaT baselines sweep, SWaT 4b, BATADAL support runs, Recipe B trial | | |
 | **Fri 11** | Read the overnight results with `scripts/summarize_adaptive.py`. Reruns. Decide the invariant-set setting (narrow vs wide) and the roll shift for the paper. `git init`, first commit | Day A (toolchain) | Jeff: abstract to the editorial office; scope message to collaborators |
-| **Sat 12** | ~~WADI~~ done Fri 11 (loader, criterion 1, adaptive runs). Coverage table per attack segment for SWaT (both invariant sets). Any missing SWaT cells | Day A (toolchain) | |
+| **Sat 12** | ~~WADI~~ done Fri 11. ~~Coverage table~~ done Fri 11 (`scripts/coverage_table.py`, `results/{swat,wadi}_coverage.json`). Any missing SWaT cells | Day A (toolchain) | |
 | **Sun 13** | Figure script for the paper's results figures from `results/` | Day B (circuit) | Port `pilot-paper.tex` into the MDPI template on Overleaf |
 | Mon 14 | IID contrast row (one seed) if time | finish Day B; Day C with the real invariant set and real batches from the sweep | Setting, threat model, datasets, real-data construction |
 | Tue 15 – Wed 16 | Extend `pilot-paper/make_figures.py` to the new JSON. Tables and figures | | Results section: criteria 1–4b on SWaT and simulator; coverage; control |

@@ -1,0 +1,201 @@
+{
+  "dataset": "wadi",
+  "coverage_threshold": 0.01,
+  "summary": {
+    "default": {
+      "n_invariants": 7,
+      "couplings": 7,
+      "balances": 0,
+      "thresholds": {
+        "r2_min": 0.6,
+        "coupling_off_ratio": 0.05,
+        "coupling_support": 0.02
+      },
+      "honest_violating_fraction": 0.00137,
+      "segments_covered": 3,
+      "segments_total": 14,
+      "rows_covered": 395,
+      "rows_total": 1996,
+      "rows_covered_share": 0.1979,
+      "invariants": [
+        "1_MV_001_STATUS~1_FIT_001_PV",
+        "1_P_001_STATUS~1_FIT_001_PV",
+        "1_P_003_STATUS~1_FIT_001_PV",
+        "1_P_005_STATUS~2_FIT_001_PV",
+        "2_MV_003_STATUS~2_FIT_001_PV",
+        "2_MV_006_STATUS~2_P_003_SPEED",
+        "2_P_003_STATUS~2_P_003_SPEED"
+      ]
+    }
+  },
+  "segments": [
+    {
+      "segment": 0,
+      "rows": 304,
+      "start": "2017-10-09 19:25:00",
+      "end": "2017-10-09 19:50:15",
+      "default": {
+        "violating": 0.0033,
+        "covered": false,
+        "worst_invariant": "1_P_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0033
+      }
+    },
+    {
+      "segment": 1,
+      "rows": 118,
+      "start": "2017-10-10 10:24:10",
+      "end": "2017-10-10 10:33:55",
+      "default": {
+        "violating": 0.9661,
+        "covered": true,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.9237
+      }
+    },
+    {
+      "segment": 2,
+      "rows": 348,
+      "start": "2017-10-10 10:55:00",
+      "end": "2017-10-10 11:23:55",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 3,
+      "rows": 170,
+      "start": "2017-10-10 11:30:40",
+      "end": "2017-10-10 11:44:45",
+      "default": {
+        "violating": 0.0059,
+        "covered": false,
+        "worst_invariant": "2_MV_003_STATUS~2_FIT_001_PV",
+        "worst_fraction": 0.0059
+      }
+    },
+    {
+      "segment": 4,
+      "rows": 134,
+      "start": "2017-10-10 13:39:30",
+      "end": "2017-10-10 13:50:35",
+      "default": {
+        "violating": 0.0075,
+        "covered": false,
+        "worst_invariant": "2_MV_003_STATUS~2_FIT_001_PV",
+        "worst_fraction": 0.0075
+      }
+    },
+    {
+      "segment": 5,
+      "rows": 147,
+      "start": "2017-10-10 14:48:20",
+      "end": "2017-10-10 15:00:30",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 6,
+      "rows": 116,
+      "start": "2017-10-10 17:40:00",
+      "end": "2017-10-10 17:49:35",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 7,
+      "rows": 18,
+      "start": "2017-10-11 10:55:00",
+      "end": "2017-10-11 10:56:25",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 8,
+      "rows": 161,
+      "start": "2017-10-11 11:17:55",
+      "end": "2017-10-11 11:31:15",
+      "default": {
+        "violating": 0.1118,
+        "covered": true,
+        "worst_invariant": "1_P_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0932
+      }
+    },
+    {
+      "segment": 9,
+      "rows": 125,
+      "start": "2017-10-11 11:36:35",
+      "end": "2017-10-11 11:46:55",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 10,
+      "rows": 72,
+      "start": "2017-10-11 11:59:00",
+      "end": "2017-10-11 12:04:55",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 11,
+      "rows": 41,
+      "start": "2017-10-11 12:07:30",
+      "end": "2017-10-11 12:10:50",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    },
+    {
+      "segment": 12,
+      "rows": 116,
+      "start": "2017-10-11 12:16:00",
+      "end": "2017-10-11 12:25:35",
+      "default": {
+        "violating": 0.9741,
+        "covered": true,
+        "worst_invariant": "1_P_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.9741
+      }
+    },
+    {
+      "segment": 13,
+      "rows": 126,
+      "start": "2017-10-11 15:26:30",
+      "end": "2017-10-11 15:36:55",
+      "default": {
+        "violating": 0.0,
+        "covered": false,
+        "worst_invariant": "1_MV_001_STATUS~1_FIT_001_PV",
+        "worst_fraction": 0.0
+      }
+    }
+  ]
+}
