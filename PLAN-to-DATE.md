@@ -250,5 +250,7 @@ constraint budget, and the limitations. Add:
 7. MDPI front matter: Author Contributions, Funding, Data Availability, Conflicts of Interest.
    Check the Instructions for Authors page for length guidance (the page blocks scripted access;
    open it in a browser).
-
-- [x] Figures: twelve standalone LaTeX figures in `../paper-draft/figures/` (done Sat 12 Sep; `make export` bundles them for Overleaf). Panel (b) of the protocol figure gains the measured proving costs when PA-FL Lite lands.
+8. **Figures: done (Sat 12 Sep).** Twelve standalone LaTeX figures in `../paper-draft/figures/`
+   (plan in its `FIGURES.md`; `make export` bundles sources, style, data and PDFs for Overleaf).
+   Every number enters through `export_figure_data.py` from `results/*.json`. Panel (b) of the
+   protocol figure gains the measured proving costs when PA-FL Lite lands.
