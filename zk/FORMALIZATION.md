@@ -44,10 +44,10 @@ PA-FL Lite resolves this paradox using zero-knowledge succinct non-interactive a
 
 ### 2.1 Protocol Entities and Parameters
 * **Federated Client (Prover $\mathcal{P}$):** Holds a private local batch of unscaled industrial telemetry:
-  
-  $$X = [x_1, x_2, \dots, x_N]^T \in \mathbb{R}^{N \times D}$$
-  
-  where $N = 1,024$ denotes the batch sequence length and $D$ denotes the number of operational channels.
+
+$$X = [x_1, x_2, \dots, x_N]^T \in \mathbb{R}^{N \times D}$$
+
+where $N = 1,024$ denotes the batch sequence length and $D$ denotes the number of operational channels.
 * **Federated Aggregator (Verifier $\mathcal{V}$):** Holds the public model parameters, declared physical invariants $\mathcal{M} = \{1, \dots, M\}$, and admission thresholds.
 * **Cryptographic Curve:** The BN128 (alt_bn128) pairing-friendly elliptic curve over scalar prime field $\mathbb{F}_p$ ($p \approx 2^{254}$).
 * **Hash Primitive:** The arithmetic-friendly **Poseidon hash function** configured over $\mathbb{F}_p$.
@@ -64,30 +64,30 @@ $$\mathcal{R}_{\text{PA-FL}} = \big\lbrace (\mathbb{x}, \mathbb{w}) \;\big|\; \m
 where the public instance $\mathbb{x}$ and private witness $\mathbb{w}$ are:
 
 * **Public Instance ($\mathbb{x}$):**
-  
-  $$\mathbb{x} = \big(R, \, \mathcal{I}, \, \hat{J}, \, \hat{c}, \, \hat{\epsilon}, \, v_{\max}, \, u_{\max}\big)$$
+
+$$\mathbb{x} = \big(R, \mathcal{I}, \hat{J}, \hat{c}, \hat{\epsilon}, v_{\max}, u_{\max}\big)$$
 
 * **Private Witness ($\mathbb{w}$):**
-  
-  $$\mathbb{w} = \big(\{x_{i-1}, x_i\}_{i \in \mathcal{I}}, \, \{\text{path}_i\}_{i \in \mathcal{I}}\big)$$
+
+$$\mathbb{w} = \big(\lbrace x_{i-1}, x_i \rbrace_{i \in \mathcal{I}}, \lbrace \text{path}_i \rbrace_{i \in \mathcal{I}}\big)$$
 
 The arithmetic circuit $\mathcal{C}(\mathbb{x}, \mathbb{w}) = 1$ enforces four simultaneous constraints:
 
-1. **Merkle Inclusion Proof:** Every sampled row $x_i$ is a valid leaf of the Merkle tree committed under root $R$:
-   
-   $$\forall i \in \mathcal{I}: \quad \text{MerkleVerify}(R, \, \text{leaf}(x_i), \, \text{path}_i) = \text{true}$$
+**1. Merkle Inclusion Proof:** Every sampled row $x_i$ is a valid leaf of the Merkle tree committed under root $R$:
 
-2. **Conditional Invariant Satisfaction:** For every evaluated invariant $j \in \mathcal{M}$, if applicable, the computed residual is bounded by engineering tolerance $\hat{\epsilon}_j$:
-   
-   $$\forall i \in \mathcal{I}, \; \forall j \in \mathcal{M}: \quad \text{Applicable}_j(x_{i-1}, x_i) \implies |\hat{r}_{j, i}| \le \hat{\epsilon}_j$$
+$$\forall i \in \mathcal{I}: \quad \text{MerkleVerify}(R, \text{leaf}(x_i), \text{path}_i) = \text{true}$$
 
-3. **Violation Budget Bound:** The total count of active physical violations across the $k$ sampled steps cannot exceed budget $v_{\max}$:
-   
-   $$\sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\big(\text{Applicable}_j(x_{i-1}, x_i) \land (|\hat{r}_{j, i}| > \hat{\epsilon}_j)\big) \le v_{\max}$$
+**2. Conditional Invariant Satisfaction:** For every evaluated invariant $j \in \mathcal{M}$, if applicable, the computed residual is bounded by engineering tolerance $\hat{\epsilon}_j$:
 
-4. **Inapplicability Budget Bound:** The count of invariant evaluations rendered inactive by actuator transitions or OFF states cannot exceed budget $u_{\max}$:
-   
-   $$\sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\big(\neg\text{Applicable}_j(x_{i-1}, x_i)\big) \le u_{\max}$$
+$$\forall i \in \mathcal{I}, \quad \forall j \in \mathcal{M}: \quad \text{Applicable}_j(x_{i-1}, x_i) \implies |\hat{r}_{j, i}| \le \hat{\epsilon}_j$$
+
+**3. Violation Budget Bound:** The total count of active physical violations across the $k$ sampled steps cannot exceed budget $v_{\max}$:
+
+$$\sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\big(\text{Applicable}_j(x_{i-1}, x_i) \land (|\hat{r}_{j, i}| > \hat{\epsilon}_j)\big) \le v_{\max}$$
+
+**4. Inapplicability Budget Bound:** The count of invariant evaluations rendered inactive by actuator transitions or OFF states cannot exceed budget $u_{\max}$:
+
+$$\sum_{i \in \mathcal{I}} \sum_{j \in \mathcal{M}} \mathbb{I}\big(\neg\text{Applicable}_j(x_{i-1}, x_i)\big) \le u_{\max}$$
 
 ### 2.3 Scope Boundary: Data Attestation vs. Gradient Binding
 * **In Scope (PA-FL Lite):** Proves that the committed data batch satisfies declared physical conservation laws and operational bounds.
@@ -182,7 +182,7 @@ PA-FL Lite partitions the row into $D_{\text{inv}} = 18$ channels actively refer
 $$\begin{aligned}
 h_{\text{inv}, i} &= \text{Poseidon}_{18}(x_{i, 1}, \dots, x_{i, 18}) \\
 h_{\text{rest}, i} &= \text{Poseidon}_{24}(x_{i, 19}, \dots, x_{i, 42}) \quad (\text{precomputed off-circuit by prover}) \\
-\text{leaf}_i &= \text{Poseidon}_2(h_{\text{inv}, i}, \, h_{\text{rest}, i})
+\text{leaf}_i &= \text{Poseidon}_2(h_{\text{inv}, i}, h_{\text{rest}, i})
 \end{aligned}$$
 
 The prover supplies $h_{\text{rest}, i}$ as an opaque private input. The circuit only computes the 18-element hash and a single 2-to-1 compression, saving approximately $55\%$ of in-circuit leaf hashing overhead while guaranteeing full cryptographic binding of the row.
