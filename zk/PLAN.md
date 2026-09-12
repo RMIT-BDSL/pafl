@@ -34,12 +34,12 @@ This tutorial outlines the sequential steps to implement the export pipeline, wr
 ## 2. Prerequisites and Environment Setup
 
 ### 2.1 Hardware and Toolchain
-Ensure the required toolchain is available on the local workstation (Apple Silicon M3, $\ge 32\text{ GiB}$ RAM recommended):
+Ensure the required toolchain is available on the local workstation (Apple Silicon M3, $`\ge 32\text{ GiB}`$ RAM recommended):
 
-* **Python:** $\ge 3.10$ within the project virtual environment (`.venv/`)
-* **Node.js:** $\ge 20.0$ (installed: `node 23.x`)
-* **Circom Compiler:** $\ge 2.1.9$ (`circom --version`)
-* **SnarkJS:** $\ge 0.7.4$ (`snarkjs --version`)
+* **Python:** $`\ge 3.10`$ within the project virtual environment (`.venv/`)
+* **Node.js:** $`\ge 20.0`$ (installed: `node 23.x`)
+* **Circom Compiler:** $`\ge 2.1.9`$ (`circom --version`)
+* **SnarkJS:** $`\ge 0.7.4`$ (`snarkjs --version`)
 
 ### 2.2 Directory Structure
 Initialize the directory layout under `zk/`:
@@ -106,16 +106,16 @@ curl -L -o powersOfTau28_hez_final_20.ptau \
 
 **Target Script:** [`zk/scripts/export_invariants.py`](scripts/export_invariants.py)
 
-Extract the affine parameter matrices ($J_{\text{prev}}, J_{\text{cur}}, c$) from `InvariantSet` using `affine_model(inv_set, df, columns)` in `pafl/attacks/adaptive.py`. Scale all floating-point values by $S = 2^{16} = 65,536$.
+Extract the affine parameter matrices ($`J_{\text{prev}}, J_{\text{cur}}, c`$) from `InvariantSet` using `affine_model(inv_set, df, columns)` in `pafl/attacks/adaptive.py`. Scale all floating-point values by $`S = 2^{16} = 65,536`$.
 
 **Key Implementation Requirements:**
 1. **Probe Row Assertion:** Assert `applicable_rows(inv_set, df).all(axis=1).any()` to guarantee intercept recovery is numerically valid.
-2. **Noise Snapping:** Snap any derivative coefficient with magnitude $|J_{j, d}| < 10^{-9} \cdot \max_k |J_{j, k}|$ strictly to zero.
+2. **Noise Snapping:** Snap any derivative coefficient with magnitude $`|J_{j, d}| < 10^{-9} \cdot \max_k |J_{j, k}|`$ strictly to zero.
 3. **Channel Guard:** Assert that every channel touched by the invariant set exists in `columns`.
 4. **Quantization:**
-   * $\hat{J} = \lfloor S \cdot J \rceil$
-   * $\hat{c} = \lfloor S^2 \cdot c \rceil$
-   * $\hat{\epsilon} = \lfloor S^2 \cdot \epsilon \rceil + S$ (includes a 1-LSB buffer for rounding tolerance)
+   * $`\hat{J} = \lfloor S \cdot J \rceil`$
+   * $`\hat{c} = \lfloor S^2 \cdot c \rceil`$
+   * $`\hat{\epsilon} = \lfloor S^2 \cdot \epsilon \rceil + S`$ (includes a 1-LSB buffer for rounding tolerance)
 5. **Output Format:** Save to `zk/data/invariants_swat_wide.json`.
 
 ---
@@ -123,13 +123,13 @@ Extract the affine parameter matrices ($J_{\text{prev}}, J_{\text{cur}}, c$) fro
 ### Step 2: Export Quantized Evaluation Batches
 **Target Script:** [`zk/scripts/export_batches.py`](scripts/export_batches.py)
 
-Extract four representative batches of length $N = 1,024$ from `build_variant` in `pafl/fl/variants.py`:
+Extract four representative batches of length $`N = 1,024`$ from `build_variant` in `pafl/fl/variants.py`:
 1. **Clean Honest Batch:** Telemetry from an uncompromised client.
 2. **Gross Fabricated Batch:** Circular channel roll by 60 samples (5 minutes of plant time).
 3. **Exposure Replay Batch (`splice_only`):** Real attack telemetry spliced into normal sequences.
 4. **Projected Adaptive Batch:** Fabricated telemetry projected onto the invariant manifold.
 
-Quantize channel readings as $\hat{x} = \lfloor S \cdot x \rceil$ and export to `zk/data/batches_swat.json`.
+Quantize channel readings as $`\hat{x} = \lfloor S \cdot x \rceil`$ and export to `zk/data/batches_swat.json`.
 
 ---
 
@@ -164,32 +164,32 @@ Run test suite:
 The circuit is parameterized by `(k, depth, n_inv, n_chan, stage)` and implemented in three progressive stages:
 
 #### Stage 1: Physics Engine (Residuals & Applicability)
-* Takes two consecutive quantized rows $\hat{x}_{t-1}, \hat{x}_t$.
+* Takes two consecutive quantized rows $`\hat{x}_{t-1}, \hat{x}_t`$.
 * Evaluates actuator status gates:
   ```circom
   // Check if actuator was ON in both consecutive time steps
   component act_prev = IsEqual();
   component act_cur = IsEqual();
   ```
-* Evaluates affine dot products: $\hat{r}_j = \sum \hat{J}_{\text{prev}} \hat{x}_{t-1} + \sum \hat{J}_{\text{cur}} \hat{x}_t + \hat{c}_j$.
-* Evaluates 64-bit signed bounds check via offset $K = 2^{60}$:
+* Evaluates affine dot products: $`\hat{r}_j = \sum \hat{J}_{\text{prev}} \hat{x}_{t-1} + \sum \hat{J}_{\text{cur}} \hat{x}_t + \hat{c}_j`$.
+* Evaluates 64-bit signed bounds check via offset $`K = 2^{60}`$:
   ```circom
   component range_check = Num2Bits(64);
   range_check.in <-- r + eps + K;
   ```
-* Accumulates violation count ($v$) and inapplicable count ($u$).
+* Accumulates violation count ($`v`$) and inapplicable count ($`u`$).
 
 #### Stage 2: Row Commitment (Two-Level Leaf Hashing)
 * Partitions row into 18 invariant-active channels and 24 auxiliary channels.
-* In-circuit: computes $h_{\text{inv}} = \text{Poseidon}_{18}(x_1, \dots, x_{18})$.
-* Takes private input $h_{\text{rest}} = \text{Poseidon}_{24}(x_{19}, \dots, x_{42})$ (precomputed off-circuit).
-* Computes row leaf: $\text{leaf} = \text{Poseidon}_2(h_{\text{inv}}, h_{\text{rest}})$.
+* In-circuit: computes $`h_{\text{inv}} = \text{Poseidon}_{18}(x_1, \dots, x_{18})`$.
+* Takes private input $`h_{\text{rest}} = \text{Poseidon}_{24}(x_{19}, \dots, x_{42})`$ (precomputed off-circuit).
+* Computes row leaf: $`\text{leaf} = \text{Poseidon}_2(h_{\text{inv}}, h_{\text{rest}})`$.
 
 #### Stage 3: Full Circuit (Merkle Authentication)
-* Takes $k$ row indices $\mathcal{I} = \{i_1, \dots, i_k\}$.
-* Decomposes each index $i_m$ into 10 path selection bits via `Num2Bits(10)`.
-* Verifies Merkle inclusion path from $\text{leaf}_i$ to public root $R$.
-* Enforces global assertions: $v_{\text{total}} \le v_{\max}$ and $u_{\text{total}} \le u_{\max}$.
+* Takes $`k`$ row indices $`\mathcal{I} = \{i_1, \dots, i_k\}`$.
+* Decomposes each index $`i_m`$ into 10 path selection bits via `Num2Bits(10)`.
+* Verifies Merkle inclusion path from $`\text{leaf}_i`$ to public root $`R`$.
+* Enforces global assertions: $`v_{\text{total}} \le v_{\max}`$ and $`u_{\text{total}} \le u_{\max}`$.
 
 ---
 
@@ -198,12 +198,12 @@ The circuit is parameterized by `(k, depth, n_inv, n_chan, stage)` and implement
 
 A Node.js script using `circomlibjs` to prepare the prover witness:
 1. Loads quantized batch from `zk/data/batches_swat.json`.
-2. Computes the 1,024-leaf Poseidon Merkle tree and extracts root $R$.
-3. Derives $k$ challenge indices using the public nonce:
+2. Computes the 1,024-leaf Poseidon Merkle tree and extracts root $`R`$.
+3. Derives $`k`$ challenge indices using the public nonce:
    ```javascript
    const idx = (Number(poseidon([root, nonce, m])) % (N - 1)) + 1;
    ```
-4. Extracts Merkle authentication sibling paths for rows $i$ and $i-1$.
+4. Extracts Merkle authentication sibling paths for rows $`i`$ and $`i-1`$.
 5. Formats and writes `zk/build/input.json`.
 
 ---
@@ -211,7 +211,7 @@ A Node.js script using `circomlibjs` to prepare the prover witness:
 ### Step 6: Automated End-to-End Benchmarking
 **Target Script:** [`zk/scripts/run_bench.sh`](scripts/run_bench.sh)
 
-An automated shell script executing compilation, setup, proving, and verification across sample sizes $k \in \{8, 16, 32, 64\}$:
+An automated shell script executing compilation, setup, proving, and verification across sample sizes $`k \in \{8, 16, 32, 64\}`$:
 
 ```bash
 #!/usr/bin/env bash
@@ -242,8 +242,8 @@ Collect all metrics into `zk/results.json`:
 * R1CS constraint counts per stage
 * Proving key (`.zkey`) size
 * Witness generation runtime
-* Prover runtime ($t_{\text{prove}}$)
-* Verifier runtime ($t_{\text{verify}}$)
+* Prover runtime ($`t_{\text{prove}}`$)
+* Verifier runtime ($`t_{\text{verify}}`$)
 * Peak memory footprint (RSS)
 
 ---
@@ -251,7 +251,7 @@ Collect all metrics into `zk/results.json`:
 ### Step 7: Monte Carlo Soundness Sweeps
 **Target Script:** [`zk/scripts/sample_check.py`](scripts/sample_check.py)
 
-A standalone Python script evaluating empirical detection probability across varying sample sizes $k$ without requiring full zk proof generation:
+A standalone Python script evaluating empirical detection probability across varying sample sizes $`k`$ without requiring full zk proof generation:
 * Evaluates detection rate over 10,000 independent draws against:
   1. Channel roll (shift = 60 rows)
   2. Exposure replay (`splice_only`)
@@ -268,11 +268,11 @@ A standalone Python script evaluating empirical detection probability across var
 |:---|:---:|:---|:---|
 | **Day A** | 0.5 Day | Toolchain setup, `powersOfTau` download, test circuit smoke test | Proof generates cleanly on minimal Poseidon test |
 | **Day B** | 1.0 Day | Exporter scripts (`export_*.py`), `test_zk_export.py`, Circuit Stages 1 & 2 | Float parity test passes; Stage 2 compiles under budget |
-| **Day C** | 1.0 Day | Stage 3 Merkle circuit, $k \in \{8, 16, 32, 64\}$ sweep, attack validation | Honest batch proves; fabricated batch hard-aborts |
+| **Day C** | 1.0 Day | Stage 3 Merkle circuit, $`k \in \{8, 16, 32, 64\}`$ sweep, attack validation | Honest batch proves; fabricated batch hard-aborts |
 | **Day D** | 0.5 Day | Populate `results.json`, format LaTeX table for Section 5 of manuscript | Manuscript results table finalized |
 
 ### Fallback Cut-Off Dates
-* **Saturday 19 September:** Prover execution cut-off. If proof generation encounters memory bottlenecks at $k = 64$, report exact compiled constraint counts and theoretical proving bounds from Stages 1 and 2.
+* **Saturday 19 September:** Prover execution cut-off. If proof generation encounters memory bottlenecks at $`k = 64`$, report exact compiled constraint counts and theoretical proving bounds from Stages 1 and 2.
 * **Wednesday 23 September:** Compilation cut-off. If circuit bugs delay Stage 3, fall back to the analytic constraint estimate and present PA-FL Lite as an architectural specification.
 
 ---
