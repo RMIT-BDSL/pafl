@@ -38,6 +38,7 @@ class Invariant:
     eps: float | None = None       # tolerance, normally set by calibrate()
     degree: int = 1                # polynomial degree, for circuit cost accounting
     note: str = ""
+    params: dict = field(default_factory=dict)   # the rule's structure (channels, encodings, terms), for export
 
     def residual(self, df: pd.DataFrame) -> np.ndarray:
         r = np.asarray(self.fn(df), dtype=float)
@@ -170,7 +171,8 @@ def mass_balance(level: str, inflow: str, outflow: str, area: float, dt: float =
         return r
 
     return Invariant(name or f"balance::{level}", "balance", fn, degree=1,
-                     note=f"d{level} = dt*({inflow}-{outflow})/{area}")
+                     note=f"d{level} = dt*({inflow}-{outflow})/{area}",
+                     params={"level": level, "inflow": inflow, "outflow": outflow, "area": float(area), "dt": float(dt)})
 
 
 def status_flow_coupling(status: str, flow: str, nominal: float, name: str | None = None,
@@ -216,7 +218,9 @@ def status_flow_coupling(status: str, flow: str, nominal: float, name: str | Non
         return r
 
     return Invariant(name or f"coupling::{status}~{flow}", "coupling", fn, degree=1,
-                     note=f"{flow} ~= ({status} - {off_value:g}) / {span:g} * {nominal}")
+                     note=f"{flow} ~= ({status} - {off_value:g}) / {span:g} * {nominal}",
+                     params={"status": status, "flow": flow, "nominal": float(nominal),
+                             "off_value": float(off_value), "on_value": float(on_value), "steady_only": bool(steady_only)})
 
 
 def range_bound(channel: str, lo: float, hi: float, name: str | None = None) -> Invariant:
@@ -234,7 +238,7 @@ def range_bound(channel: str, lo: float, hi: float, name: str | None = None) -> 
         return np.maximum(np.maximum(lo - x, x - hi), 0.0)
 
     return Invariant(name or f"bound::{channel}", "bound", fn, degree=1,
-                     note=f"{lo} <= {channel} <= {hi}")
+                     note=f"{lo} <= {channel} <= {hi}", params={"channel": channel, "lo": float(lo), "hi": float(hi)})
 
 
 def linear_relation(target: str, terms: Sequence[tuple[str, float]], const: float = 0.0,
@@ -261,4 +265,6 @@ def linear_relation(target: str, terms: Sequence[tuple[str, float]], const: floa
     label = name or f"linear::{'d' if diff_target else ''}{target}"
     return Invariant(label, "linear", fn, degree=1,
                      note=f"{'d' if diff_target else ''}{target} = " +
-                          " + ".join(f"{w:+.4g}*{c}" for c, w in terms) + f" {const:+.4g}")
+                          " + ".join(f"{w:+.4g}*{c}" for c, w in terms) + f" {const:+.4g}",
+                     params={"target": target, "terms": [[c, float(w)] for c, w in terms], "const": float(const),
+                             "diff_target": bool(diff_target)})

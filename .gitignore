@@ -42,3 +42,9 @@ results/_probes/
 results/logs/
 pilot-paper/data/
 LOG.md
+
+# PA-FL Lite: the fixed-point invariant sets are derived parameters (no telemetry) and are tracked;
+# anything else under zk/data/ (quantised batches are SWaT rows) stays out of the repo
+!zk/data/
+zk/data/*
+!zk/data/invariants_*.json

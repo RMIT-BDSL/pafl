@@ -21,9 +21,17 @@ binding is specified in the paper's design section and is the next implementatio
 **Layout** (see `PLAN.md` for what each does and in what order they are built):
 
     circuits/invariant_check.circom   the circuit, built in three stages
-    export_invariants.py              mined invariant set -> fixed-point coefficients
-    export_batches.py                 real SWaT batches -> quantised rows
-    sample_check.py                   empirical detection against the real attackers
-    build_inputs.mjs                  Poseidon tree, root, challenges, snarkjs input
-    run_bench.sh                      compile, setup, prove, verify across k
+    scripts/export_invariants.py      mined invariant set -> fixed-point coefficients   [done 12 Sep]
+    scripts/export_batches.py         real SWaT batches -> quantised rows (needs the SWaT archive)
+    scripts/sample_check.py           empirical detection against the real attackers
+    scripts/build_inputs.mjs          Poseidon tree, root, challenges, snarkjs input
+    scripts/run_bench.sh              compile, setup, prove, verify across k
+    data/invariants_swat_wide.json    the 9-rule set in fixed point: coefficients, constants,
+                                      tolerances, applicability, channel map, provenance, checks
+    data/invariants_swat_narrow.json  the 5-rule set, same format
     results.json                      every measurement the paper quotes
+
+**Starting without SWaT.** The invariant JSON files are derived parameters, not telemetry, and are
+committed. The circuit, its constraint counts and proving times can be built and measured from them
+alone (synthetic or random witnesses); only the three-proof demonstration on real batches needs the
+SWaT archive (request: https://itrust.sutd.edu.sg/itrust-labs_datasets/dataset_info/).

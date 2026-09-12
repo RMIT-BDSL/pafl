@@ -1,0 +1,640 @@
+{
+ "scale_bits": 16,
+ "S": 65536,
+ "quantisation": {
+  "x_hat": "round(S * x)",
+  "J_hat": "round(S * J)",
+  "c_hat": "round(S^2 * c)",
+  "eps_hat": "round(S^2 * eps) + S  (one unit of slack for rounding)",
+  "residual": "r_hat = sum_prev J_hat * x_hat[t-1] + sum_cur J_hat * x_hat[t] + c_hat ~ S^2 * r",
+  "check": "applicable(t) implies |r_hat| <= eps_hat",
+  "sampling": "indices are drawn from 1..N-1; row 0 is never checked because every check opens the pair (x[t-1], x[t])"
+ },
+ "columns": [
+  "DPIT301",
+  "FIT101",
+  "FIT201",
+  "FIT301",
+  "FIT401",
+  "FIT501",
+  "FIT502",
+  "FIT503",
+  "FIT504",
+  "FIT601",
+  "LIT101",
+  "LIT301",
+  "LIT401",
+  "MV101",
+  "MV201",
+  "MV301",
+  "MV302",
+  "MV303",
+  "MV304",
+  "P101",
+  "P102",
+  "P201",
+  "P202",
+  "P203",
+  "P204",
+  "P205",
+  "P206",
+  "P301",
+  "P302",
+  "P401",
+  "P402",
+  "P403",
+  "P404",
+  "P501",
+  "P502",
+  "P601",
+  "P602",
+  "P603",
+  "PIT501",
+  "PIT502",
+  "PIT503",
+  "UV401"
+ ],
+ "channel_index": {
+  "DPIT301": 0,
+  "FIT101": 1,
+  "FIT201": 2,
+  "FIT301": 3,
+  "FIT401": 4,
+  "FIT501": 5,
+  "FIT502": 6,
+  "FIT503": 7,
+  "FIT504": 8,
+  "FIT601": 9,
+  "LIT101": 10,
+  "LIT301": 11,
+  "LIT401": 12,
+  "MV101": 13,
+  "MV201": 14,
+  "MV301": 15,
+  "MV302": 16,
+  "MV303": 17,
+  "MV304": 18,
+  "P101": 19,
+  "P102": 20,
+  "P201": 21,
+  "P202": 22,
+  "P203": 23,
+  "P204": 24,
+  "P205": 25,
+  "P206": 26,
+  "P301": 27,
+  "P302": 28,
+  "P401": 29,
+  "P402": 30,
+  "P403": 31,
+  "P404": 32,
+  "P501": 33,
+  "P502": 34,
+  "P601": 35,
+  "P602": 36,
+  "P603": 37,
+  "PIT501": 38,
+  "PIT502": 39,
+  "PIT503": 40,
+  "UV401": 41
+ },
+ "channels_touched": [
+  "FIT101",
+  "FIT201",
+  "FIT301",
+  "FIT401",
+  "FIT501",
+  "FIT502",
+  "FIT503",
+  "FIT504",
+  "FIT601",
+  "LIT101",
+  "LIT301",
+  "LIT401",
+  "MV101",
+  "MV201",
+  "MV301",
+  "P101",
+  "P203",
+  "P602"
+ ],
+ "n_invariants": 9,
+ "invariants": [
+  {
+   "name": "coupling::MV101~FIT101",
+   "kind": "coupling",
+   "note": "FIT101 ~= (MV101 - 1) / 1 * 2.544863254450158",
+   "eps": 0.2901499387476374,
+   "eps_hat": 1246250034,
+   "c": 2.5448632544576983,
+   "c_hat": 10930104451,
+   "coef_prev": {},
+   "coef_cur": {
+    "FIT101": {
+     "float": 1.0000000000021103,
+     "int": 65536
+    },
+    "MV101": {
+     "float": -2.5448632544566863,
+     "int": -166780
+    }
+   },
+   "applicability": {
+    "type": "coupling",
+    "status_channel": "MV101",
+    "flow_channel": "FIT101",
+    "off_value": 1.0,
+    "on_value": 2.0,
+    "steady_only": true,
+    "rule": "applies when rint(status) is off_value or on_value and equals rint(status) of the previous row"
+   }
+  },
+  {
+   "name": "coupling::P101~FIT201",
+   "kind": "coupling",
+   "note": "FIT201 ~= (P101 - 1) / 1 * 2.448772117096494",
+   "eps": 1.8414072974997848,
+   "eps_hat": 7908849657,
+   "c": 2.4487721171042103,
+   "c_hat": 10517396158,
+   "coef_prev": {},
+   "coef_cur": {
+    "FIT201": {
+     "float": 1.0000000000021103,
+     "int": 65536
+    },
+    "P101": {
+     "float": -2.4487721171029264,
+     "int": -160483
+    }
+   },
+   "applicability": {
+    "type": "coupling",
+    "status_channel": "P101",
+    "flow_channel": "FIT201",
+    "off_value": 1.0,
+    "on_value": 2.0,
+    "steady_only": true,
+    "rule": "applies when rint(status) is off_value or on_value and equals rint(status) of the previous row"
+   }
+  },
+  {
+   "name": "coupling::MV201~FIT201",
+   "kind": "coupling",
+   "note": "FIT201 ~= (MV201 - 1) / 1 * 2.448771567583478",
+   "eps": 0.5729455538752142,
+   "eps_hat": 2460847952,
+   "c": 2.4487715675852497,
+   "c_hat": 10517393798,
+   "coef_prev": {},
+   "coef_cur": {
+    "FIT201": {
+     "float": 1.0000000000021103,
+     "int": 65536
+    },
+    "MV201": {
+     "float": -2.448771567586938,
+     "int": -160483
+    }
+   },
+   "applicability": {
+    "type": "coupling",
+    "status_channel": "MV201",
+    "flow_channel": "FIT201",
+    "off_value": 1.0,
+    "on_value": 2.0,
+    "steady_only": true,
+    "rule": "applies when rint(status) is off_value or on_value and equals rint(status) of the previous row"
+   }
+  },
+  {
+   "name": "coupling::P203~FIT201",
+   "kind": "coupling",
+   "note": "FIT201 ~= (P203 - 1) / 1 * 2.450551677219479",
+   "eps": 1.559826397499784,
+   "eps_hat": 6699468901,
+   "c": 2.4505516772241935,
+   "c_hat": 10525039311,
+   "coef_prev": {},
+   "coef_cur": {
+    "FIT201": {
+     "float": 1.0000000000021103,
+     "int": 65536
+    },
+    "P203": {
+     "float": -2.4505516772244107,
+     "int": -160599
+    }
+   },
+   "applicability": {
+    "type": "coupling",
+    "status_channel": "P203",
+    "flow_channel": "FIT201",
+    "off_value": 1.0,
+    "on_value": 2.0,
+    "steady_only": true,
+    "rule": "applies when rint(status) is off_value or on_value and equals rint(status) of the previous row"
+   }
+  },
+  {
+   "name": "coupling::MV301~FIT601",
+   "kind": "coupling",
+   "note": "FIT601 ~= (MV301 - 1) / 1 * 1.535568435849057",
+   "eps": 0.5615503992736334,
+   "eps_hat": 2411906136,
+   "c": 1.5355684358488877,
+   "c_hat": 6595216213,
+   "coef_prev": {},
+   "coef_cur": {
+    "FIT601": {
+     "float": 1.0,
+     "int": 65536
+    },
+    "MV301": {
+     "float": -1.5355684358488877,
+     "int": -100635
+    }
+   },
+   "applicability": {
+    "type": "coupling",
+    "status_channel": "MV301",
+    "flow_channel": "FIT601",
+    "off_value": 1.0,
+    "on_value": 2.0,
+    "steady_only": true,
+    "rule": "applies when rint(status) is off_value or on_value and equals rint(status) of the previous row"
+   }
+  },
+  {
+   "name": "coupling::P602~FIT601",
+   "kind": "coupling",
+   "note": "FIT601 ~= (P602 - 1) / 1 * 1.5694242549450552",
+   "eps": 1.1122348137363045,
+   "eps_hat": 4777077686,
+   "c": 1.5694242549448822,
+   "c_hat": 6740625849,
+   "coef_prev": {},
+   "coef_cur": {
+    "FIT601": {
+     "float": 1.0,
+     "int": 65536
+    },
+    "P602": {
+     "float": -1.5694242549448822,
+     "int": -102854
+    }
+   },
+   "applicability": {
+    "type": "coupling",
+    "status_channel": "P602",
+    "flow_channel": "FIT601",
+    "off_value": 1.0,
+    "on_value": 2.0,
+    "steady_only": true,
+    "rule": "applies when rint(status) is off_value or on_value and equals rint(status) of the previous row"
+   }
+  },
+  {
+   "name": "balance::LIT101",
+   "kind": "linear",
+   "note": "dLIT101 = +8.901*FIT504 + -4.357*FIT503 + -3.278*FIT501 + +2.939*FIT401 + -0.9685*FIT201 + +0.9474*FIT101 + -0.2842*FIT502 + +0.02297*FIT601 +1.471",
+   "eps": 6.176890294237751,
+   "eps_hat": 26529607341,
+   "c": -1.4711893827767586,
+   "c_hat": -6318710285,
+   "coef_prev": {
+    "LIT101": {
+     "float": -0.9999999997489795,
+     "int": -65536
+    }
+   },
+   "coef_cur": {
+    "FIT101": {
+     "float": -0.947412680161186,
+     "int": -62090
+    },
+    "FIT201": {
+     "float": 0.9685402631642859,
+     "int": 63474
+    },
+    "FIT401": {
+     "float": -2.939148698999361,
+     "int": -192620
+    },
+    "FIT501": {
+     "float": 3.278379185722713,
+     "int": 214852
+    },
+    "FIT502": {
+     "float": 0.2842192242469288,
+     "int": 18627
+    },
+    "FIT503": {
+     "float": 4.357103577650179,
+     "int": 285547
+    },
+    "FIT504": {
+     "float": -8.900824598061519,
+     "int": -583324
+    },
+    "FIT601": {
+     "float": -0.022971077271449758,
+     "int": -1505
+    },
+    "LIT101": {
+     "float": 0.9999999997489795,
+     "int": 65536
+    }
+   },
+   "applicability": {
+    "type": "linear",
+    "rule": "applies to every row that has a previous row"
+   }
+  },
+  {
+   "name": "balance::LIT301",
+   "kind": "linear",
+   "note": "dLIT301 = -3.65*FIT504 + +1.823*FIT503 + -0.9575*FIT301 + +0.9488*FIT201 + +0.2351*FIT401 + +0.05286*FIT601 + +0.01786*FIT502 + +0.01784*FIT101 -0.6517",
+   "eps": 3.867791898444862,
+   "eps_hat": 16612105248,
+   "c": 0.6516929918754931,
+   "c_hat": 2799000087,
+   "coef_prev": {
+    "LIT301": {
+     "float": -0.9999999997489795,
+     "int": -65536
+    }
+   },
+   "coef_cur": {
+    "FIT101": {
+     "float": -0.017837148681421056,
+     "int": -1169
+    },
+    "FIT201": {
+     "float": -0.9487943040209501,
+     "int": -62180
+    },
+    "FIT301": {
+     "float": 0.957534061174492,
+     "int": 62753
+    },
+    "FIT401": {
+     "float": -0.23513888501081048,
+     "int": -15410
+    },
+    "FIT502": {
+     "float": -0.01786134046000143,
+     "int": -1171
+    },
+    "FIT503": {
+     "float": -1.8228191366853608,
+     "int": -119460
+    },
+    "FIT504": {
+     "float": 3.6499055831429317,
+     "int": 239200
+    },
+    "FIT601": {
+     "float": -0.052862655035568196,
+     "int": -3464
+    },
+    "LIT301": {
+     "float": 0.9999999997489795,
+     "int": 65536
+    }
+   },
+   "applicability": {
+    "type": "linear",
+    "rule": "applies to every row that has a previous row"
+   }
+  },
+  {
+   "name": "balance::LIT401",
+   "kind": "linear",
+   "note": "dLIT401 = +7.397*FIT504 + +6.09*FIT503 + +2.387*FIT501 + +0.8259*FIT301 + -0.4502*FIT502 + +0.08013*FIT201 + -0.01399*FIT101 + -0.009667*FIT601 -11.95",
+   "eps": 4.24898809454745,
+   "eps_hat": 18249330443,
+   "c": 11.951052471879535,
+   "c_hat": 51329379520,
+   "coef_prev": {
+    "LIT401": {
+     "float": -0.9999999997489795,
+     "int": -65536
+    }
+   },
+   "coef_cur": {
+    "FIT101": {
+     "float": 0.013993292172220784,
+     "int": 917
+    },
+    "FIT201": {
+     "float": -0.080127206897318,
+     "int": -5251
+    },
+    "FIT301": {
+     "float": -0.8259319141834531,
+     "int": -54128
+    },
+    "FIT501": {
+     "float": -2.3874782919541815,
+     "int": -156466
+    },
+    "FIT502": {
+     "float": 0.45017561390969796,
+     "int": 29503
+    },
+    "FIT503": {
+     "float": -6.089744436286182,
+     "int": -399097
+    },
+    "FIT504": {
+     "float": -7.397389868302184,
+     "int": -484795
+    },
+    "FIT601": {
+     "float": 0.009667127086054883,
+     "int": 634
+    },
+    "LIT401": {
+     "float": 0.9999999997489795,
+     "int": 65536
+    }
+   },
+   "applicability": {
+    "type": "linear",
+    "rule": "applies to every row that has a previous row"
+   }
+  }
+ ],
+ "provenance": {
+  "dataset": "swat",
+  "setting": "wide",
+  "miner_thresholds": {
+   "r2_min": 0.4,
+   "coupling_off_ratio": 0.1,
+   "coupling_support": 0.005
+  },
+  "construction": "pafl.fl.scenario_real.RealScenarioConfig: first 30 % of the normal record is the invariant slice; fitted on its first half, tolerances calibrated on its second half (1.5 x the 99.9th percentile of |r|)",
+  "rows": {
+   "normal_record": 94680,
+   "fit": 14202,
+   "calibrate": 14202,
+   "client_pool": 66276
+  },
+  "excluded_channel_prefixes": [
+   "AIT"
+  ],
+  "mining_report": {
+   "n_continuous": 25,
+   "n_discrete": 26,
+   "couplings": [
+    {
+     "status": "MV101",
+     "flow": "FIT101",
+     "nominal": 2.545,
+     "cv": 0.0302,
+     "off_q99": 0.0,
+     "off_value": 1.0,
+     "on_value": 2.0,
+     "support": 0.2812
+    },
+    {
+     "status": "P101",
+     "flow": "FIT201",
+     "nominal": 2.449,
+     "cv": 0.0187,
+     "off_q99": 0.0122,
+     "off_value": 1.0,
+     "on_value": 2.0,
+     "support": 0.2684
+    },
+    {
+     "status": "MV201",
+     "flow": "FIT201",
+     "nominal": 2.449,
+     "cv": 0.0187,
+     "off_q99": 0.0,
+     "off_value": 1.0,
+     "on_value": 2.0,
+     "support": 0.264
+    },
+    {
+     "status": "P203",
+     "flow": "FIT201",
+     "nominal": 2.451,
+     "cv": 0.0035,
+     "off_q99": 0.1641,
+     "off_value": 1.0,
+     "on_value": 2.0,
+     "support": 0.2701
+    },
+    {
+     "status": "MV301",
+     "flow": "FIT601",
+     "nominal": 1.536,
+     "cv": 0.2652,
+     "off_q99": 0.0003,
+     "off_value": 1.0,
+     "on_value": 2.0,
+     "support": 0.0075
+    },
+    {
+     "status": "P602",
+     "flow": "FIT601",
+     "nominal": 1.569,
+     "cv": 0.2114,
+     "off_q99": 0.0003,
+     "off_value": 1.0,
+     "on_value": 2.0,
+     "support": 0.0064
+    }
+   ],
+   "balances": [
+    {
+     "tank": "LIT101",
+     "r2": 0.6242,
+     "tightness": 0.613
+    },
+    {
+     "tank": "LIT301",
+     "r2": 0.7022,
+     "tightness": 0.5457
+    },
+    {
+     "tank": "LIT401",
+     "r2": 0.5512,
+     "tightness": 0.6699
+    }
+   ],
+   "dropped_balances": [
+    {
+     "tank": "DPIT301",
+     "r2": 0.0266,
+     "tightness": 0.9866
+    },
+    {
+     "tank": "PIT501",
+     "r2": 0.0163,
+     "tightness": 0.9918
+    },
+    {
+     "tank": "PIT503",
+     "r2": 0.0166,
+     "tightness": 0.9917
+    }
+   ],
+   "kept_total": 9,
+   "kept_couplings": 6,
+   "kept_balances": 3
+  },
+  "generated": "2026-09-12",
+  "pafl_commit": "0ef5308",
+  "script": "zk/scripts/export_invariants.py"
+ },
+ "checks": {
+  "calibration_half": {
+   "rows": 14202,
+   "residual_error_max_over_eps": 4.2910182290852336e-05,
+   "residual_error_mean_over_eps": 7.569927436094431e-06,
+   "applicability_disagreements": 0,
+   "violation_disagreements": 0,
+   "cells": 127809,
+   "float_violating_fraction": 0.0031687909302161817,
+   "integer_violating_fraction": 0.0031687909302161817
+  },
+  "batch_verdict_parity": {
+   "honest": {
+    "agree": 50,
+    "of": 50
+   },
+   "channel_roll": {
+    "agree": 50,
+    "of": 50
+   }
+  },
+  "batch_verdict_disagreements": [],
+  "honest_batches": {
+   "n": 50,
+   "rows": 1000,
+   "float_violating_mean": 0.0036800000000000005,
+   "integer_violating_mean": 0.0036800000000000005,
+   "integer_false_reject_rate": 0.0
+  },
+  "not_applicable_fraction_on_calibration_half": {
+   "coupling::MV101~FIT101": 0.00626672299676102,
+   "coupling::P101~FIT201": 0.0025348542458808617,
+   "coupling::MV201~FIT201": 0.0064779608505844246,
+   "coupling::P203~FIT201": 0.0025348542458808617,
+   "coupling::MV301~FIT601": 0.005633009435290804,
+   "coupling::P602~FIT601": 0.0024644416279397266,
+   "balance::LIT101": 7.041261794113505e-05,
+   "balance::LIT301": 7.041261794113505e-05,
+   "balance::LIT401": 7.041261794113505e-05
+  }
+ },
+ "budgets": {
+  "v_max": null,
+  "u_max": null,
+  "note": "violation and inapplicability budgets per k are chosen by the circuit designer; the honest violating rate and per-rule not-applicable fractions above size them"
+ }
+}

@@ -91,6 +91,19 @@ curl -L -o powersOfTau28_hez_final_20.ptau \
 ## 3. Step-by-Step Implementation Guide
 
 ### Step 1: Export Invariant Models to Fixed-Point JSON
+
+> **Status (12 Sep 2026): done.** `zk/scripts/export_invariants.py` is written and
+> `zk/data/invariants_swat_wide.json` (9 rules, 18 of 42 channels) and `invariants_swat_narrow.json`
+> are committed. The files hold coefficients, constants and tolerances only, no telemetry, so they
+> may be shared and the circuit can be built from them **without the SWaT archive**. Anyone who
+> holds SWaT regenerates them byte for byte with `.venv/bin/python zk/scripts/export_invariants.py --setting wide`.
+> The integer reference model lives in `pafl/zk/fixed_point.py` (`integer_residuals`,
+> `integer_applicable`, `integer_verdict`); `tests/test_zk_export.py` checks it against the float
+> model on the simulated plant, and the export's own `checks` block records the same comparison on
+> SWaT (max residual error 4e-5 tolerance units; 0 applicability or violation disagreements on
+> 127,809 cells; batch verdicts agree on 50 honest and 50 channel-roll batches). Only Step 2
+> (real batches) needs the licensed record.
+
 **Target Script:** [`zk/scripts/export_invariants.py`](scripts/export_invariants.py)
 
 Extract the affine parameter matrices ($J_{\text{prev}}, J_{\text{cur}}, c$) from `InvariantSet` using `affine_model(inv_set, df, columns)` in `pafl/attacks/adaptive.py`. Scale all floating-point values by $S = 2^{16} = 65,536$.
