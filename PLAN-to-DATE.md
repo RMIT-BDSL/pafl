@@ -251,3 +251,4 @@ constraint budget, and the limitations. Add:
    Check the Instructions for Authors page for length guidance (the page blocks scripted access;
    open it in a browser).
 
+- [x] Figures: twelve standalone LaTeX figures in `../paper-draft/figures/` (done Sat 12 Sep; `make export` bundles them for Overleaf). Panel (b) of the protocol figure gains the measured proving costs when PA-FL Lite lands.
