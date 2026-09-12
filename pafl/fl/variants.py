@@ -25,6 +25,7 @@ from ..attacks.adaptive import project_batch, projection_cost
 from ..data.loaders import make_windows
 from ..invariants.mine import classify_channels
 from ..utils.logging import get_logger
+from .gate import client_verdicts, summarise_verdicts
 
 log = get_logger("pafl.variants")
 
@@ -63,6 +64,7 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
         calib = simulate(8000, seed=12345)
         inv_set = synthetic_invariants(calib, include_weak_bounds=False).calibrate(calib)
         sc["invariants"] = inv_set
+        sc.update(client_verdicts(sc["clients"], inv_set))
     else:
         from .scenario_real import RealScenarioConfig, build_real_scenario
         from ..data.real import load_real
@@ -78,7 +80,8 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
     if mode == "honest_only":
         sc["clients"] = [c for c in sc["clients"] if not c.is_malicious]
         sc["n_malicious"] = 0
-        sc["physics_admitted_rate"] = None
+        sc.update(summarise_verdicts([v for v in sc.get("physics_verdicts", [])
+                                      if not v.get("is_malicious", True)]))
         return sc, inv_set, cols
     if mode not in ("projected", "gated"):
         return sc, inv_set, cols
@@ -107,16 +110,24 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
                  c.client_id, v["violating_fraction"], v["admitted"],
                  stat["mean_abs_shift_sigma"], stat["seconds"])
     sc["projection"] = stats
-    sc["physics_verdicts"] = [{"client": s["client"], "violating_fraction": s["violating_after"],
-                               "admitted": s["admitted_after"]} for s in stats]
-    sc["physics_admitted_rate"] = float(np.mean([s["admitted_after"] for s in stats])) if stats else None
+    honest_v = [v for v in sc.get("physics_verdicts", []) if not v.get("is_malicious", True)]
+    mal_v = [{"client": s["client"], "is_malicious": True,
+              "violating_fraction": s["violating_after"], "admitted": s["admitted_after"]} for s in stats]
+    sc.update(summarise_verdicts(honest_v + mal_v))
     if proj_stats is not None:
         proj_stats.extend(stats)
     if mode == "gated":
-        rejected = {s["client"] for s in stats if not s["admitted_after"]}
+        # The deployed gate does not know who is honest: any client whose batch
+        # fails the check sits out the round. (Honest rejections are counted so
+        # the paper can report them; on the real records they are zero.)
+        rej_mal = {v["client"] for v in mal_v if not v["admitted"]}
+        rej_hon = {v["client"] for v in honest_v if not v["admitted"]}
+        rejected = rej_mal | rej_hon
         sc["clients"] = [c for c in sc["clients"] if c.client_id not in rejected]
         sc["n_excluded_by_gate"] = len(rejected)
+        sc["n_malicious_excluded_by_gate"] = len(rej_mal)
+        sc["n_honest_excluded_by_gate"] = len(rej_hon)
         sc["n_malicious"] = sum(c.is_malicious for c in sc["clients"])
-        log.info("gate excluded %d of %d malicious clients; %d clients remain",
-                 len(rejected), len(stats), len(sc["clients"]))
+        log.info("gate excluded %d of %d malicious clients and %d honest; %d clients remain",
+                 len(rej_mal), len(stats), len(rej_hon), len(sc["clients"]))
     return sc, inv_set, cols

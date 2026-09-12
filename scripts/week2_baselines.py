@@ -150,6 +150,8 @@ def main() -> int:
             "untargeted_recall": res.get("test_untargeted", {}).get("recall"),
             "malicious_acceptance_rate": out["malicious_acceptance_rate"],
             "physics_admitted_rate": sc.get("physics_admitted_rate"),
+            "honest_physics_admitted_rate": sc.get("honest_physics_admitted_rate"),
+            "n_honest_rejected": sc.get("n_honest_rejected"),
             "wall_seconds": round(time.time() - t0, 2),
         }
         save_json(args.out, done)

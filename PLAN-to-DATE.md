@@ -27,12 +27,13 @@
 | Criterion 1, HAI | Done, fails; scope boundary | `results/c1_hai_mined.json` |
 | Criterion 1, WADI | **Done Fri 11, passes** (7 couplings, 0 balances, default miner) | `results/c1_wadi_default_shift60.json` |
 | Criteria 2–4b, simulated plant (pilot) | Done; it was re-run after the oversampling fix, result holds | `results/sim_adaptive_3seed.json`, `results/sim_defences_mal30_2seed.json` |
-| Criteria 2–4b, **SWaT**: 7 rules × 8 attacks × 3 seeds baselines; adaptive attacker (channel roll, replay), 7 rules, 5 modes incl. gated, 5 seeds, two invariant sets; 4b traces | **Done** | `results/swat_sweep_wide_3seed.json`, `results/swat_adaptive_wide_*_5seed.json`, `results/swat_adaptive_narrow_roll60_3seed.json`, `results/swat_trust_traces_wide_3seed.json` |
+| Criteria 2–4b, **SWaT**: 7 rules × 8 attacks × 3 seeds baselines; adaptive attacker (channel roll, replay), 7 rules, 5 modes incl. gated, 5 seeds, two invariant sets; 4b traces | **Done** (wide); narrow 7 × 5 × 5 running Sat 12 (`scripts/narrow_runs.sh`) | `results/swat_sweep_wide_3seed.json`, `results/swat_adaptive_wide_*_5seed.json`, `results/swat_adaptive_narrow_*_5seed.json`, `results/swat_trust_traces_wide_3seed.json` |
+| Honest clients through the check (federated false-reject claim) | **Done Sat 12**: 0 of 100 honest shards rejected across SWaT (both sets), WADI, BATADAL; every run now records honest verdicts and the gate excludes any rejected client | `results/honest_verdicts.json`, `pafl/fl/gate.py` |
 | Criteria 2–4b, **BATADAL** (5 clients, 3 rules, 3 seeds) | Done; weak signal, support only | `results/batadal_adaptive_*_3seed.json` |
 | Criteria 2–4b, **WADI** | **Done Fri 11** (3 rules, 5 modes, 3 seeds). No measurable poison damage (detector recall on WADI attacks ≈ 0.2); gate rejects 100 % of rolled and 89 % of replay batches before adaptation, excludes 2 of 3 clients after. Role: rejection behaviour, not removal ratios | `results/wadi_adaptive_default_*_3seed.json` |
 | Recipe B | Done on SWaT, 7 rules × 3 seeds | in `swat_sweep_wide_3seed.json` |
 | ZK extension (PA-FL Lite) | Not started; toolchain present (circom, snarkjs, node) | `zk/README.md` |
-| Paper | Pilot draft complete; MDPI port not started | `pilot-paper/pilot-paper.tex` |
+| Paper | Figures done (12); Results/Discussion planned; tables built; bibliography consolidated (50 entries); prose not started | `../paper-draft/{figures,tables,results-disc.tex,references.bib}` |
 
 ---
 
@@ -254,3 +255,9 @@ constraint budget, and the limitations. Add:
    (plan in its `FIGURES.md`; `make export` bundles sources, style, data and PDFs for Overleaf).
    Every number enters through `export_figure_data.py` from `results/*.json`. Panel (b) of the
    protocol figure gains the measured proving costs when PA-FL Lite lands.
+
+9. **Results and Discussion planned (Sat 12 Sep)** in `../paper-draft/results-disc.tex`: paragraph map
+   with figures and data sources, continuity check, tagged bullets, Discussion in the nine-move
+   structure. Open items before prose: honest clients through `physics_verdicts`; splice-only under the
+   narrow set at 60 rows with `honest_only`; fix the `umer2024invariant` author list; state the attack
+   counts (35 SWaT, 14 WADI) once.

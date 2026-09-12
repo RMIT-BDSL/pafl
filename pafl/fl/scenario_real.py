@@ -43,6 +43,7 @@ from ..data.swat import swat_invariants
 from ..attacks.recipe_a import fabricate as fabricate_a, FABRICATIONS
 from ..invariants.spec import InvariantSet
 from ..utils.logging import get_logger
+from .gate import client_verdicts
 from .partition import PartitionConfig, partition_frame
 
 log = get_logger("pafl.scenario_real")
@@ -301,9 +302,11 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
              len(cols), len(clients[0].train), len(Xt), float(yt.mean()),
              len(targets), target_rows, int(tgt.sum()))
 
-    # The physics gate's own verdict on every malicious batch, so a results
-    # table can show both doors: what the check admits, and what the rule admits.
-    gate = [inv_set.batch_verdict(c.raw) for c in clients if c.is_malicious]
+    # The physics gate's own verdict on every client batch: the malicious ones
+    # so a results table can show both doors (what the check admits, what the
+    # rule admits), the honest ones so the false-rejection claim is measured on
+    # the shards the federation actually trains on.
+    gate = client_verdicts(clients, inv_set)
 
     return {
         "clients": clients,
@@ -312,10 +315,7 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
         "invariants": inv_set,
         "invariant_report": inv_report,
         "eval_sets": eval_sets,
-        "physics_verdicts": [{"client": c.client_id, "violating_fraction": v["violating_fraction"],
-                              "admitted": v["admitted"]}
-                             for c, v in zip([c for c in clients if c.is_malicious], gate)],
-        "physics_admitted_rate": float(np.mean([v["admitted"] for v in gate])) if gate else None,
+        **gate,
         "root_data": scaler(Xr).astype(np.float32),
         "n_malicious": n_mal,
         "test_attack_rate": float(yt.mean()),

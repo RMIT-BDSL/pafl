@@ -140,3 +140,26 @@ def test_gated_variant_excludes_rejected_clients():
     assert sc_g["n_excluded_by_gate"] == n_rej
     assert len(sc_g["clients"]) == len(sc_p["clients"]) - n_rej
     assert all(inv.batch_verdict(c.raw)["admitted"] for c in sc_g["clients"] if c.is_malicious)
+
+
+def test_verdicts_cover_honest_clients_and_gate_counts_add_up():
+    """Every client gets a verdict; the malicious-only rate keeps its meaning; the
+    gate's exclusion count is the sum of its malicious and honest exclusions."""
+    from pafl.fl.variants import build_variant
+    sc, inv, _ = build_variant("synthetic", "fabricated", 0.5, 4, 10, 0, steps_per_client=1200)
+    v = sc["physics_verdicts"]
+    assert len(v) == len(sc["clients"])
+    assert {x["is_malicious"] for x in v} == {True, False}
+    mal = [x for x in v if x["is_malicious"]]
+    hon = [x for x in v if not x["is_malicious"]]
+    assert abs(sc["physics_admitted_rate"] - sum(x["admitted"] for x in mal) / len(mal)) < 1e-12
+    assert abs(sc["honest_physics_admitted_rate"] - sum(x["admitted"] for x in hon) / len(hon)) < 1e-12
+    assert sc["n_honest_rejected"] == sum(not x["admitted"] for x in hon)
+    sc_g, _, _ = build_variant("synthetic", "gated", 0.5, 4, 10, 0, steps_per_client=1200,
+                               target_violating=0.0)
+    assert sc_g["n_excluded_by_gate"] == sc_g["n_malicious_excluded_by_gate"] + sc_g["n_honest_excluded_by_gate"]
+    assert sc_g["n_honest_excluded_by_gate"] == sum(not x["admitted"] for x in sc_g["physics_verdicts"]
+                                                    if not x["is_malicious"])
+    sc_h, _, _ = build_variant("synthetic", "honest_only", 0.5, 4, 10, 0, steps_per_client=1200)
+    assert sc_h["physics_admitted_rate"] is None
+    assert all(not x["is_malicious"] for x in sc_h["physics_verdicts"])

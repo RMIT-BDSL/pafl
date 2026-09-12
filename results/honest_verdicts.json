@@ -1,0 +1,1261 @@
+{
+ "configs": {
+  "swat_wide": {
+   "dataset": "swat",
+   "invariant_kw": {
+    "r2_min": 0.4,
+    "coupling_off_ratio": 0.1,
+    "coupling_support": 0.005
+   },
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "n_clients": 10,
+   "n_invariants": 9,
+   "honest_shards": 35,
+   "honest_rejected": 0,
+   "honest_violating_max": 0.005069708491761723,
+   "honest_violating_mean": 0.003711750860039833,
+   "replay_batches": 15,
+   "replay_admitted": 0,
+   "verdicts": [
+    {
+     "seed": 0,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.004435994930291508,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.004013519222644698,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 5,
+     "is_malicious": true,
+     "violating_fraction": 0.07118715673848754,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.07013096746937052,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.005069708491761723,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 9,
+     "is_malicious": true,
+     "violating_fraction": 0.07097591888466413,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 3,
+     "is_malicious": true,
+     "violating_fraction": 0.05576679340937896,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 4,
+     "is_malicious": true,
+     "violating_fraction": 0.07034220532319392,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 6,
+     "is_malicious": false,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 7,
+     "is_malicious": true,
+     "violating_fraction": 0.06316011829319815,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.06400506970849176,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 2,
+     "is_malicious": true,
+     "violating_fraction": 0.057034220532319393,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.004435994930291508,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.004013519222644698,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.07308829742289819,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.005069708491761723,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 0,
+     "is_malicious": true,
+     "violating_fraction": 0.06463878326996197,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.06104773975496409,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.004435994930291508,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.004013519222644698,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.04752851711026616,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.005069708491761723,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0035910435149978876,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.004435994930291508,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.004013519222644698,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 5,
+     "is_malicious": true,
+     "violating_fraction": 0.021123785382340516,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 6,
+     "is_malicious": false,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.005069708491761723,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 8,
+     "is_malicious": true,
+     "violating_fraction": 0.017743979721166033,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 9,
+     "is_malicious": true,
+     "violating_fraction": 0.02091254752851711,
+     "admitted": false,
+     "shard_rows": 4734
+    }
+   ]
+  },
+  "swat_narrow": {
+   "dataset": "swat",
+   "invariant_kw": {
+    "r2_min": 0.6,
+    "coupling_off_ratio": 0.05,
+    "coupling_support": 0.02
+   },
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "n_clients": 10,
+   "n_invariants": 5,
+   "honest_shards": 35,
+   "honest_rejected": 0,
+   "honest_violating_max": 0.0031685678073510772,
+   "honest_violating_mean": 0.002184802945259219,
+   "replay_batches": 15,
+   "replay_admitted": 4,
+   "verdicts": [
+    {
+     "seed": 0,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0019011406844106464,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 5,
+     "is_malicious": true,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.002746092099704267,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 0,
+     "client": 9,
+     "is_malicious": true,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0019011406844106464,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 3,
+     "is_malicious": true,
+     "violating_fraction": 0.012885509083227715,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 4,
+     "is_malicious": true,
+     "violating_fraction": 0.01563160118293198,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 6,
+     "is_malicious": false,
+     "violating_fraction": 0.001478664976763836,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 7,
+     "is_malicious": true,
+     "violating_fraction": 0.014152936206168145,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 1,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0019011406844106464,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.01753274186734263,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 2,
+     "is_malicious": true,
+     "violating_fraction": 0.01605407689057879,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.017743979721166033,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.002746092099704267,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 2,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0019011406844106464,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 0,
+     "is_malicious": true,
+     "violating_fraction": 0.03506548373468526,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.03358681875792142,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.02746092099704267,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.002746092099704267,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0021123785382340513,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 3,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0019011406844106464,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0019011406844106464,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0016899028305872412,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0025348542458808617,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0031685678073510772,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 5,
+     "is_malicious": true,
+     "violating_fraction": 0.011406844106463879,
+     "admitted": false,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 6,
+     "is_malicious": false,
+     "violating_fraction": 0.001478664976763836,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.002746092099704267,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 8,
+     "is_malicious": true,
+     "violating_fraction": 0.008871989860583017,
+     "admitted": true,
+     "shard_rows": 4734
+    },
+    {
+     "seed": 4,
+     "client": 9,
+     "is_malicious": true,
+     "violating_fraction": 0.010984368398817067,
+     "admitted": false,
+     "shard_rows": 4734
+    }
+   ]
+  },
+  "wadi_default": {
+   "dataset": "wadi",
+   "invariant_kw": {
+    "r2_min": 0.6,
+    "coupling_off_ratio": 0.05,
+    "coupling_support": 0.02
+   },
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_clients": 10,
+   "n_invariants": 7,
+   "honest_shards": 21,
+   "honest_rejected": 0,
+   "honest_violating_max": 0.0013227513227513227,
+   "honest_violating_mean": 0.0010786637483732788,
+   "replay_batches": 9,
+   "replay_admitted": 1,
+   "verdicts": [
+    {
+     "seed": 0,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.000992063492063492,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.001240079365079365,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0011574074074074073,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0010747354497354497,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0009093915343915343,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 5,
+     "is_malicious": true,
+     "violating_fraction": 0.011574074074074073,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.012152777777777778,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.0013227513227513227,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0013227513227513227,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 0,
+     "client": 9,
+     "is_malicious": true,
+     "violating_fraction": 0.006447879639580061,
+     "admitted": true,
+     "shard_rows": 12097
+    },
+    {
+     "seed": 1,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.000992063492063492,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.001240079365079365,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0011574074074074073,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 3,
+     "is_malicious": true,
+     "violating_fraction": 0.0199239417989418,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 4,
+     "is_malicious": true,
+     "violating_fraction": 0.019758597883597885,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.000496031746031746,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 6,
+     "is_malicious": false,
+     "violating_fraction": 0.0011574074074074073,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 7,
+     "is_malicious": true,
+     "violating_fraction": 0.02017195767195767,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0013227513227513227,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 1,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0010746466065966768,
+     "admitted": true,
+     "shard_rows": 12097
+    },
+    {
+     "seed": 2,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.000992063492063492,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.021577380952380952,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 2,
+     "is_malicious": true,
+     "violating_fraction": 0.021494708994708994,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0010747354497354497,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0009093915343915343,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 5,
+     "is_malicious": false,
+     "violating_fraction": 0.000496031746031746,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 6,
+     "is_malicious": true,
+     "violating_fraction": 0.021494708994708994,
+     "admitted": false,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 7,
+     "is_malicious": false,
+     "violating_fraction": 0.0013227513227513227,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 8,
+     "is_malicious": false,
+     "violating_fraction": 0.0013227513227513227,
+     "admitted": true,
+     "shard_rows": 12096
+    },
+    {
+     "seed": 2,
+     "client": 9,
+     "is_malicious": false,
+     "violating_fraction": 0.0010746466065966768,
+     "admitted": true,
+     "shard_rows": 12097
+    }
+   ]
+  },
+  "batadal_mined": {
+   "dataset": "batadal",
+   "invariant_kw": {
+    "r2_min": 0.6,
+    "coupling_off_ratio": 0.05,
+    "coupling_support": 0.02
+   },
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "n_clients": 5,
+   "n_invariants": 10,
+   "honest_shards": 9,
+   "honest_rejected": 0,
+   "honest_violating_max": 0.0,
+   "honest_violating_mean": 0.0,
+   "replay_batches": 6,
+   "replay_admitted": 0,
+   "verdicts": [
+    {
+     "seed": 0,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 0,
+     "client": 1,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 0,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 0,
+     "client": 3,
+     "is_malicious": true,
+     "violating_fraction": 0.03538812785388128,
+     "admitted": false,
+     "shard_rows": 876
+    },
+    {
+     "seed": 0,
+     "client": 4,
+     "is_malicious": true,
+     "violating_fraction": 0.046750285062713795,
+     "admitted": false,
+     "shard_rows": 877
+    },
+    {
+     "seed": 1,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 1,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.04223744292237443,
+     "admitted": false,
+     "shard_rows": 876
+    },
+    {
+     "seed": 1,
+     "client": 2,
+     "is_malicious": true,
+     "violating_fraction": 0.03995433789954338,
+     "admitted": false,
+     "shard_rows": 876
+    },
+    {
+     "seed": 1,
+     "client": 3,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 1,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 877
+    },
+    {
+     "seed": 2,
+     "client": 0,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 2,
+     "client": 1,
+     "is_malicious": true,
+     "violating_fraction": 0.04452054794520548,
+     "admitted": false,
+     "shard_rows": 876
+    },
+    {
+     "seed": 2,
+     "client": 2,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 876
+    },
+    {
+     "seed": 2,
+     "client": 3,
+     "is_malicious": true,
+     "violating_fraction": 0.04680365296803653,
+     "admitted": false,
+     "shard_rows": 876
+    },
+    {
+     "seed": 2,
+     "client": 4,
+     "is_malicious": false,
+     "violating_fraction": 0.0,
+     "admitted": true,
+     "shard_rows": 877
+    }
+   ]
+  }
+ },
+ "note": "The check's verdict on every honest client shard of the federated runs."
+}
