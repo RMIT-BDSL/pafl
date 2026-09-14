@@ -261,3 +261,13 @@ constraint budget, and the limitations. Add:
    structure. Open items before prose: honest clients through `physics_verdicts`; splice-only under the
    narrow set at 60 rows with `honest_only`; fix the `umer2024invariant` author list; state the attack
    counts (35 SWaT, 14 WADI) once.
+
+10. **To do (not now): rebuild the result figures at the article text width.** `mdpi.cls` gives a 13.86 cm
+    column (A4, left 5.87 cm / right 1.27 cm); the figures were built at 12.9 cm (the class's Book branch) and
+    sit centred 0.96 cm short of the column. Widen the axis widths in `../paper-draft/figures/fig-*.tex`
+    (`\figfull` → 13.86 cm), rebuild, re-check collisions, `make export`. Decided 14 Sep to defer.
+
+11. **Whole-paper plan written (Mon 14 Sep)**: `../paper-draft/draft-sept-14.tex` (+PDF), superseding
+    `results-disc.tex`. Budget ≈7,000 body words (I1–I6, B1–B5, M1–M6, E1–E6, R0–R22, D1–D9, C1–C2, A1–A3), 11 body
+    figures + 3 appendix, 5 tables; cut order if over length. Bibliography is `../lit-papers/pafl-refs.bib`. Results
+    prose scaffold: `../paper-draft/results.tex`. Writing order: §4, §3, §5, §6, §1, §2, abstract check, §7.
