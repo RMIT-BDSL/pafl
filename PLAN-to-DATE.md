@@ -14,6 +14,7 @@
 | Fri 11 Sep | Damage on real data is **recall on the targeted attacks**, measured against the **honest-only** federation (same honest shards, attacker absent) | global F1 never moves under a targeted poison; the ten-client clean run differs by composition |
 | Fri 11 Sep | Repo holds code, tests, scripts and the result JSON the paper reads; no data, no caches, no LaTeX, no pilot-only material | licences; Overleaf owns the paper |
 | Fri 11 Sep | **Emphasis decided from a 0–5 grading of every result (LOG.md, 13:00).** The abstract is carried by criterion 1 across three plants and by the coverage result. The **simulated plant moves to an appendix**; **WADI and BATADAL are mentions** (a row and two sentences each); the **FLTrust interaction is demoted** from a contribution to a reported observation showing both settings | the two graded 5 are the claims a reviewer can least argue with; the simulator is discounted beside real data; the pilot's FLTrust reversal does not reproduce on SWaT |
+| Mon 14 Sep | **Two-paper split.** *Information* (28 Sep) = the requirement: criterion 1, coverage, damage and removal, complementarity, plus **PA-FL Lite as a feasibility result** (one measured circuit at k = 32, the three-proof demonstration, the analytic sampling curve). **AsiaCCS** (cycle 2, deadline 11 Dec 2026, CPS track) = the protocol: update binding, security argument with the v/u budgets, cost sweep over k, the optimising and rule-aware adversary, the FLTrust interaction analysis, a heterogeneous federation, ledger cost as a subsection. Table in `../paper-draft/draft-sept-14.tex` §0.4 | each paper whole on its own; AsiaCCS cites Information in the third person and reuses no prose; nothing in Information needs weakening later |
 
 
 ---
@@ -120,6 +121,11 @@ headline tables, because a simulator is discounted beside real data.
 
 **Purpose.** Show, with measured numbers on the real invariant set, that a client can prove its
 training batch satisfies the plant's invariants without revealing the batch. Nothing more.
+
+**Scope for the Information paper (decided Mon 14 Sep):** a feasibility result at one setting, k = 32 on the
+nine-rule set, all three stages, plus the three-proof demonstration. The k sweep (8/16/32/64), update binding, the
+formal soundness argument and the empirical detection-vs-k check are held back for the AsiaCCS paper (deadline
+11 Dec 2026). The cut-lines below still apply to the feasibility result.
 
 **Statement proved.** The prover holds a batch *B* of *N* = 1,024 rows, committed as a Poseidon
 Merkle root *R*. For each of *k* challenge indices *i*, the rows *x*<sub>*i*</sub> and

@@ -92,6 +92,13 @@ curl -L -o powersOfTau28_hez_final_20.ptau \
 
 ### Step 1: Export Invariant Models to Fixed-Point JSON
 
+
+> **Scope split (14 Sep 2026).** For the *Information* submission (28 Sep) only a feasibility result is needed:
+> steps 2–4 at **k = 32** on the wide set (batch export, circuit stages 1–3, one setup/prove/verify) and the
+> three-proof demonstration. The k sweep, the empirical `sample_check.py` curve, update binding and the security
+> argument are the AsiaCCS paper (cycle 2, 11 Dec 2026). Build order is unchanged; stop after the k = 32 measurement
+> for the September paper and continue for December.
+
 > **Status (12 Sep 2026): done.** `zk/scripts/export_invariants.py` is written and
 > `zk/data/invariants_swat_wide.json` (9 rules, 18 of 42 channels) and `invariants_swat_narrow.json`
 > are committed. The files hold coefficients, constants and tolerances only, no telemetry, so they
