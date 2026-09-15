@@ -19,7 +19,7 @@
 
 ---
 
-## 2. Current state (Fri 11 Sep)
+## 2. Current state (Tue 15 Sep)
 
 | Item | State | Evidence |
 |---|---|---|
@@ -33,8 +33,8 @@
 | Criteria 2–4b, **BATADAL** (5 clients, 3 rules, 3 seeds) | Done; weak signal, support only | `results/batadal_adaptive_*_3seed.json` |
 | Criteria 2–4b, **WADI** | **Done Fri 11** (3 rules, 5 modes, 3 seeds). No measurable poison damage (detector recall on WADI attacks ≈ 0.2); gate rejects 100 % of rolled and 89 % of replay batches before adaptation, excludes 2 of 3 clients after. Role: rejection behaviour, not removal ratios | `results/wadi_adaptive_default_*_3seed.json` |
 | Recipe B | Done on SWaT, 7 rules × 3 seeds | in `swat_sweep_wide_3seed.json` |
-| ZK extension (PA-FL Lite) | Not started; toolchain present (circom, snarkjs, node) | `zk/README.md` |
-| Paper | Figures done (12); Results/Discussion planned; tables built; bibliography consolidated (50 entries); prose not started | `../paper-draft/{figures,tables,results-disc.tex,references.bib}` |
+| ZK extension (PA-FL Lite) | **Step 1 done Sat 12** (fixed-point export of both invariant sets, integer reference model, tests). Steps 2–4 at k = 32 = the September feasibility result; **owned by the collaborator from Mon 14**; not started. Cut-lines Sat 19 / Wed 23 | `zk/data/invariants_swat_*.json`, `pafl/zk/fixed_point.py`, `zk/PLAN.md` |
+| Paper | Figures done (14, incl. the wide hero figure); whole-paper plan done (`draft-sept-14.tex`); tables built; bibliography `../lit-papers/pafl-refs.bib` (53 entries); Results prose scaffold started (`results.tex`, Jeff); **no section written yet; Overleaf port not started** | `../paper-draft/{figures,tables,draft-sept-14.tex,results.tex}` |
 
 ---
 
@@ -51,7 +51,7 @@ the ZK extension** (status as of Fri 11 Sep, 13:00).
 | Recipe B (gradient matching) | Kept. First-order path, 7 rules × 3 seeds on SWaT: rejected by the check in every cell, comparable damage to the simple attackers, and the one attack FoolsGold admits in full | done | ran in 22 s per cell; the full gradient-matching path is not needed |
 | Update-space baselines | sign-flip, scaling, free-rider, min-max (ALIE and additive noise dropped as planned) | done | they form the complementarity table with the data attacks |
 | FLTrust interaction, FoolsGold | Run on both rules with trust traces, but **demoted**: a one-paragraph observation showing both settings, not a contribution and not in the abstract. The simulator reversal does not reproduce on SWaT | done, demoted 11 Sep | see §4, claim 5 |
-| Groth16 circuit with Merkle commitment, sampling, invariant check, last-layer binding | **PA-FL Lite**: commitment + sampling + invariant check. **No gradient binding.** See §5 and `zk/PLAN.md` | **planned 11 Sep, not built** | 3 attention-days, not 3 weeks |
+| Groth16 circuit with Merkle commitment, sampling, invariant check, last-layer binding | **PA-FL Lite as a feasibility result**: commitment + sampling + invariant check at one k. **No gradient binding** (AsiaCCS). See §5 and `zk/PLAN.md` | step 1 done 12 Sep; circuit not built (collaborator) | 3 attention-days, not 3 weeks |
 | Fabric and Soroban verification costs | Off-chain verification only; ledger costs as a stated next step | cut | attention, not compute |
 | HAI as a dataset | Scope boundary paragraph, as in the pilot paper | done | the invariant families are absent from its training record |
 | *(not promised)* Coverage per attack segment | New: how many attacks each invariant set can see, at what honest-violation cost. The paper's organising idea | done 11 Sep | it explains why removal varies by seed and makes coverage a defender's dial |
@@ -192,32 +192,29 @@ extension. Neither outcome moves the deadline.
 
 ---
 
-## 6. Schedule, 10 to 28 September
+## 6. Schedule, re-baselined Tue 15 Sep (the 10 Sep schedule ran ahead on experiments and behind on writing)
 
-Sweeps run on the laptop overnight. ZK work and writing take attention, so they sit on days when
-the sweeps are running or done.
+What has happened against the original schedule: all experiments finished Thu 10–Fri 11 (five days early), the
+figures on Sat 12, the tables, bibliography and whole-paper plan Sat 12–Mon 14. Nothing that the original schedule put
+under "Writing" has been written, and the Overleaf port has not started. ZK days A–D did not run on Sat–Mon; the
+circuit is now the collaborator's, scoped to the k = 32 feasibility result (§5).
 
-| Date | Experiments | ZK | Writing / admin |
+| Date | ZK (collaborator) | Writing (Jeff + Claude) | Admin |
 |---|---|---|---|
-| **Thu 10** | Copy `pilot/` → `pafl/` (done) | | Plan written. Message collaborators on scope (§3). Send the 250-word abstract to the editorial office |
-| Thu 10, night | Defects 1–8 fixed. Criterion 1 on SWaT. `scripts/overnight_sep10.sh`: SWaT adaptive (7 rules, roll and splice-only, wide set), SWaT baselines sweep, SWaT 4b, BATADAL support runs, Recipe B trial | | |
-| **Fri 11** | Read the overnight results with `scripts/summarize_adaptive.py`. Reruns. Decide the invariant-set setting (narrow vs wide) and the roll shift for the paper. `git init`, first commit | Day A (toolchain) | Jeff: abstract to the editorial office; scope message to collaborators |
-| **Sat 12** | ~~WADI~~ done Fri 11. ~~Coverage table~~ done Fri 11 (`scripts/coverage_table.py`, `results/{swat,wadi}_coverage.json`). Any missing SWaT cells | Day A (toolchain) | |
-| **Sun 13** | Figure script for the paper's results figures from `results/` | Day B (circuit) | Port `pilot-paper.tex` into the MDPI template on Overleaf |
-| Mon 14 | IID contrast row (one seed) if time | finish Day B; Day C with the real invariant set and real batches from the sweep | Setting, threat model, datasets, real-data construction |
-| Tue 15 – Wed 16 | Extend `pilot-paper/make_figures.py` to the new JSON. Tables and figures | | Results section: criteria 1–4b on SWaT and simulator; coverage; control |
-| **Thu 17** | Reruns if any cell failed | Day D | ZK subsection |
-| Fri 18 – Sat 19 | | ZK cut-line 1 (Fri): constraint counts only if not proving | 4b section, FoolsGold. Discussion |
-| Sun 20 – Mon 21 | | | Limitations, enforcement design, related work |
-| Tue 22 – Thu 24 | | ZK cut-line 2 (Wed 23): design estimate only | Full draft to collaborators Tue 22. Revisions |
-| Fri 25 – Sat 26 | | | Co-author review. Ethics paragraph. Data availability. Zenodo DOI on the commit |
-| Sun 27 | | | Buffer. Full read |
+| **Tue 15** | steps 2–3: batch export, circuit stages 1–2 on the synthetic set | Overleaf: MDPI template, `pafl-refs.bib`, figure bundle uploaded; §4 Setup and §3 Method drafted from E1–E6, M1–M6 | |
+| Wed 16 | stage 3; setup at k = 32 on the wide set | §5 Results R0–R9 (criterion 1, coverage, metric, replay) | |
+| Thu 17 | three-proof demo; `zk/results.json` | §5 R10–R18 (removal, narrow set, complementarity) | |
+| Fri 18 | measurements to R20 / Table R5 | §5 R19–R20; §6 Discussion D1–D5 | |
+| **Sat 19** | **cut-line 1**: if not proving, R20 reports constraint counts only | §6 D6–D9; §7 Conclusions | |
+| Sun 20 | | §1 Introduction, §2 Background | |
+| Mon 21 | | abstract re-check against the tables; captions; back matter | |
+| **Tue 22** | | **full draft to collaborators** | |
+| **Wed 23** | **cut-line 2**: if not compiling, R20 keeps the design estimate and §5.6 becomes a specification | revisions from comments | |
+| Thu 24 – Fri 25 | | co-author review; length check against §0.1 of the plan (apply cuts in order) | Zenodo DOI on the release commit; Data Availability wording (iTrust terms) |
+| Sat 26 – Sun 27 | | full read; figure rebuild at 13.86 cm only if time (item 10) | |
 | **Mon 28** | | | **Submit** |
 
-Cut order if the experiments slip, unchanged from the week-2 manual: drop the IID contrast → drop
-ALIE and additive noise → 3 seeds to 2 → drop Recipe B → 10 clients to 5 (BATADAL only).
-
----
+After 28 Sep: the AsiaCCS paper (cycle 2, 11 Dec 2026), per `draft-sept-14.tex` §0.4.
 
 ---
 
