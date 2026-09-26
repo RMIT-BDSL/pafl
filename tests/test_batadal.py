@@ -3,7 +3,15 @@
 These tests protect against the two file quirks that would silently corrupt a
 run: the leading spaces in the second file's headers, and the -999 unlabelled
 marker. They are skipped automatically when the data is not present, so the
-suite still passes on a machine that has not downloaded it.
+suite still passes on a machine that has not downloaded it. They need the two
+CSVs under their published names, BATADAL_dataset03.csv and
+BATADAL_dataset04.csv, directly in the BATADAL folder that pafl.utils.paths
+resolves (a folder named batadal in any case).
+
+The invariant tests cover `pafl.data.batadal.batadal_invariants`, the
+hand-paired set behind results/c1_batadal_expert.json. The federated BATADAL
+runs mine with `pafl.data.swat.swat_invariants` instead, which
+tests/test_week2.py covers on a small SWaT-shaped CSV.
 """
 import sys
 from pathlib import Path
@@ -16,6 +24,8 @@ try:
     from pafl.utils.paths import dataset_dir
     DATA = dataset_dir("batadal")
 except Exception:
+    # no BATADAL folder found; relative to the working directory, so the skip
+    # message below names a path even then
     DATA = Path("data/batadal")
 HAVE_DATA = (DATA / "BATADAL_dataset03.csv").exists() and (DATA / "BATADAL_dataset04.csv").exists()
 pytestmark = pytest.mark.skipif(not HAVE_DATA, reason=f"BATADAL CSVs not found under {DATA}")

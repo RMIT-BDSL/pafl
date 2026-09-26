@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Render results.json (+ results_sampling.json) as Markdown and LaTeX for the paper's ZK subsection.
 
+Prints the cost table, the three-proof demonstration and the sampling table in
+README.md; the 40-round table there comes from nonce_sweep.sh instead. "MB" is
+2^20 bytes throughout (as is the MB in the peak-RSS figures), and the proof size is
+that of snarkjs's JSON file. From zk/lite:
+
     python3 scripts/make_table.py wide_k32 [wide_k16 ...] > build/table.md
 """
 from __future__ import annotations

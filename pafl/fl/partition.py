@@ -4,9 +4,11 @@ The synthetic scenario has many plants by construction: it simulates each site
 with its own set points. A real testbed such as SWaT is one plant, recorded
 once. To study cross-operator federated learning on it we must split that one
 record into several clients, and the split is not a detail -- it decides whether
-the experiment tests the thing the paper claims.
+the experiment tests the thing the paper claims. Each client's piece is its
+"shard", the paper's word for one client's partition of the record.
 
-Two ways to split, and the paper reports both:
+Two ways to split. The paper uses temporal shards throughout; the IID split is
+implemented as a contrast, and no committed result uses it.
 
 * Temporal shards (default). Cut the normal record into contiguous blocks and
   give one block to each client. Because a water plant drifts through operating
@@ -21,10 +23,10 @@ Two ways to split, and the paper reports both:
   It is kept only as a contrast, to show how much the baselines rely on the
   clustering assumption that a real federation violates.
 
-A malicious client is handed a fabricated version of its own shard, built by the
-same Recipe A or Recipe B machinery the synthetic scenario uses. The physics is
-broken on data drawn from the real plant, not on a simulation, which is the
-whole point of moving to real data in week 2.
+This module only splits. What a malicious client then does to its own shard --
+splice in real attack rows, fabricate on top with the Recipe A or Recipe B
+machinery the synthetic scenario uses -- happens in fl.scenario_real, so the
+physics is broken on data drawn from the real plant, not on a simulation.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -34,10 +36,14 @@ import pandas as pd
 
 @dataclass
 class PartitionConfig:
+    """How to split the client pool. fl.scenario_real fills n_clients, scheme and
+    seed from its own config and leaves the rest at these defaults."""
     n_clients: int = 10
     scheme: str = "temporal"        # temporal | iid
-    contiguous_block: bool = True   # temporal only: keep each shard contiguous
-    seed: int = 0
+    contiguous_block: bool = True   # not read anywhere: temporal shards are always contiguous
+    seed: int = 0                   # iid only; the temporal split is deterministic
+    # Refuse a split thinner than this. It is why BATADAL runs with 5 clients:
+    # its client pool of 4,381 hourly rows would give 438 rows each at 10.
     min_rows_per_client: int = 500
 
 
@@ -46,7 +52,9 @@ def partition_frame(normal: pd.DataFrame, cfg: PartitionConfig) -> list[pd.DataF
 
     `normal` must be attack-free (ATT_FLAG all zero or absent); a client trains
     only on data it believes is normal. The attack file is never partitioned --
-    it is the shared held-out test set, the same for every client.
+    it is the shared held-out test set, the same for every client. In
+    fl.scenario_real, `normal` is the client pool: the half of the normal
+    record left after the invariant, validation and root slices are carved off.
     """
     if "ATT_FLAG" in normal.columns and int(normal["ATT_FLAG"].sum()) > 0:
         raise ValueError("partition_frame expects an attack-free frame; pass the "
@@ -58,12 +66,15 @@ def partition_frame(normal: pd.DataFrame, cfg: PartitionConfig) -> list[pd.DataF
                          f"{cfg.min_rows_per_client} rows each")
 
     if cfg.scheme == "temporal":
-        # contiguous, near-equal blocks preserving time order within each client
+        # contiguous, near-equal blocks preserving time order within each client;
+        # sizes differ by at most one row, and client i holds the i-th block
         edges = np.linspace(0, n, k + 1).astype(int)
         return [normal.iloc[edges[i]:edges[i + 1]].reset_index(drop=True)
                 for i in range(k)]
 
     if cfg.scheme == "iid":
+        # Rows are dealt at random and then put back in time order, so an IID
+        # shard is not contiguous: a window cut from it spans gaps in time.
         rs = np.random.default_rng(cfg.seed)
         order = rs.permutation(n)
         shards = np.array_split(order, k)

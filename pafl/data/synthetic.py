@@ -6,15 +6,23 @@ Why this exists. Three reasons, and only the first is obvious.
    smoke test needs no network and no licence.
 2. Its physics are known exactly, so the invariant residuals of honest data are
    ground truth rather than an estimate. That makes it the cleanest place to
-   check the day-1 kill criterion.
+   check criterion 1, the pilot's first go/no-go test (the "day-1 kill
+   criterion"): do the invariants separate honest from fabricated batches?
+   scripts/separation.py runs it; results/c1_*.json hold the answers.
 3. A deliberately mis-specified copy of it *is* Recipe C, the attacker who
-   simulates telemetry instead of instrumenting a plant.
+   simulates telemetry instead of instrumenting a plant. No committed result
+   uses Recipe C: `misspecified` is imported by pafl.fl.scenario but never
+   called.
 
 Topology, chosen to mirror the shape of BATADAL:
 
     source -> PU1 -> T1 -> PU2 -> T2 -> PU3 -> T3 -> PU4 -> demand
 
-Column names follow the BATADAL convention so code written here transfers.
+Column names follow the BATADAL convention so code written here transfers:
+L_T1..L_T3, F_PU1..F_PU4 and S_PU1..S_PU4 (0 = off, 1 = on), plus `step`,
+`DEMAND` (the demand multiplier, never a feature) and ATT_FLAG. The run is
+seeded, so a given (n_steps, params, attacks, seed, site_shift) always gives
+the same frame.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field, replace
@@ -33,7 +41,7 @@ class PlantParams:
     nominal_flow: tuple[float, ...] = (2.20, 2.05, 1.95, 2.00)  # m^3 per step when a pump runs
     level_lo: tuple[float, ...] = (2.0, 2.5, 1.8)     # hysteresis lower setpoint, m
     level_hi: tuple[float, ...] = (4.5, 5.0, 4.0)     # hysteresis upper setpoint, m
-    level_init: tuple[float, ...] = (3.2, 3.6, 2.9)
+    level_init: tuple[float, ...] = (3.2, 3.6, 2.9)   # m
     dt: float = 1.0                                   # one step
     sensor_noise: float = 0.004                       # std dev on level, m
     flow_noise: float = 0.020                         # std dev on flow, m^3
@@ -60,7 +68,7 @@ def misspecified(p: PlantParams) -> PlantParams:
 
 @dataclass
 class AttackWindow:
-    """One scripted attack on the simulated plant."""
+    """One scripted attack on the simulated plant, active on steps [start, end)."""
 
     start: int
     end: int
@@ -154,10 +162,16 @@ def simulate(
                 continue
             flag = 1
             if a.kind == "level_freeze":
+                # Reports the previous step's true level: a one-step lag that moves
+                # with the tank, not a value held for the whole window.
                 obs_level[a.target] = level[a.target]
             elif a.kind == "level_offset":
                 obs_level[a.target] = true_level[a.target] + a.magnitude
             elif a.kind == "pump_stuck_off":
+                # The one physical attack: the pump really stops and the levels
+                # evolve without it, so the balances still hold. Only the
+                # status-flow coupling sees it, on steps where the status still
+                # reads the controller's "on".
                 true_level = level.copy()
                 for i in range(N_TANKS):
                     f = flow.copy()
@@ -192,7 +206,12 @@ def simulate(
 
 
 def default_attacks(n_steps: int, seed: int = 0, n: int = 6) -> list[AttackWindow]:
-    """Scatter a handful of scripted attacks through the run."""
+    """Scatter a handful of scripted attacks through the run.
+
+    The kinds cycle in a fixed order; starts avoid the first and last 12 % of
+    the run. Pump attacks never target the outlet pump, which has no coupling
+    in the ground-truth set.
+    """
     rs = np.random.default_rng(seed)
     kinds = ["level_freeze", "level_offset", "pump_stuck_off", "flow_scale"]
     out: list[AttackWindow] = []

@@ -6,6 +6,9 @@
 // Poseidon Merkle tree, derives the k challenge indices from Poseidon(root, nonce, ctr)
 // as the verifier would, and writes input.json plus a side file with the integer
 // model's own count of violations / inapplicable checks over the chosen samples.
+// Run from zk/lite (circomlibjs resolves from node_modules there). The nonce is the
+// verifier's round challenge, issued after every client has published its root;
+// run_bench.sh passes 1, nonce_sweep.sh 1..R, and it is recorded in the .expect.json.
 //
 //   node scripts/build_inputs.mjs --meta build/wide_k32/circuit_meta.json \
 //        --batches data/batches_swat_wide_seed0.json --batch honest \
@@ -44,6 +47,8 @@ let batchInfo = {};
 if (synthetic) {
   // deterministic LCG; values in [0, 2^20): couplings never apply (status is neither
   // off nor on), balances are violated, so per sample v = #balances, u = #couplings
+  // (wide set: 3 and 6). Enough to measure constraints and timings without SWaT; the
+  // budgets must then be at least 3k and 6k for a witness to exist
   let s = BigInt(seed) * 6364136223846793005n + 1442695040888963407n;
   const next = () => { s = (s * 6364136223846793005n + 1442695040888963407n) & ((1n << 64n) - 1n); return s >> 44n; };
   rows = Array.from({ length: N }, () => columns.map(() => next()));
@@ -66,7 +71,7 @@ const enc = rows.map((r) => r.map((v) => v + B));
 // ---------------------------------------------------------------- hashing (mirror of the circuit)
 const P = await buildPoseidon();
 const F = P.F;
-const H = (xs) => F.toObject(P(xs));
+const H = (xs) => F.toObject(P(xs));   // circomlibjs Poseidon, the same constants as circomlib's
 function chunkedHashPlus(xs, extra) {
   const n = xs.length, nc = Math.ceil(n / 16), cs = Math.ceil(n / nc);
   const digests = [];
@@ -87,10 +92,15 @@ for (let l = 0; l < depth; l++) {
   levels.push(nxt);
 }
 const root = levels[depth][0];
+// (i >> l) ^ 1 is the position of i's sibling at level l; leaf level first, as the circuit reads it
 const siblings = (i) => Array.from({ length: depth }, (_, l) => levels[l][(i >> l) ^ 1]);
 const tHash = (Date.now() - t0) / 1000;
 
 // ---------------------------------------------------------------- challenge indices
+// mod (N-1) + 1 maps into 1..N-1: every check opens (x[i-1], x[i]) and row 0 has no
+// predecessor. The reduction is done on the BigInt (a ~254-bit field element; Number()
+// first would lose precision); the bias of reducing it mod 1023 is negligible. Repeats
+// are skipped so the k indices are distinct. verify.mjs runs the same loop.
 const idx = [];
 for (let ctr = 0; idx.length < k; ctr++) {
   const i = Number(H([root, nonce, BigInt(ctr)]) % BigInt(N - 1)) + 1;
@@ -98,6 +108,8 @@ for (let ctr = 0; idx.length < k; ctr++) {
 }
 
 // ---------------------------------------------------------------- integer model on the samples
+// The circuit's arithmetic on unbiased values and raw constants: exact status equality,
+// |r| <= eps_hat. It predicts whether a witness will exist before the circuit is run.
 function evalPair(xPrev, xCur) {
   let v = 0, u = 0; const per = [];
   for (const rule of meta.rules) {
@@ -121,6 +133,7 @@ const samples = idx.map((i) => {
 const vTot = samples.reduce((a, s) => a + s.v, 0), uTot = samples.reduce((a, s) => a + s.u, 0);
 
 // cross-check against the Python integer model's per-row counts shipped with the batch
+// (export_batches.py drops row 0, so row i is entry i-1)
 let crossCheck = null;
 if (!synthetic) {
   const b = JSON.parse(fs.readFileSync(batchesPath, "utf8")).batches[batchName];
@@ -132,6 +145,7 @@ if (!synthetic) {
 }
 
 // ---------------------------------------------------------------- write
+// snarkjs wants decimal strings; the opened values are biased again, as the leaves were
 const S = (x) => x.toString();
 const input = {
   root: S(root), idx: idx.map(S), vMax: S(vMax), uMax: S(uMax),

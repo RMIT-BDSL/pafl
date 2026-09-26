@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""LaTeX tables from the adaptive-run JSON files. No number is typed by hand.
+"""A LaTeX table from one adaptive.py result file, for inspection. No number is typed by hand.
 
     python scripts/tables.py results/swat_adaptive_wide_splice_5seed.json --metric targeted_recall
 
-Prints a booktabs table: one row per aggregation rule, columns clean /
-fabricated / projected / gated (mean over seeds, with min–max in small type),
-damage removed by projection and by the gate, and the two doors (share of
-malicious updates the rule accepted; share of malicious batches the check
+Prints a booktabs table with one row per aggregation rule. The columns are clean /
+honest_only / fabricated (naive) / projected (physics-aware) / gated, each the mean
+over seeds with min–max in small type; then the damage removed by projection and by
+the gate, with the same rule as summarize_adaptive.py; then the two doors (the share
+of malicious updates the rule accepted, and the share of malicious batches the check
 admitted after projection).
+
+The paper's typeset tables were generated separately, from the same JSON files and
+with the same removal rule; this script is a quick equivalent for checking a file.
 """
 from __future__ import annotations
 import argparse
@@ -21,6 +25,7 @@ MODES = ("clean", "honest_only", "fabricated", "projected", "gated")
 
 
 def cell(vals):
+    """Mean over seeds, with the min–max range when there is more than one seed."""
     if not vals:
         return "--"
     m = float(np.mean(vals))

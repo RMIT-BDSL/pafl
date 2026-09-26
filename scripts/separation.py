@@ -1,13 +1,42 @@
 #!/usr/bin/env python3
-"""Day 1. The cheapest kill criterion, and it needs no federated learning.
+"""Criterion 1: does the invariant check separate honest batches from fabricated ones?
 
-Question: do the invariant residuals of honest data and fabricated data
-separate? If the two distributions overlap, the premise of the paper fails here,
-for the price of an afternoon, and you switch to Idea 1 with four days lost
-instead of four weeks.
+No federated learning is involved. The script mines the invariant set from a clean
+slice of the normal record and sets its tolerances on a second clean slice. It then
+draws `--n-batches` random `--batch-rows`-row batches from the rest of the normal
+record (the honest pool) and from each Recipe A fabrication of that pool, and scores
+each batch by the share of its rows that violate at least one invariant. A batch is
+admitted when that share is at most `--max-violating-frac`. The script reports:
 
-Outputs results_archive/day1_residuals.json and a histogram by default; the paper's criterion-1 runs pass
---out results/c1_<dataset>_<set>_<shift>.json. The PNG always goes to results_archive/ (plots are not committed).
+  honest_batch_false_reject_rate   share of honest batches the check would reject
+  fabrications[]                   per fabrication: mean violating share, admitted
+                                   rate, and the histogram overlap with honest
+  real_attack_reference            the verdict on the labelled attack record, and
+  real_attack_rows_only            on its attack rows alone (SWaT/WADI): a check that
+                                   flags no real attack is not measuring physics
+
+"Criterion 1" and `criterion_1_pass` are pilot-era names, kept because the result
+files carry them: the pilot fixed four go/no-go criteria before any run, and this was
+the first. It passes when at least two fabrications separate and fewer than 5 % of
+honest batches are rejected.
+
+The paper's runs (`results/c1_*.json`; the exact commands are in scripts/reproduce.sh):
+
+    python scripts/separation.py --dataset swat --roll-shift 60 --out results/c1_swat_narrow_shift60.json
+    python scripts/separation.py --dataset swat --roll-shift 60 \\
+        --r2-min 0.40 --coupling-off-ratio 0.10 --coupling-support 0.005 --out results/c1_swat_wide_shift60.json
+
+Invariant sets by dataset. On SWaT and WADI it is `pafl.data.swat.swat_invariants`
+(couplings plus mass balances), with the miner thresholds from the flags: "narrow" =
+the defaults and "wide" = 0.40 / 0.10 / 0.005. The output's `invariant_set` field
+then reads "swat" for WADI too; it names the builder, not the record. On BATADAL it is
+the fitted BATADAL set, or the generic miner with --mined. On HAI it is always the
+generic miner. On the simulated plant it is the ground-truth set, or the generic
+miner with --mined. The output does not record the miner thresholds; the file name and
+`n_invariants` identify the setting (SWaT: 5 rules narrow, 9 wide).
+
+The JSON goes to --out; a histogram of the violating shares goes to
+results_archive/<stem of --out>.png (plots are not committed).
 """
 from __future__ import annotations
 import argparse
@@ -29,14 +58,16 @@ from pafl.utils.paths import dataset_dir, results_path
 from pafl.utils.logging import get_logger
 from pafl.utils.seeds import set_seed
 
-log = get_logger("day1")
+log = get_logger("separation")
 
 
 def overlap_coefficient(a: np.ndarray, b: np.ndarray, bins: int = 200) -> float:
     """Fraction of probability mass the two distributions share.
 
-    Zero means perfectly separated, one means identical. The go criterion asks
-    for less than 0.05.
+    Zero means perfectly separated, one means identical. A fabrication counts as
+    separated below 0.05 (and only if under 5 % of its batches are also admitted).
+    The histograms share 200 bins over the pooled range, so the value is a
+    discretised overlap, stable to about 1/200.
     """
     lo = float(min(a.min(), b.min()))
     hi = float(max(a.max(), b.max()))
@@ -55,6 +86,8 @@ def main() -> int:
     ap.add_argument("--dataset", default="synthetic",
                     choices=["synthetic", "batadal", "swat", "wadi", "hai"],
                     help="dataset to evaluate")
+    # Miner thresholds (SWaT/WADI only). The defaults are the "narrow" set; the paper's
+    # "wide" set is --r2-min 0.40 --coupling-off-ratio 0.10 --coupling-support 0.005.
     ap.add_argument("--r2-min", type=float, default=0.60, help="swat: balance R^2 cut for the miner")
     ap.add_argument("--coupling-off-ratio", type=float, default=0.05,
                     help="swat: coupling miner off-state bound (99th pct of |flow| / full scale)")
@@ -70,7 +103,7 @@ def main() -> int:
                     help="how many HAI train CSVs to concatenate before mining")
     ap.add_argument("--hai-rows", type=int, default=0,
                     help="row budget for HAI; 0 uses max(3*steps, 30000). Rows are\n                         subsampled across the whole record, not taken from the front")
-    ap.add_argument("--steps", type=int, default=8000)
+    ap.add_argument("--steps", type=int, default=8000)    # simulated plant only (and the HAI row budget)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--mined", action="store_true",
                     help="use automatically mined invariants instead of the ground-truth set")
@@ -80,13 +113,16 @@ def main() -> int:
                     help="rows in one client batch, i.e. what gets admitted or rejected")
     ap.add_argument("--max-violating-frac", type=float, default=0.01,
                     help="the admission rule: reject a batch above this violating fraction")
-    ap.add_argument("--out", default="results_archive/day1_residuals.json")
+    ap.add_argument("--out", default="results_archive/separation.json")
     ap.add_argument("--figure", default=None,
                     help="histogram PNG; default results_archive/<stem of --out>.png")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
     args.figure = str(results_path(args.figure or f"results_archive/{Path(args.out).stem}.png"))
 
+    # --seed fixes the fabrications (seed + 11), the batch draws (seed + 999) and, on the
+    # simulated plant, the plant runs (seed, and seed + 5000 for the calibration run).
+    # The real-data branches read the record deterministically; nothing else is random.
     set_seed(args.seed)
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     attack_rows_only = None
@@ -148,11 +184,21 @@ def main() -> int:
         # slice and calibrated on another; the rest of the normal record is the
         # honest pool the fabrications are applied to. --mined is implied: the
         # SWaT set is always the automatic one.
+        #
+        # The slices below must stay equal to RealScenarioConfig.invariant_fraction
+        # (0.30) in pafl/fl/scenario_real.py: fit on the first 15 % of the normal
+        # record, calibrate on the next 15 %.
+        #
+        # The AIT analyser channels stay in the frame, as in the federation, which
+        # removes them from the detector's inputs only (they drift between the
+        # normal and attack records) and fabricates on the full shard. They matter
+        # to regime permutation alone: it clusters operating regimes on every
+        # continuous channel. The miner keeps no AIT rule either way. A revision
+        # between the SWaT and the WADI runs dropped them here; it was removed on
+        # 26 Sep 2026 and the WADI files rerun.
         from pafl.data.real import load_real
         from pafl.data.swat import swat_invariants
         normal, attack_df = load_real(args.dataset, args.data_dir)
-        normal = normal.drop(columns=[c for c in normal.columns if "AIT" in str(c).upper()])
-        attack_df = attack_df.drop(columns=[c for c in attack_df.columns if "AIT" in str(c).upper()])
         normal = normal.drop(columns=[c for c in ("datetime", "ATT_FLAG") if c in normal.columns])
         n_inv = int(len(normal) * 0.30)
         fit = normal.iloc[: n_inv // 2].reset_index(drop=True)
@@ -222,6 +268,8 @@ def main() -> int:
             df = df.iloc[::step].head(max_rows).reset_index(drop=True)
             log.info("HAI: subsampled every %d-th row to %d rows spanning the whole record",
                      step, len(df))
+        # HAI mines and calibrates on the same first half (build_invariant_set has no
+        # separate fit slice); the second half is the honest pool.
         n_half = len(df) // 2
         calib = df.iloc[:n_half].reset_index(drop=True)
         honest = df.iloc[n_half:].reset_index(drop=True)
@@ -246,6 +294,8 @@ def main() -> int:
     inv.calibrate(calib)
     log.info("invariant set '%s' with %d rules", inv.name, len(inv))
 
+    # Whole-record verdicts (honest pool, attack record) use batch_verdict's own bound of
+    # 0.01; --max-violating-frac applies to the sampled batches below.
     honest_verdict = inv.batch_verdict(honest)
 
     # The admission decision is taken on a batch, not on a row, so the statistic
@@ -253,6 +303,9 @@ def main() -> int:
     # heavily even for a fabrication that is caught, because most rows of a
     # fabricated batch are still individually fine. Comparing row scores would
     # answer a question nobody asks.
+    # Batches are contiguous windows at uniformly random offsets, drawn with
+    # replacement, from one generator shared by the honest pool and every fabrication
+    # in turn; the JSON therefore depends on the order of FABRICATIONS.
     def batch_fractions(df, n_batches: int, batch_rows: int, rs) -> np.ndarray:
         out = []
         for _ in range(n_batches):
@@ -267,7 +320,7 @@ def main() -> int:
     for kind in FABRICATIONS:
         if kind == "splice_only":          # the exposure-only control is not a fabrication of physics
             continue
-        fab = _fab(honest, kind, args.seed + 11)
+        fab = _fab(honest, kind, args.seed + 11)       # the whole honest pool, fabricated
         fab_fracs = batch_fractions(fab, args.n_batches, args.batch_rows, rs)
         v = inv.batch_verdict(fab)
         ov = overlap_coefficient(honest_fracs, fab_fracs)
@@ -335,6 +388,9 @@ def main() -> int:
         json.dump(result, f, indent=2, default=float)
     log.info("wrote %s", args.out)
 
+    # The histogram redraws each fabrication's batches from a fresh generator, so its
+    # curves can differ slightly from the numbers in the JSON. It is a quick look, not
+    # a paper figure.
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -354,7 +410,7 @@ def main() -> int:
         ax.set_yscale("log")
         ax.set_xlabel(f"violating fraction of a {args.batch_rows}-row client batch")
         ax.set_ylabel("batches (log)")
-        ax.set_title("Day 1: do honest and fabricated batches separate?")
+        ax.set_title("Do honest and fabricated batches separate?")
         ax.legend(fontsize=8)
         fig.tight_layout()
         fig.savefig(args.figure)

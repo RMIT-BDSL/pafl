@@ -1,10 +1,48 @@
 """The federated loop, with checkpointing and per-round bookkeeping.
 
 Threat model in code. Honest clients train only on their own clean windows.
-A malicious client trains on a fabricated batch that includes attack windows
-presented as normal, which for a reconstruction detector is the natural targeted
+A malicious client trains on a batch that carries attack windows presented as
+normal, which for a reconstruction detector is the natural targeted
 objective: teach the shared model to reconstruct attacks well, so they stop
-looking anomalous to everyone.
+looking anomalous to everyone. The scenario builders (fl.scenario,
+fl.scenario_real, fl.variants) decide what that batch is: attack rows replayed
+as they are (`splice_only`, the paper's "replay"), fabricated on top (the
+`fabricated` federation, the paper's "naive attack"), or also projected onto the
+invariants (`projected`, the "physics-aware attack"). This loop never sees the
+physics check; in the `gated` federation the rejected clients are simply absent
+from `clients`. The only attacker this module handles itself is an update-space
+one, which replaces its update after local training.
+
+One round. Every client starts from the global model and trains for
+`local_epochs` passes over its windows: MSE reconstruction loss, Adam at `lr`
+with a fresh optimiser state each round, mini-batches of `batch_size` windows.
+It returns the change in its parameters; the aggregation rule (fl.defences)
+combines the changes and the server adds the result to the global model.
+
+After the last round the detector is scored once. The alarm threshold is the
+`threshold_quantile` (0.995) quantile of the final model's scores on the clean
+validation slice, and a window alarms when its score is strictly above it. Every
+other eval set is scored at that single threshold. On the real records 'test'
+is every window of the attack record; 'test_targeted' and 'test_untargeted'
+hold only attack windows, so recall is their one meaningful field.
+Targeted-attack recall, the paper's main measure, is
+results["test_targeted"]["recall"]: the fraction of the attack windows the
+malicious clients try to hide (those touching a target segment) that the final
+model flags.
+
+Paper settings: 25 rounds and 2 local epochs, which the scripts pass for every
+paper run (see scripts/reproduce.sh). The FLConfig defaults for those two
+fields are 30 and 1, so FLConfig() alone does not reproduce a paper run; the
+other defaults are what the paper's runs use.
+
+Determinism. torch.manual_seed(seed) fixes the initial global model, which is
+therefore the same for every federation and every rule of a seed. One
+torch.Generator drives every mini-batch shuffle, drawn in client order and then
+by the FLTrust server, so the order a given client sees depends on how many
+clients come before it: the honest-only run differs from the attacked one in
+mini-batch order as well as in composition. A checkpoint does not store the
+generator's state, so a resumed run is not bit-identical to one that ran
+straight through; the scripts do not checkpoint inside a run.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field, asdict
@@ -27,26 +65,33 @@ log = get_logger("pafl.fl")
 
 @dataclass
 class FLConfig:
-    rounds: int = 30
-    local_epochs: int = 1
-    batch_size: int = 128
-    lr: float = 1e-3
+    """Settings for one federated run. See the module docstring for which
+    defaults match the paper (all but `rounds` and `local_epochs`)."""
+    rounds: int = 30                  # paper: 25, set by the scripts
+    local_epochs: int = 1             # paper: 2, set by the scripts
+    batch_size: int = 128             # windows per Adam step (a mini-batch)
+    lr: float = 1e-3                  # Adam learning rate, clients and FLTrust server alike
     model: str = "window_ae"
-    window: int = 10
-    defence: str = "fedavg"
-    trim_frac: float = 0.2
-    clip: float | None = None
-    krum_multi: int = 1
+    window: int = 10                  # rows per window; must match the scenario's window
+    defence: str = "fedavg"           # a key of fl.defences.DEFENCES
+    trim_frac: float = 0.2            # trimmed_mean: share trimmed from each end
+    clip: float | None = None         # norm_clip bound; None = the round's median update norm
+    krum_multi: int = 1               # Krum: updates averaged (1 = classic Krum)
     seed: int = 0
     device: str = "cpu"
     log_every: int = 5
-    threshold_quantile: float = 0.995
-    foolsgold_kappa: float = 1.0
+    threshold_quantile: float = 0.995   # alarm threshold: this quantile of clean-val scores
+    foolsgold_kappa: float = 1.0      # FoolsGold's logit confidence
     record_trust: bool = False        # keep the per-round, per-client trust vector
 
 
 def _local_train(model: nn.Module, X: np.ndarray, cfg: FLConfig, gen: torch.Generator) -> torch.Tensor:
-    """One client's local step. Returns the delta from the incoming global model."""
+    """One client's local step. Returns the delta from the incoming global model.
+
+    A new Adam optimiser per call, so moment estimates do not carry over between
+    rounds. The last mini-batch of each pass may be short. The FLTrust server
+    uses this same function on the root set.
+    """
     dev = torch.device(cfg.device)
     model = model.to(dev)
     before = get_flat_params(model).clone()
@@ -68,6 +113,7 @@ def _local_train(model: nn.Module, X: np.ndarray, cfg: FLConfig, gen: torch.Gene
 
 @torch.no_grad()
 def _scores(model: nn.Module, X: np.ndarray, device: str, chunk: int = 4096) -> np.ndarray:
+    """Anomaly score of every window of X, in chunks to bound memory."""
     dev = torch.device(device)
     model = model.to(dev).eval()
     out = []
@@ -84,13 +130,19 @@ def run_federation(clients: list[ClientData], eval_sets: dict[str, tuple[np.ndar
 
     eval_sets maps a name to (windows, labels). 'clean_val' is required, because
     the alarm threshold is calibrated on it and never on the test set.
+    root_data is FLTrust's clean server-side set, required for that rule only.
+    The returned dict carries a detection report per eval set under "results",
+    the per-round history, the trust log and `malicious_acceptance_rate`, the
+    mean over rounds of the share of malicious updates the rule accepted.
     """
     if "clean_val" not in eval_sets:
         raise ValueError("eval_sets must contain 'clean_val' for threshold calibration")
-    torch.manual_seed(cfg.seed)
-    gen = torch.Generator().manual_seed(cfg.seed)
+    torch.manual_seed(cfg.seed)                    # the initial global model
+    gen = torch.Generator().manual_seed(cfg.seed)  # every mini-batch shuffle
     dev = torch.device(cfg.device)
 
+    # The channel count is read off the flattened window width, so a cfg.window
+    # that differs from the scenario's window silently builds the wrong model.
     n_ch = len(clients[0].train[0]) // cfg.window
     global_model = build_model(cfg.model, n_channels=n_ch, window=cfg.window).to(dev)
 
@@ -98,6 +150,7 @@ def run_federation(clients: list[ClientData], eval_sets: dict[str, tuple[np.ndar
     start_round = 0
     history: list[dict] = []
     if state:
+        # restores the model and bookkeeping, not `gen`: see the module docstring
         set_flat_params(global_model, state["params"])
         start_round = state["round"] + 1
         history = state["history"]
@@ -125,7 +178,11 @@ def run_federation(clients: list[ClientData], eval_sets: dict[str, tuple[np.ndar
 
         # update-space attacks replace a malicious client's honest update with a
         # crafted vector. Data fabrications (Recipe A/B) already live in the
-        # client's training data and need no hook here.
+        # client's training data and need no hook here. The attacker is
+        # omniscient: it sees every update and the honest mask. Clients are
+        # replaced in order, so a later attacker sees earlier crafted vectors.
+        # fg_history is FoolsGold's per-client running sum; it is kept for
+        # every rule and read only by foolsgold.
         if fg_history is None:
             fg_history = torch.zeros_like(U)
         for i, c in enumerate(clients):
@@ -136,12 +193,16 @@ def run_federation(clients: list[ClientData], eval_sets: dict[str, tuple[np.ndar
 
         server_update = None
         if cfg.defence == "fltrust":
+            # the server's own update from the same global model; it draws from
+            # `gen` too, so FLTrust runs see different shuffles after round 0
             if root_data is None:
                 raise ValueError("fltrust needs root_data: a small clean set held by the server")
             srv = build_model(cfg.model, n_channels=n_ch, window=cfg.window).to(dev)
             set_flat_params(srv, gp)
             server_update = _local_train(srv, root_data, cfg, gen)
 
+        # One keyword set for every rule. n_malicious is Krum's f, set from the
+        # true number of malicious clients present; weights are FedAvg's.
         kw = dict(n_malicious=max(n_mal, 1), multi=cfg.krum_multi,
                   trim_frac=cfg.trim_frac, clip=cfg.clip, server_update=server_update,
                   history=fg_history + U, kappa=cfg.foolsgold_kappa,
@@ -152,8 +213,9 @@ def run_federation(clients: list[ClientData], eval_sets: dict[str, tuple[np.ndar
 
         # trust instrumentation: the per-client weight a similarity rule assigned,
         # plus the geometry that explains it. This is the raw material for the
-        # 4b question -- does projecting a batch onto the physics manifold raise
-        # its trust while it still carries poison.
+        # trust-trace question (scripts/trust_traces.py; "4b" in the pilot plan)
+        # -- does projecting a batch onto the physics manifold raise its trust
+        # while it still carries poison.
         if cfg.record_trust or cfg.defence in ("fltrust", "foolsgold"):
             tw = trust_weights(cfg.defence, U, **kw).detach().cpu().numpy()
             honest_mean = U[honest_mask].mean(0) if honest_mask.any() else U.mean(0)
@@ -190,6 +252,10 @@ def run_federation(clients: list[ClientData], eval_sets: dict[str, tuple[np.ndar
             log.warning("stopping early at round %d; checkpoint written", rnd)
             break
 
+    # One threshold from the final model's clean-validation scores, applied to
+    # every set. On the positives-only sets (test_targeted, test_untargeted)
+    # only recall means anything: precision is 0 or 1, AUC-PR and best F1 are
+    # NaN, and the delay treats the whole set as one attack segment.
     clean_val = eval_sets["clean_val"][0]
     thr = threshold_from_clean(_scores(global_model, clean_val, cfg.device),
                                quantile=cfg.threshold_quantile)

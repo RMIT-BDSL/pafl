@@ -1,25 +1,20 @@
-.PHONY: help setup test smoke day1 day1-batadal day1-swat day2 day45 report pilot clean
+.PHONY: help setup test smoke reproduce separation coverage honest adaptive sweep trust clean
 
-PY ?= python3
-SEEDS ?= 0 1
-CLIENTS ?= 10
-ROUNDS ?= 25
-STEPS ?= 4000
-DEVICE ?= cpu
+# the project's virtual environment when there is one
+PY ?= $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
+GROUPS := separation coverage honest adaptive sweep trust
 
 help:
-	@echo "make setup    install dependencies"
-	@echo "make test     run the test suite (about 20 s)"
-	@echo "make smoke    tiny end-to-end run, no GPU, about 2 min"
-	@echo "make day1     kill criterion 1: residual separation, no federated learning"
-	@echo "make day1-batadal  the same criterion on real BATADAL data"
-	@echo "make day1-swat     the same criterion on real SWaT, through the federation loader"
-	@echo "make day2     kill criteria 2 and 3: do the defences accept, does F1 fall"
-	@echo "make day45    criterion 4: the adaptive attacker"
-	@echo "make report   read all results and print the go/no-go decision"
-	@echo "make pilot    day1 + day2 + day45 + report"
+	@echo "make setup       install dependencies"
+	@echo "make test        run the test suite (about 20 s; no datasets needed)"
+	@echo "make smoke       tiny end-to-end run on the simulated plant, about 2 min"
+	@echo "make reproduce   rerun every experiment behind results/ (about 6 h on CPU; needs the datasets)"
+	@echo "make <group>     rerun one group: $(GROUPS)"
+	@echo "make clean       remove smoke outputs and caches (never touches results/)"
 	@echo ""
-	@echo "variables: SEEDS='$(SEEDS)' CLIENTS=$(CLIENTS) ROUNDS=$(ROUNDS) DEVICE=$(DEVICE)"
+	@echo "Reruns go to results_archive/reproduce/. Check one against its committed file with"
+	@echo "  $(PY) scripts/compare_results.py results/<name>.json results_archive/reproduce/<name>.json"
+	@echo "The commands, one per result file, are in scripts/reproduce.sh."
 
 setup:
 	$(PY) -m pip install -r requirements.txt
@@ -28,41 +23,17 @@ test:
 	$(PY) -m pytest tests/ -q
 
 smoke:
-	$(PY) scripts/day1_residuals.py --steps 3000 --out results_archive/smoke_day1.json
-	$(PY) scripts/day2_defences.py --clients 4 --rounds 5 --local-epochs 1 --steps-per-client 1500 \
-		--defences fedavg krum --seeds 0 --out results_archive/smoke_day2.json
+	rm -f results_archive/smoke_*.json      # the drivers resume, so start from nothing
+	$(PY) scripts/separation.py --steps 3000 --out results_archive/smoke_separation.json
+	$(PY) scripts/sim_defences.py --clients 4 --rounds 5 --local-epochs 1 --steps-per-client 1500 \
+		--defences fedavg krum --seeds 0 --out results_archive/smoke_sim_defences.json
 
-day1:
-	$(PY) scripts/day1_residuals.py --steps 8000 --seed 0
-	$(PY) scripts/day1_residuals.py --steps 8000 --seed 0 --mined \
-		--out results_archive/day1_residuals_mined.json
+reproduce:
+	PY=$(PY) scripts/reproduce.sh
 
-day1-batadal:
-	$(PY) scripts/day1_residuals.py --dataset batadal --seed 0 \
-		--out results/c1_batadal_expert.json
-	$(PY) scripts/day1_residuals.py --dataset batadal --seed 0 --mined \
-		--out results/c1_batadal_mined.json
-
-day1-swat:
-	$(PY) scripts/day1_residuals.py --dataset swat --seed 0 \
-		--out results/c1_swat_narrow_shift7.json
-
-day2:
-	$(PY) scripts/day2_defences.py --clients $(CLIENTS) --rounds $(ROUNDS) --local-epochs 2 \
-		--steps-per-client $(STEPS) --malicious-fractions 0.0 0.3 --seeds $(SEEDS) --device $(DEVICE) \
-		--out results/sim_defences_mal30_2seed.json
-
-day45:
-	$(PY) scripts/day45_adaptive.py --clients $(CLIENTS) --rounds $(ROUNDS) --local-epochs 2 \
-		--steps-per-client $(STEPS) --malicious-fraction 0.3 --seeds 0 1 2 \
-		--defences fedavg fltrust trimmed_mean --device $(DEVICE) \
-		--out results_archive/day45_adaptive_3seed.json
-
-report:
-	$(PY) scripts/go_nogo.py --day1 results/c1_batadal_expert.json \
-		--day2 results/sim_defences_mal30_2seed.json --day45 results_archive/day45_adaptive_3seed.json
-
-pilot: day1 day2 day45 report
+$(GROUPS):
+	PY=$(PY) scripts/reproduce.sh $@
 
 clean:
-	rm -rf results/*.json results/*.png results/*.pkl
+	rm -rf results_archive/smoke_* .pytest_cache
+	find . -name __pycache__ -type d -prune -exec rm -rf {} +

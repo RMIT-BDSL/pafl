@@ -1,8 +1,11 @@
-"""Week-2 additions: SWaT loader, partition, Recipe B, FoolsGold, update attacks.
+"""Real-data plumbing and the extra baselines: SWaT and WADI loaders, partition,
+Recipe B, FoolsGold, update attacks, the coupling miner on SWaT-shaped data.
 
-These run on the synthetic simulator and on a small in-memory CSV, so they need
-no downloaded dataset and finish in seconds. They pin the contracts the week-2
-scripts rely on, not the science; the science is what the sweep measures.
+"Week 2" in the file name is the pilot plan's second week, when these arrived.
+The tests run on the synthetic simulator and on small in-memory files, so they
+need no downloaded dataset and finish in seconds. They pin the contracts the
+real-data scripts rely on, not the science; the science is what the runs
+measure.
 """
 from __future__ import annotations
 import io
@@ -90,6 +93,7 @@ def test_partition_rejects_attacked_frame():
 # FoolsGold + update attacks + trust weights
 # ----------------------------------------------------------------------------
 def test_foolsgold_downweights_colluding_sybils():
+    # FoolsGold's premise in miniature: near-identical sybil updates lose weight
     torch.manual_seed(0)
     d = 50
     honest = torch.randn(6, d)
@@ -120,6 +124,7 @@ def test_trust_weights_reported_for_similarity_rules():
     updates = torch.randn(10, 60)
     server = updates[:8].mean(0)               # a plausible honest server update
     tw = trust_weights("fltrust", updates, server_update=server)
+    # normalised trust sums to 1, or to 0 when every cosine is clipped at zero
     assert tw.shape[0] == 10 and abs(float(tw.sum()) - 1.0) < 1e-4 or float(tw.sum()) == 0.0
     fw = trust_weights("foolsgold", updates)
     assert fw.shape[0] == 10
@@ -158,6 +163,45 @@ def test_recipe_b_full_gradient_matching_runs():
     fab = fabricate_recipe_b(df, None, cols, target_windows=Wt[:50], window=10,
                              match_steps=8, surrogate_steps=30, first_order=False, seed=0)
     assert np.isfinite(fab[cols].to_numpy()).all()
+
+
+def test_recipe_b_gradient_matching_aligns_with_the_target():
+    """The full path must move the batch's parameter gradient toward the
+    target's, so that training on it also lowers the target's reconstruction
+    error. With the sign that stood until 26 Sep 2026 the cosine fell instead.
+
+    The surrogate is rebuilt exactly as fabricate_recipe_b builds it (same shard
+    standardisation, same seed), and the target windows are passed in the
+    shard's own z-units, as the function requires.
+    """
+    import torch
+    from pafl.attacks.recipe_b import _local_standardise, _train_surrogate, _unfold_windows
+    df = simulate(800, seed=5)
+    cols = feature_columns(df)
+    tgt = simulate(800, seed=99, attacks=default_attacks(800, seed=1, n=4))
+    X = df[cols].to_numpy(np.float64)
+    Xs, mu, sd = _local_standardise(X)
+    Tz, _ = make_windows(pd.DataFrame((tgt[cols].to_numpy(np.float64) - mu) / sd, columns=cols), 10, cols)
+    fab = fabricate_recipe_b(df, None, cols, target_windows=Tz[:200], window=10,
+                             match_steps=40, surrogate_steps=60, first_order=False, seed=0)
+
+    torch.manual_seed(0)
+    surrogate = _train_surrogate(_unfold_windows(torch.tensor(Xs, dtype=torch.float32), 10),
+                                 10, len(cols), 60, lr=1e-3, seed=0, device="cpu")
+    lossf = torch.nn.MSELoss()
+
+    def grad(W):
+        w = torch.tensor(W, dtype=torch.float32)
+        g = torch.autograd.grad(lossf(surrogate(w), w), list(surrogate.parameters()))
+        return torch.cat([x.reshape(-1) for x in g])
+
+    g_target = grad(Tz[:200])
+    cos = torch.nn.functional.cosine_similarity
+    z = lambda frame: _unfold_windows(torch.tensor((frame[cols].to_numpy(np.float64) - mu) / sd,
+                                                   dtype=torch.float32), 10).numpy()
+    before = float(cos(grad(z(df)), g_target, dim=0))
+    after = float(cos(grad(z(fab)), g_target, dim=0))
+    assert after > before + 0.05, (before, after)
 
 
 # ----------------------------------------------------------------------------

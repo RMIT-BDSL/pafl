@@ -1,4 +1,6 @@
-"""Federated pieces: defences behave as advertised, and a run is resumable."""
+"""Federated pieces: defences behave as advertised, a run is resumable, and the
+five federations of fl.variants are built consistently (the projected attacker
+keeps the naive one's oversampling; the gate's counts add up)."""
 import sys
 from pathlib import Path
 import numpy as np
@@ -25,13 +27,14 @@ def test_flat_param_roundtrip():
 @pytest.mark.parametrize("name", list(DEFENCES))
 def test_defences_return_the_right_shape(name):
     u = torch.randn(8, 40)
+    # without a server update FLTrust falls back to FedAvg, so give it one
     kw = {"server_update": u[1:].mean(0)} if name == "fltrust" else {}
     assert aggregate(name, u, n_malicious=2, **kw).shape == (40,)
 
 
 def test_selective_defences_reject_a_gross_outlier():
     u = torch.randn(10, 40)
-    u[0] *= 25
+    u[0] *= 25                              # far outside the others' cloud
     for name in ("krum", "trimmed_mean"):
         assert not bool(acceptance_mask(name, u, n_malicious=1)[0])
 
@@ -58,6 +61,7 @@ def test_federation_runs_and_is_resumable(tmp_path):
                        ckpt_path=ck)
     assert ck.exists()
     assert 0.0 <= a["results"]["test"]["f1"] <= 1.0
+    # same checkpoint, more rounds: rounds 0-1 are loaded, only 2-3 are trained
     cfg2 = FLConfig(rounds=4, local_epochs=1, log_every=10_000)
     b = run_federation(sc["clients"], sc["eval_sets"], cfg2, root_data=sc["root_data"],
                        ckpt_path=ck)
@@ -102,13 +106,15 @@ def test_real_scenario_splices_attacks_into_the_checked_batch():
     from pafl.data.synthetic import simulate, default_attacks
     from pafl.fl.scenario_real import RealScenarioConfig, build_real_scenario, splice_attacks
     from pafl.data.loaders import feature_columns
+    # two simulator runs stand in for a real normal and attack record
     normal = simulate(6000, seed=1); normal["ATT_FLAG"] = 0
     attack = simulate(3000, seed=2, attacks=default_attacks(3000, seed=2, n=6))
     cols = feature_columns(normal)
     rs = np.random.default_rng(0)
     spliced = splice_attacks(normal.iloc[:1000], attack, cols, 0.25, rs)
     assert len(spliced) == 1000
-    assert 0.15 <= spliced["ATT_FLAG"].mean() <= 0.30       # about a quarter, whole segments
+    # about a quarter, whole segments; below 0.25 when placed segments overlap
+    assert 0.15 <= spliced["ATT_FLAG"].mean() <= 0.30
     sc = build_real_scenario(normal, attack, RealScenarioConfig(n_clients=4, malicious_fraction=0.5,
                                                                 seed=0))
     mal = [c for c in sc["clients"] if c.is_malicious]
@@ -131,6 +137,8 @@ def test_scaler_gives_constant_channels_unit_scale():
 
 
 def test_gated_variant_excludes_rejected_clients():
+    # identical settings, so the gated federation is the projected one minus
+    # exactly the clients whose batch the check rejects
     from pafl.fl.variants import build_variant
     sc_p, inv, _ = build_variant("synthetic", "projected", 0.5, 4, 10, 0, steps_per_client=1200,
                                  target_violating=0.0)

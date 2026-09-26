@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """The check's verdict on every honest client shard of the federated runs.
 
-Criterion 1 measures the honest false-reject rate on 200 random 1,000-row
-batches. The federated runs, until Sat 12 Sep, passed only malicious clients
-through the check. This script rebuilds the federation of every (record,
-invariant set, seed) the paper reports and records the verdict on each honest
-shard, so the sentence "no honest client was rejected in any federated run" is
-measured on the shards the detector actually trained on. Honest shards do not
-depend on the attacker (fabrication, roll shift), so one build per seed covers
-both attackers of a file.
+separation.py measures the honest false-reject rate on 200 random 1,000-row
+batches. The adaptive result files were first produced with only the malicious
+clients passed through the check. This script rebuilds the federation for every
+(record, invariant set, seed) the paper reports, without training, and records the
+check's verdict on each honest shard. The claim "no honest client was rejected in
+any federated run" is then measured on the shards the detector actually trained on.
+Honest shards do not depend on the attacker (fabrication, roll shift), so one build
+per seed covers both attackers of a file. The replay attacker is built only because
+build_variant needs one; its verdicts are stored as `replay_admitted`.
+
+CONFIGS mirrors the committed adaptive files: the seeds, the number of clients
+(BATADAL has 5) and WADI's target-attack fraction must match them.
 
     python scripts/honest_verdicts.py            -> results/honest_verdicts.json
 """
@@ -54,6 +58,7 @@ def main() -> int:
         for seed in seeds:
             set_seed(seed)
             t0 = time.time()
+            # window 10, as in every federated run; "fabricated" = the naive attack, no projection
             sc, inv_set, _ = build_variant(dataset, "fabricated", kw["malicious_fraction"], kw["n_clients"],
                                            10, seed, fabrication="splice_only", invariant_kw=inv_kw,
                                            target_attack_fraction=kw.get("target_attack_fraction"))

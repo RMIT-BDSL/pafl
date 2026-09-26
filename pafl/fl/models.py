@@ -2,8 +2,12 @@
 
 The paper's claim is about admission control, not about squeezing the last
 point of F1 out of an architecture. Small models also make the federated sweep
-cheap and let many runs share one GPU, which is the main cost lever on both
-Colab and AWS.
+cheap: every committed result was trained on CPU, and a 25-round SWaT cell
+takes tens of seconds (`wall_seconds` in the result files).
+
+The paper's detector is `WindowAE`, the FLConfig default in fl.train; no script
+selects another. How it is trained and thresholded is documented in fl.train.
+`GRUAE` is registered but no committed result uses it.
 """
 from __future__ import annotations
 import numpy as np
@@ -12,7 +16,15 @@ import torch.nn as nn
 
 
 class WindowAE(nn.Module):
-    """Dense autoencoder over a flattened window of process telemetry."""
+    """Dense autoencoder over a flattened window of process telemetry.
+
+    Input: one window of `window` rows by `n_channels` standardised channels,
+    flattened row-major to d = window * n_channels. Layers: d -> 128 -> 24 ->
+    128 -> d, ReLU after each hidden layer and after the 24-unit code, linear
+    output. At window 10 that is 114,364 parameters on SWaT (42 channels),
+    268,564 on WADI (102) and 116,934 on BATADAL (43). Weights start from
+    PyTorch's default initialisation, seeded in fl.train.run_federation.
+    """
 
     def __init__(self, n_channels: int, window: int, hidden: int = 128, latent: int = 24):
         super().__init__()
@@ -32,12 +44,17 @@ class WindowAE(nn.Module):
 
     @torch.no_grad()
     def score(self, x: torch.Tensor) -> torch.Tensor:
-        """Reconstruction error per sample: the anomaly score."""
+        """Reconstruction error per sample: the anomaly score. It is the mean
+        squared error over all d entries of the standardised window, the same
+        quantity the training loss (MSE) minimises."""
         return ((self.forward(x) - x) ** 2).mean(dim=1)
 
 
 class GRUAE(nn.Module):
-    """Sequence autoencoder. Slower, and closer to what the ICS literature uses."""
+    """Sequence autoencoder. Slower, and closer to what the ICS literature uses.
+
+    Not used by any committed result; kept as an alternative detector.
+    """
 
     def __init__(self, n_channels: int, window: int, hidden: int = 64, layers: int = 1):
         super().__init__()
@@ -63,11 +80,14 @@ MODELS = {"window_ae": WindowAE, "gru_ae": GRUAE}
 
 
 def build_model(name: str, n_channels: int, window: int, **kw) -> nn.Module:
+    """A fresh detector by name ("window_ae" or "gru_ae")."""
     if name not in MODELS:
         raise KeyError(f"unknown model {name!r}; choose from {sorted(MODELS)}")
     return MODELS[name](n_channels=n_channels, window=window, **kw)
 
 
+# Federated updates are flat vectors in `model.parameters()` order. Both sides
+# of every exchange build the same architecture, so the order always agrees.
 def get_flat_params(model: nn.Module) -> torch.Tensor:
     return torch.cat([p.detach().reshape(-1) for p in model.parameters()])
 

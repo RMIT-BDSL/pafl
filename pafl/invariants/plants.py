@@ -1,9 +1,16 @@
-"""Hand-written invariant sets for the plants we use.
+"""Hand-written invariant sets.
 
 Feng et al. mine invariants automatically, and pafl.invariants.mine does that.
-These hand-written sets exist so day 1 of the pilot has ground truth to check
-the miner against: if the miner cannot recover the mass balance of a plant whose
-physics we wrote ourselves, it will not recover anything on HAI either.
+`synthetic_invariants` is the ground truth for the simulated plant: the set the
+simulated federations use (pafl.fl.variants), and the reference the miner is
+checked against (tests/test_invariants.py). If the miner cannot recover the
+mass balance of a plant whose physics we wrote ourselves, it will not recover
+anything on a real record either.
+
+`batadal_invariants` below is a pilot-era draft that nothing calls: the
+registry `PLANTS` is unused too. It is not the BATADAL set of any result; see
+`pafl.data.batadal.batadal_invariants` (same name, different function) and
+`pafl.data.swat.swat_invariants`.
 """
 from __future__ import annotations
 import pandas as pd
@@ -11,7 +18,15 @@ from .spec import InvariantSet, mass_balance, status_flow_coupling, range_bound
 
 
 def synthetic_invariants(df: pd.DataFrame, include_weak_bounds: bool = True) -> InvariantSet:
-    """Ground-truth invariants for pafl.data.synthetic.simulate output."""
+    """Ground-truth invariants for pafl.data.synthetic.simulate output.
+
+    Areas, pump ratings and dt come from the frame's `attrs["plant"]`, so the
+    set is exact for the site that produced `df`; a site with another
+    `site_shift` obeys it only approximately, which the calibration's safety
+    factor absorbs. The couplings use the default 0 = off, 1 = on encoding.
+    The bounds [0, 12] m bracket the simulator's clip on tank level (0.05 to
+    12 m).
+    """
     meta = df.attrs.get("plant")
     if meta is None:
         raise ValueError("dataframe carries no plant metadata; pass the simulate() output")
@@ -28,13 +43,19 @@ def synthetic_invariants(df: pd.DataFrame, include_weak_bounds: bool = True) -> 
 
 
 def batadal_invariants(area: dict[str, float] | None = None, dt: float = 1.0) -> InvariantSet:
-    """C-Town water distribution, as published in the BATADAL corpus.
+    """C-Town water distribution, as published in the BATADAL corpus. Unused.
+
+    Kept for the record of what was tried. scripts/separation.py once called it,
+    and every fabrication was admitted at a violating fraction of 0.0000,
+    because these assumed tank areas do not match the network. The couplings
+    are also degenerate: with nominal=0.0 the residual is the flow itself,
+    whatever the status, so they cannot tell a running pump from a stopped one.
 
     BATADAL samples hourly, levels are in metres and flows in litres per second,
     so the balance carries a unit factor of 3600/1000 = 3.6 to reach cubic metres
     per hour. Tank areas are not distributed with the dataset; the defaults below
-    are the values commonly used in the BATADAL literature and MUST be checked
-    against the C-Town network file before any published run.
+    were taken as the values commonly used in the BATADAL literature and were
+    never checked against the C-Town network file.
     """
     area = area or {"T1": 100.0, "T2": 150.0, "T3": 100.0,
                     "T4": 100.0, "T5": 60.0, "T6": 100.0, "T7": 100.0}

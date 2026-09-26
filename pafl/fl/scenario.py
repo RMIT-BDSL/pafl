@@ -1,4 +1,11 @@
-"""Assemble a federation: sites, malicious clients, fabrications, eval sets."""
+"""Assemble a federation on the simulated plant: sites, malicious clients,
+fabrications, eval sets.
+
+The simulator is the pilot's setting (the paper no longer reports it); the real-data
+twin is fl.scenario_real, which returns the same dict shape plus the target
+sets. There is no target set here, so a synthetic run has no targeted recall
+and is read on global F1.
+"""
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
@@ -14,15 +21,16 @@ log = get_logger("pafl.scenario")
 
 @dataclass
 class ScenarioConfig:
+    """One synthetic federation. Steps are simulator time steps, one row each."""
     n_clients: int = 10
-    malicious_fraction: float = 0.2
+    malicious_fraction: float = 0.2      # the paper's runs use 0.3, passed in by the scripts
     fabrication: str = "channel_roll"
-    steps_per_client: int = 6000
+    steps_per_client: int = 6000         # the committed simulator runs use 4000
     window: int = 10
     seed: int = 0
     test_steps: int = 8000
-    val_steps: int = 3000
-    root_steps: int = 800            # the small clean set FLTrust needs
+    val_steps: int = 3000            # clean validation run: the alarm threshold
+    root_steps: int = 800            # the small clean set FLTrust needs (791 windows)
     attacks_in_test: int = 8
     poison_strength: float = 0.5     # share of a malicious client's windows drawn from attacks
     attacks_in_malicious_batch: int = 10
@@ -65,9 +73,13 @@ def build_synthetic_scenario(cfg: ScenarioConfig) -> dict:
                                       update_attack_kw=cfg.update_attack_kw))
             continue
         if malicious:
-            # Attacked telemetry from this client's own plant, fabricated so the
-            # physics no longer holds, then presented to the local trainer as if
-            # it were normal.
+            # Attacked telemetry, fabricated so the physics no longer holds, then
+            # presented to the local trainer as if it were normal. It is meant to
+            # come from this client's own plant, but `shift` is the variable left
+            # over from the site loop above, i.e. the last site's shift, not
+            # client i's; the seed is client i's. The committed simulator results
+            # were produced this way. The attack schedule is seeded by the client
+            # index alone, so it is the same for every run seed.
             atk = simulate(cfg.steps_per_client, seed=cfg.seed * 1000 + i, site_shift=shift,
                            attacks=default_attacks(cfg.steps_per_client, seed=i,
                                                    n=cfg.attacks_in_malicious_batch))
@@ -107,6 +119,9 @@ def build_synthetic_scenario(cfg: ScenarioConfig) -> dict:
                                   fabrication=cfg.fabrication if malicious else None,
                                   train_index=sel))
 
+    # Shared eval sets and the FLTrust root set, all from the reference plant
+    # (site_shift 0) rather than from any client's site. The 90_00x offsets give
+    # them seeds no site uses (sites use seed * 1000 + i).
     val_df = simulate(cfg.val_steps, seed=cfg.seed + 90_001)
     test_df = simulate(cfg.test_steps, seed=cfg.seed + 90_002,
                        attacks=default_attacks(cfg.test_steps, seed=cfg.seed + 7,

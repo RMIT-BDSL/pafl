@@ -3,7 +3,12 @@
 Malicious verdicts give the "check admits" door of the results tables. Honest
 verdicts are what substantiate the sentence "no honest client was rejected"
 inside the federated runs themselves, on the very shards the detector trains
-on, rather than only on the criterion-1 batches drawn from the same record.
+on, rather than only on the criterion-1 batches drawn from the same record
+(criterion 1 is the pilot's name for the separation experiment,
+scripts/separation.py, whose results are results/c1_*.json).
+
+A batch is admitted when at most 1 % of its rows violate any invariant, the
+default of `InvariantSet.batch_verdict`, which no federated run changes.
 """
 from __future__ import annotations
 
@@ -33,6 +38,8 @@ def client_verdicts(clients, inv_set) -> dict:
 
 
 def summarise_verdicts(verdicts: list[dict]) -> dict:
+    """The fields of `client_verdicts` from a list of per-client verdicts, so
+    fl.variants can rebuild them after projecting or dropping clients."""
     mal = [v for v in verdicts if v.get("is_malicious", True)]
     hon = [v for v in verdicts if not v.get("is_malicious", True)]
     return {

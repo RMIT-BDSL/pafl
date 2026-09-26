@@ -8,6 +8,13 @@
 # witness (a batch over budget fails here, by design), proves and verifies. Every step
 # is timed with /usr/bin/time -l (wall seconds, peak RSS) into build/<tag>/steps.jsonl;
 # scripts/collect_results.py folds those into results.json.
+#
+# Paths may be given from any working directory. Needs circom and snarkjs on PATH (the
+# paper's numbers: circom 2.1.9, snarkjs 0.7.4; npm install does not provide either),
+# node_modules from npm ci, and python3. macOS only as written: /usr/bin/time -l and
+# stat -f are the BSD forms (GNU: time -v, stat -c %s). The nonce stands in for the
+# verifier's round challenge; the same nonce is used for all four batches and is
+# recorded per batch in results.json.
 set -uo pipefail
 
 LITE=$(cd "$(dirname "$0")/.." && pwd)
@@ -19,12 +26,15 @@ UMAX=${5:-8}
 NONCE=${6:-1}
 B=$LITE/build/$TAG
 LIB=$LITE/node_modules
+# lifts node's heap limit for snarkjs; 28 GB is a ceiling, not a requirement
+# (setup peaks at ~3.1 GB, prove at ~3.6 GB)
 export NODE_OPTIONS="--max-old-space-size=28672"
 mkdir -p "$B"
 STEPS=$B/steps.jsonl
 : > "$STEPS"
 
-# run a command under /usr/bin/time -l; append {step, seconds, max_rss_bytes, exit} to STEPS
+# run a command under /usr/bin/time -l; append {step, seconds, max_rss_bytes, exit} to STEPS.
+# seconds is wall time of the whole process (node start-up included); max RSS is in bytes
 timed() {
   local step=$1; shift
   local tf; tf=$(mktemp)
@@ -53,6 +63,8 @@ grep -E "non-linear constraints|linear constraints|wires|public inputs|private i
 snarkjs r1cs info main.r1cs > r1cs_info.txt 2>&1
 grep -E "Constraints|Wires|Public|Private" r1cs_info.txt | sed 's/.*snarkJS: //'
 
+# No phase-2 contribution: the key is deterministic given the r1cs and ptau, which makes the
+# setup reproducible and also forgeable, so it serves for timing only
 echo "== $TAG: groth16 setup (no phase-2 contribution: benchmark setup only) =="
 timed setup snarkjs groth16 setup main.r1cs "$PTAU" circuit.zkey > setup.log || { tail -5 setup.log; exit 1; }
 timed export_vk snarkjs zkey export verificationkey circuit.zkey vk.json > /dev/null

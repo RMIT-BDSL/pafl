@@ -1,9 +1,12 @@
-"""BATADAL loader and invariant set.
+"""BATADAL loader and the hand-paired BATADAL invariant set.
 
-BATADAL is the C-Town water distribution network. Two properties make it the
-right first real dataset for this pilot. Its files are a few megabytes, so it
-needs no special transfer. And its network model is published, so the physics is
-knowable rather than guessed.
+BATADAL is the C-Town water distribution network, simulated in EPANET. Two
+properties made it the pilot's first dataset. Its files are a few megabytes, so
+it needs no special transfer. And its network model is published, so the physics
+is knowable rather than guessed. In the paper it is the support record: its
+committed federated runs use 5 clients rather than 10 and no downsampling (one
+row per hour), and they build their invariants with
+`pafl.data.swat.swat_invariants`, not with `batadal_invariants` below.
 
 Three quirks in the distributed files must be handled, and each is handled here
 once so no downstream code has to know about them:
@@ -13,16 +16,18 @@ once so no downstream code has to know about them:
   rows the organisers did not label, not attack rows. This loader treats them as
   normal, which is the conservative choice: it can only understate detection, not
   inflate it.
-* The DATETIME column is a string. It is parsed and then dropped from the feature
-  set, never fed to a model.
+* The DATETIME column is a string (dd/mm/yy hh). It is renamed `datetime` and
+  kept as that string, not parsed; being non-numeric, it never enters the
+  feature set or a model.
 
 A finding worth stating up front, because it shapes which invariants are used.
-On this real distribution network the mass balances are only partial: a tank's
+On this distribution network the mass balances are only partial: a tank's
 level is driven by pressure at junctions, and the pump-flow sensors do not
 measure the pipe flow into the tank. The relations that hold exactly are the
 actuator-to-flow couplings -- a pump that reads off moves no water -- and those
-are precisely what a channel-roll fabrication destroys. So the exact invariants
-and the fabrication that beats every per-channel statistic meet on real data.
+are precisely what a channel-roll fabrication (the paper's naive attack)
+destroys. So the exact invariants and the fabrication that beats every
+per-channel statistic meet on a published network.
 """
 from __future__ import annotations
 from pathlib import Path
@@ -36,9 +41,10 @@ from ..invariants.mine import mine_linear_balances
 def load_batadal(path: str | Path, kind: str = "auto") -> pd.DataFrame:
     """Read one BATADAL CSV and return a clean, typed dataframe.
 
-    kind='clean' expects dataset03 (a year of normal operation).
-    kind='attack' expects dataset04 (partly labelled, with attacks).
-    kind='auto' decides from the ATT_FLAG values.
+    dataset03 is a year of normal operation (8,761 rows); dataset04 is about
+    six months, partly labelled, with 219 attack rows in 5 contiguous
+    segments. `kind` ('clean', 'attack', 'auto') is accepted but has no
+    effect: both files go through the same parsing.
     """
     df = pd.read_csv(path)
     df.columns = [c.strip() for c in df.columns]
@@ -65,14 +71,20 @@ def load_batadal(path: str | Path, kind: str = "auto") -> pd.DataFrame:
 
 def batadal_invariants(clean: pd.DataFrame, r2_min: float = 0.60,
                        coupling_cv_max: float = 0.10) -> tuple[InvariantSet, dict]:
-    """Build the invariant set for BATADAL from a clean dataframe.
+    """Build the hand-paired invariant set for BATADAL from a clean dataframe.
+
+    scripts/separation.py uses it for the "expert" criterion-1 set
+    (results/c1_batadal_expert.json), and tests/test_batadal.py covers it. The
+    federated BATADAL runs do not; they use `pafl.data.swat.swat_invariants`.
 
     Two families are kept, and the report says exactly what was found and what
     was dropped, because those counts are numbers the paper reports.
 
     * Actuator-to-flow couplings, kept when the pump moves no water while off and
       its on-flow is stable (coefficient of variation below the threshold). On
-      this network these hold essentially exactly.
+      this network these hold essentially exactly. Each S_x is paired with the
+      F_x of the same name, with the 0 = off, 1 = on encoding and without the
+      steady-state filter that `swat_invariants` applies.
     * Mass balances, kept only for tanks where a linear fit on the pump flows
       reaches r2_min. On a distribution network several tanks fail this, and
       keeping a loose balance would only raise the false-rejection rate.
@@ -90,6 +102,9 @@ def batadal_invariants(clean: pd.DataFrame, r2_min: float = 0.60,
         F = clean[f].to_numpy(float)
         on = F[S >= S.max()] if S.max() > 0 else np.array([])
         off = F[S <= S.min()]
+        # "Off" must mean no flow at all (below 1e-3 in the record's flow units).
+        # A pump that is always on has on == off rows and fails this; one that
+        # is always off has no on rows and fails the size test below.
         off_ok = (np.abs(off).max() < 1e-3) if off.size else True
         if on.size < 20:            # a pump that essentially never runs: skip, no information
             continue

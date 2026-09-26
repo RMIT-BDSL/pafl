@@ -151,11 +151,11 @@
         "per-channel marginal",
         "regime-conditional marginal"
       ],
-      "violating_fraction_full": 0.28360447606956213,
-      "batch_violating_mean": 0.281825,
-      "batch_violating_std": 0.13371104806634343,
-      "batch_admitted_rate": 0.01,
-      "overlap_with_honest": 0.005,
+      "violating_fraction_full": 0.2847618766423573,
+      "batch_violating_mean": 0.278325,
+      "batch_violating_std": 0.12911777327308585,
+      "batch_admitted_rate": 0.0,
+      "overlap_with_honest": 0.0,
       "separated": true
     },
     {
@@ -163,11 +163,11 @@
       "preserves": [
         "channel range"
       ],
-      "violating_fraction_full": 0.001186926097611385,
-      "batch_violating_mean": 0.001095,
-      "batch_violating_std": 0.0011815138594193468,
-      "batch_admitted_rate": 1.0,
-      "overlap_with_honest": 0.89,
+      "violating_fraction_full": 0.274770439044554,
+      "batch_violating_mean": 0.26939,
+      "batch_violating_std": 0.2105787688728377,
+      "batch_admitted_rate": 0.235,
+      "overlap_with_honest": 0.235,
       "separated": false
     },
     {
@@ -185,8 +185,8 @@
     }
   ],
   "mining_report": {
-    "n_continuous": 47,
-    "n_discrete": 59,
+    "n_continuous": 64,
+    "n_discrete": 56,
     "couplings": [
       {
         "status": "1_MV_001_STATUS",

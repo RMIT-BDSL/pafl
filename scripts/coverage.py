@@ -6,12 +6,22 @@ violate the mined invariants, under one or more miner settings. The paper's real
 claim rests on this: the gate removes the poison that rides on physics the invariant
 set covers, so coverage is the governing quantity and this table is its evidence.
 
-    python scripts/coverage_table.py --dataset swat --out results/swat_coverage.json
-    python scripts/coverage_table.py --dataset wadi --settings default --out results/wadi_coverage.json
+    python scripts/coverage.py --dataset swat --out results/swat_coverage.json
+    python scripts/coverage.py --dataset wadi --settings default --out results/wadi_coverage.json
 
 Settings: narrow = miner defaults (r2 0.60, off-ratio 0.05, support 0.02);
-          wide   = r2 0.40, off-ratio 0.10, support 0.005;  default = narrow.
-Invariants are fitted and calibrated on the same clean slices the federation uses.
+          wide   = r2 0.40, off-ratio 0.10, support 0.005;
+          default = the same thresholds as narrow, under the name the WADI files use.
+Invariants are fitted and calibrated on the same clean slices the federation uses
+(RealScenarioConfig.invariant_fraction), so the sets match the adaptive runs rule for
+rule.
+
+A segment is a contiguous run of rows labelled as attack at the loader's stride
+(pafl.fl.scenario_real.attack_segments), not an entry in the dataset's attack list:
+attacks that run back to back merge into one segment. A segment counts as covered when
+more than --threshold of its rows violate an invariant. The default, 0.01, is the
+admission rule's own bound (InvariantSet.batch_verdict), so "covered" means that a
+batch made of that segment would be rejected.
 """
 from __future__ import annotations
 import argparse
@@ -41,7 +51,7 @@ def main() -> int:
     ap.add_argument("--settings", nargs="+", default=["narrow", "wide"])
     ap.add_argument("--threshold", type=float, default=0.01, help="a segment counts as covered above this violating fraction")
     ap.add_argument("--out", default=None)
-    ap.add_argument("--latex", action="store_true")
+    ap.add_argument("--latex", action="store_true", help="also print the summary rows as LaTeX")
     a = ap.parse_args()
     out = results_path(a.out or f"results/{a.dataset}_coverage.json")
 
@@ -50,13 +60,15 @@ def main() -> int:
     n = len(normal); n_inv = int(n * cfg.invariant_fraction)
     fit = normal.iloc[: n_inv // 2]; cal = normal.iloc[n_inv // 2: n_inv]
     honest = normal.iloc[n_inv:]
-    segs = attack_segments(attack)
+    segs = attack_segments(attack)      # ATT_FLAG as the loader derives it from the file's own label column
     n_attack_rows = int(sum(len(s) for s in segs))
 
     sets = {}
     for name in a.settings:
         inv, rep = swat_invariants(fit, **SETTINGS[name]); inv.calibrate(cal)
         sets[name] = {"inv": inv, "report": rep,
+                      # honest reference on the first 60,000 client-pool rows (~3.5 days at
+                      # the loaders' 5 s stride), capped for speed
                       "honest_violating": float(inv.batch_verdict(honest.iloc[:60000])["violating_fraction"])}
 
     rows = []

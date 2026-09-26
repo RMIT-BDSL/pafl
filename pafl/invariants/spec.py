@@ -6,8 +6,9 @@ correct plant gives a residual near zero. Two properties matter for this paper:
 * Cheap in a circuit. Prefer relations that are linear or low degree, because
   the arithmetic circuit pays per multiplication and per range check.
 * Tolerant. Real sensors have noise, so the check compares the residual against
-  a tolerance epsilon, never against zero. Section 4.3 of the plan explains why
-  the choice of epsilon is itself a result.
+  a tolerance epsilon, never against zero. Epsilon is set from clean data
+  (`InvariantSet.calibrate`), and that choice fixes the honest false-rejection
+  rate, so it is a result to report rather than a detail.
 
 Time alignment is the single easiest thing to get wrong. In a historian row at
 index t, the level is the level *after* the flows recorded in that same row have
@@ -33,7 +34,7 @@ class Invariant:
     """One physical rule, plus the tolerance it is checked against."""
 
     name: str
-    kind: str                      # balance | coupling | bound | linear
+    kind: str                      # balance | coupling | bound | linear (mined balances are "linear")
     fn: ResidualFn                 # residual per row; NaN where the rule does not apply
     eps: float | None = None       # tolerance, normally set by calibrate()
     degree: int = 1                # polynomial degree, for circuit cost accounting
@@ -72,15 +73,23 @@ class InvariantSet:
     def calibrate(self, honest: pd.DataFrame, quantile: float = 0.999, safety: float = 1.5) -> "InvariantSet":
         """Set each tolerance from clean data.
 
+        eps = safety * the `quantile` of |residual| over the applicable rows.
         The quantile absorbs sensor noise; the safety factor absorbs the fact
         that another honest plant is not this plant. Set both too tight and you
         reject honest clients, which is the false-rejection axis of the headline
-        trade-off.
+        trade-off. Every committed run uses the defaults (0.999, 1.5). The
+        federated runs and the SWaT and WADI criterion-1 runs calibrate on a
+        clean slice the rules were not fitted to; the BATADAL and HAI
+        criterion-1 runs calibrate on the slice they were fitted on. This is
+        not the detector's alarm threshold, which is the 0.995 quantile of
+        clean validation scores (pafl.fl.train).
         """
         R = self.residuals(honest)
         for j, inv in enumerate(self.invariants):
             col = np.abs(R[:, j])
             col = col[np.isfinite(col)]
+            # 1e-6: the rule never applied on the clean slice. 1e-9: it held exactly
+            # there. Either way eps stays positive, because `excess` divides by it.
             inv.eps = float(np.quantile(col, quantile) * safety) if col.size else 1e-6
             if inv.eps <= 0:
                 inv.eps = 1e-9
@@ -102,7 +111,8 @@ class InvariantSet:
         """How far past tolerance each residual sits, in units of epsilon.
 
         Zero when inside tolerance. This is the quantity a circuit range-checks,
-        and the quantity to plot when comparing honest against fabricated data.
+        and the quantity to plot when comparing honest against fabricated data
+        (the paper's naive attack).
         """
         R = np.abs(self.residuals(df))
         eps = np.array([inv.eps if inv.eps is not None else np.inf for inv in self.invariants])
@@ -119,8 +129,15 @@ class InvariantSet:
     def batch_verdict(self, df: pd.DataFrame, max_violating_frac: float = 0.01) -> dict:
         """The admission decision for a whole batch.
 
+        A batch is the rows one client presents. In the federated runs it is the
+        client's whole shard (its partition of the record), checked once before
+        training (pafl.fl.gate); the ZK circuit checks a batch of N = 1,024 rows.
+
         A single noisy row must not reject an honest client, so the rule is a
-        fraction of violating rows rather than any violation at all.
+        fraction of violating rows rather than any violation at all: admitted
+        when at most `max_violating_frac` (1 %) of rows break at least one rule.
+        The same 1 % is the admission rule in the fixed-point check
+        (pafl.zk.fixed_point) and the default of scripts/separation.py.
         """
         R = self.residuals(df)
         v = self._violations_from(R)
@@ -140,8 +157,9 @@ class InvariantSet:
         """Rough constraint count for checking these invariants on k samples.
 
         One range check of n bits costs about n constraints; a multiplication
-        costs one. This is the number that goes in the paper's cost table, and
-        it is why the design prefers linear relations.
+        costs one. This estimate predates the circuit and is why the design
+        prefers linear relations; scripts/separation.py still records it. The
+        paper's cost numbers are measured on the Circom build in zk/lite.
         """
         mults = sum(max(inv.degree, 1) for inv in self.invariants)
         per_sample = mults + bits * len(self.invariants)
@@ -227,8 +245,9 @@ def range_bound(channel: str, lo: float, hi: float, name: str | None = None) -> 
     """A weak rule, kept deliberately.
 
     Per-channel bounds are what a naive validator checks, and Recipe A is built
-    to satisfy them. Including one shows in the results why bounds are not
-    enough, which is a point the paper needs to make explicitly.
+    to satisfy them, which is why bounds are not enough. Only the simulator's
+    ground-truth set can include them (`include_weak_bounds`); every experiment
+    turns them off, so no committed result contains one.
     """
 
     def fn(df: pd.DataFrame) -> np.ndarray:

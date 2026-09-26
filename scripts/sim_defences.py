@@ -1,16 +1,31 @@
 #!/usr/bin/env python3
-"""Day 2. Do the baseline defences accept the fabricated updates?
+"""Simulated plant: do the update-space defences accept updates trained on fabricated data?
 
-For each defence we run the federation twice: once with every client honest, and
-once with a fraction of clients training on a fabricated batch. Two numbers come
-out. How often the aggregation rule accepted the malicious update, and how far
-the shared detector's F1 fell.
+Pilot-era experiment on the synthetic water plant (pafl.data.synthetic). The paper no
+longer reports it, and its pilot result file is no longer committed. For each
+aggregation rule the federation runs at each --malicious-fractions value: 0.0 is the
+all-honest reference, and 0.3 means 3 of the 10 clients train on a Recipe A
+fabrication (channel roll by default). Two numbers come out per rule: how often the
+rule accepted a malicious update, and how far the shared detector's F1 fell.
 
-The paper needs the answer to be "accepted, and it fell". If the baselines
-already catch this, there is no gap and Idea 1 is the fallback.
+The criterion_2_pass / criterion_3_pass fields are the pilot's go/no-go criteria 2
+and 3: at least three rules accept the malicious update, and the best F1 drop is at
+least 3 points.
 
-Resumable: every cell is written to the results file as it finishes, so a Colab
-session ending at twelve hours or an AWS spot reclamation costs one cell.
+Several defaults are not the paper's settings (rounds 30, steps 5000, fractions
+0.0 0.2), and --defences now defaults to all seven rules, whereas the pilot ran six (no
+FoolsGold). The pilot's run was
+
+    python scripts/sim_defences.py --defences fedavg krum median trimmed_mean norm_clip fltrust \
+        --fabrication channel_roll --malicious-fractions 0.0 0.3 --clients 10 --rounds 25 \
+        --local-epochs 2 --steps-per-client 4000 --seeds 0 1 --out results_archive/sim_defences.json
+
+Real-data runs use adaptive.py and sweep.py instead.
+
+Resumable: every (seed, rule, fraction) cell is written to --out as it finishes, and
+a rerun with the same --out skips cells already present. So an interrupted run
+costs one cell, but a stale output file also silently skips cells. The file's `args`
+block is the first invocation's.
 """
 from __future__ import annotations
 import argparse
@@ -33,22 +48,22 @@ from pafl.utils.paths import results_path
 from pafl.utils.logging import get_logger
 from pafl.utils.seeds import set_seed
 
-log = get_logger("day2")
+log = get_logger("sim_defences")
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--defences", nargs="+", default=list(DEFENCES))
-    ap.add_argument("--fabrication", default="channel_roll")
+    ap.add_argument("--fabrication", default="channel_roll")   # a Recipe A name (pafl.attacks.recipe_a)
     ap.add_argument("--malicious-fractions", nargs="+", type=float, default=[0.0, 0.2])
     ap.add_argument("--clients", type=int, default=10)
     ap.add_argument("--rounds", type=int, default=30)
     ap.add_argument("--local-epochs", type=int, default=2)
-    ap.add_argument("--steps-per-client", type=int, default=5000)
+    ap.add_argument("--steps-per-client", type=int, default=5000)   # simulated rows per client shard
     ap.add_argument("--window", type=int, default=10)
     ap.add_argument("--seeds", nargs="+", type=int, default=[0])
     ap.add_argument("--device", default="cpu")
-    ap.add_argument("--out", default="results_archive/day2_defences.json")
+    ap.add_argument("--out", default="results_archive/sim_defences.json")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
 
@@ -103,6 +118,8 @@ def main() -> int:
                if c["defence"] == d and c["malicious_fraction"] == atk_frac]
         if not clean or not pois:
             continue
+        # seed-averaged F1 first, then the drop: a mean of drops would equal it here
+        # because every seed has both cells
         a = attack_success(float(np.mean(clean)), float(np.mean(pois)))
         summary.append({
             "defence": d,
@@ -110,14 +127,14 @@ def main() -> int:
             "f1_poisoned": float(np.mean(pois)),
             "f1_drop_points": a["f1_drop_absolute"] * 100,
             "malicious_acceptance_rate": float(np.mean(acc)),
-            "accepted": bool(np.mean(acc) > 0.5),
+            "accepted": bool(np.mean(acc) > 0.5),      # the rule let the attacker in more often than not
         })
     done["summary"] = summary
     n_accepting = sum(s["accepted"] for s in summary)
     drops = [s["f1_drop_points"] for s in summary] or [0.0]
     mean_drop, best_drop = float(np.mean(drops)), float(np.max(drops))
     # Criteria 2 and 3 are separate questions and are scored separately, the same
-    # way go_nogo.py does it. Criterion 3 uses the BEST drop, not the mean: an
+    # way the pilot's go/no-go script did. Criterion 3 uses the BEST drop, not the mean: an
     # attack that defeats one deployed aggregation rule is a real threat even if
     # the other five absorb it, and averaging over rules that reject the client
     # outright would hide exactly the case the paper is about.

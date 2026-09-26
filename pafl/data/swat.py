@@ -1,4 +1,4 @@
-"""SWaT loader and invariant set.
+"""SWaT loader, and the invariant builder used for every real record.
 
 SWaT is the Secure Water Treatment testbed at iTrust, SUTD. It is a full,
 six-stage water treatment plant with 51 sensors and actuators, recorded at one
@@ -9,8 +9,8 @@ paper, stronger than BATADAL and unlike HAI:
   pumps (P*) that open and close as tanks fill and drain. The actuator-to-flow
   coupling family -- a pump that reads off moves no water -- therefore has many
   exact relations to attach to. This is the invariant family a channel-roll
-  fabrication destroys, so SWaT is where the attack and the defence meet on real
-  data with the most surface.
+  fabrication (the paper's naive attack) destroys, so SWaT is where the attack
+  and the defence meet on real data with the most surface.
 * It stores mass. Each stage has a tank with a level sensor (LIT*) driven by
   measured inflow and outflow (FIT*). The mass-balance family fits well.
 
@@ -21,16 +21,27 @@ code has to know about them:
   row 2. A .csv export is also accepted. `openpyxl` is required for .xlsx.
 * Column names carry stray leading and trailing spaces. They are stripped.
 * The label column is named "Normal/Attack" (sometimes with a trailing space)
-  and holds the strings "Normal" and "Attack". It is mapped to an integer
-  ATT_FLAG (1 = attack) to match the BATADAL convention, so every downstream
-  script treats the two datasets the same way.
+  and holds the strings "Normal" and "Attack", plus the typo "A ttack" on some
+  rows of the attack file. It is mapped to an integer ATT_FLAG (1 = attack) to
+  match the BATADAL convention, so every downstream script treats the two
+  datasets the same way. These inline labels are the only labels used; the
+  attack list (List_of_attacks_Final.xlsx) is never read, so its date typos
+  and the 81 s gap in the attack historian do not affect the labels.
 * The Timestamp column is parsed to a datetime, kept for reference under the
   lower-case name `datetime`, and never fed to a model.
 
 The A1 & A2 (Dec 2015) collection is the canonical split: one file of about
 seven days of normal operation, and one file of about four days containing 36
-labelled attacks. Use the normal file to build and calibrate invariants, and the
-attack file to measure detection.
+labelled attacks (35 contiguous labelled segments at the 5 s stride). Use the
+normal file to build and calibrate invariants, and the attack file to measure
+detection. The normal file ships as v0 and v1; v1 drops the first 30 minutes,
+in which tank 1 was being drained for maintenance (the release's readme.txt),
+and `find_swat_files` prefers it. The six-hour start-up cut and the 5 s stride
+are applied later, in pafl.data.real.
+
+`swat_invariants`, despite its name, is the builder for every real record in
+the federated runs (SWaT, WADI and BATADAL, via pafl.fl.scenario_real), the
+coverage table and the ZK export.
 """
 from __future__ import annotations
 from pathlib import Path
@@ -71,11 +82,13 @@ def load_swat(path: str | Path, nrows: int | None = None,
     Parameters
     ----------
     path : the Normal or Attack file.
-    nrows : read at most this many data rows. Use it on Colab to work on a
-        sample; leave it None for the full record on AWS.
+    nrows : read at most this many data rows, to work on a sample; leave it
+        None for the full record.
     downsample : keep every `downsample`-th row. SWaT is one row per second and
         the plant does not change state every second, so a stride of 5 or 10
         cuts the size with almost no loss of dynamics. Applied after nrows.
+        The pipeline leaves this at 1: pafl.data.real reads the full record,
+        drops the start-up rows, and only then applies its stride of 5.
 
     The returned frame has an ATT_FLAG column (1 = attack, 0 = normal), a
     `datetime` column for reference, and float feature columns for everything
@@ -107,7 +120,7 @@ def load_swat(path: str | Path, nrows: int | None = None,
             break
     if label_col is not None:
         s = df[label_col].astype(str).str.strip().str.lower()
-        # "attack" (and the occasional "a ttack") -> 1, everything else -> 0
+        # "attack" (and the "a ttack" typo) -> 1, everything else -> 0
         df["ATT_FLAG"] = s.str.startswith("a").astype(int)
         if label_col != "ATT_FLAG":
             df = df.drop(columns=[label_col])
@@ -142,8 +155,9 @@ def find_swat_files(folder: str | Path) -> dict[str, Path]:
 
     Returns a dict with keys 'normal' and 'attack' where found. Matching is by
     name and ignores case, so both "SWaT_Dataset_Normal_v1.xlsx" and a renamed
-    CSV export are found. Raises FileNotFoundError if the folder holds no
-    readable SWaT file at all.
+    CSV export are found. The search is recursive, so the release's own
+    sub-folders ("SWaT.A1 & A2_Dec_2015/Physical") can stay as shipped. Raises
+    FileNotFoundError if the folder holds no readable SWaT file at all.
     """
     folder = Path(folder)
     cands = [p for p in folder.rglob("*")
@@ -179,12 +193,15 @@ def find_swat_files(folder: str | Path) -> dict[str, Path]:
 def swat_invariants(clean: pd.DataFrame, max_invariants: int = 40,
                     r2_min: float = 0.60, coupling_support: float = 0.02,
                     coupling_off_ratio: float = 0.05) -> tuple[InvariantSet, dict]:
-    """Build the SWaT invariant set from a clean (normal-operation) frame.
+    """Build the invariant set of a real record from a clean (normal-operation) frame.
 
-    SWaT has far more channels than BATADAL, so this uses the automatic miners
-    rather than the hand-named S_/F_ pairing that BATADAL uses. Two families are
-    kept, and the report states exactly what was found, because those counts go
-    in the paper:
+    Written for SWaT, and used unchanged on WADI and BATADAL in the federated
+    runs and on WADI in criterion 1 (so the c1_wadi_* files record
+    `invariant_set` "swat": the builder, not the record). SWaT has far more
+    channels than BATADAL, so this uses the automatic miners rather than the
+    hand-named S_/F_ pairing of `pafl.data.batadal.batadal_invariants`. Two
+    families are kept, and the report states exactly what was found, because
+    those counts go in the paper:
 
     * Actuator-to-flow couplings, from `mine_couplings`: an actuator state that
       predicts whether a flow sensor reads zero or a stable nominal value. On
@@ -196,6 +213,15 @@ def swat_invariants(clean: pd.DataFrame, max_invariants: int = 40,
     The set is NOT calibrated here. Call `.calibrate(clean_holdout)` on a second
     clean slice so the tolerances are set on data the invariants were not fitted
     to, which is what keeps the false-rejection number honest.
+
+    The defaults are the paper's "narrow" set (called "default" on WADI):
+    r2_min 0.60, coupling_off_ratio 0.05, coupling_support 0.02. The "wide" set
+    is 0.40 / 0.10 / 0.005. See `mine_couplings` for what the two coupling
+    knobs measure. On the fitting half of the SWaT invariant slice
+    (pafl.fl.scenario_real) narrow gives 5 rules (3 couplings, 2 balances) and
+    wide 9 (6 and 3); on WADI the default gives 7 couplings and no balance.
+    The balance fit uses alpha 5e-4 and at most 8 terms, not the miner's
+    defaults.
     """
     cont, disc = classify_channels(clean)
     report: dict = {"n_continuous": len(cont), "n_discrete": len(disc),
@@ -229,7 +255,9 @@ def swat_invariants(clean: pd.DataFrame, max_invariants: int = 40,
         else:
             report["dropped_balances"].append(entry)
 
-    # keep the strongest, if the miner over-produced
+    # Cap the count. This keeps the first `max_invariants` in discovery order
+    # (couplings in column order, then balances), not the strongest; at 40 it
+    # never binds on the committed settings, which yield at most 10 rules.
     invs = invs[:max_invariants]
 
     inv_set = InvariantSet(invs, name="swat")

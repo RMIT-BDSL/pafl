@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """Fold one build's measurements into results.json (keyed by tag).
 
+run_bench.sh calls this as its last step; it reads only build/<tag>/ (steps.jsonl,
+compile.log, r1cs_info.txt, the .expect.json side files, proofs and keys), so it can
+be rerun without repeating the benchmark. Times are wall seconds of each CLI process
+and memory is peak RSS in MiB, both from /usr/bin/time -l; the toolchain and machine
+fields are read from the host at collection time, not at measurement time.
+
     python3 scripts/collect_results.py wide_k32
 """
 from __future__ import annotations
@@ -53,7 +59,7 @@ def main(tag: str) -> int:
             "prove_max_rss_mb": round(by[f"prove_{name}"]["max_rss_bytes"] / 2**20) if f"prove_{name}" in by else None,
             "verify_seconds": by.get(f"verify_{name}", {}).get("seconds"),
             "verified": verified,
-            "proof_bytes": size(f"proof_{name}.json"),
+            "proof_bytes": size(f"proof_{name}.json"),     # snarkjs's JSON (decimal coordinates), not binary
             "public_inputs": len(json.load(open(b / f"public_{name}.json"))) if (b / f"public_{name}.json").exists() else None,
         }
 

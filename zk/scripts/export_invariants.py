@@ -6,10 +6,16 @@ same fit / calibrate halves, same miner thresholds), writes the affine
 coefficients, constants and tolerances scaled by S = 2^16 to JSON, and checks
 the integer model against the float one on the calibration half, on honest
 batches and on channel-roll fabrications of them. The file holds no telemetry,
-so it can be committed and shared; anyone with the SWaT archive regenerates it
-byte for byte with
+so it can be committed and shared; anyone with the SWaT archive regenerates it,
+from the repo root, with
 
     .venv/bin/python zk/scripts/export_invariants.py --setting wide
+    .venv/bin/python zk/scripts/export_invariants.py --setting narrow
+
+The output should match the committed zk/data/invariants_swat_*.json except for
+provenance.generated and provenance.pafl_commit, which record the date and commit
+of the run. The circuit reads only the fixed-point fields; the float fields and
+the checks block are there for audit.
 """
 from __future__ import annotations
 import argparse
@@ -32,6 +38,8 @@ from pafl.fl.scenario_real import RealScenarioConfig              # noqa: E402
 from pafl.zk.fixed_point import (fidelity, integer_verdict, quantise_invariants,  # noqa: E402
                                  quantise_rows)
 
+# miner thresholds of the paper's two invariant sets (9 and 5 rules on SWaT); they must
+# match the experiments' settings, and zk/lite/scripts/export_batches.py repeats them
 SETTINGS = {
     "narrow": dict(r2_min=0.60, coupling_off_ratio=0.05, coupling_support=0.02),
     "wide": dict(r2_min=0.40, coupling_off_ratio=0.10, coupling_support=0.005),
@@ -69,6 +77,7 @@ def main() -> int:
 
     # --- checks: the integer model against the float one ---
     checks = {"calibration_half": fidelity(inv_set, cal, cols, q)}
+    # fixed seed: the 50 parity batches are the same on every run
     rs = np.random.default_rng(0)
     rows = 1000
     parity = {"honest": [0, 0], "channel_roll": [0, 0]}
@@ -93,6 +102,7 @@ def main() -> int:
     checks["honest_batches"] = {"n": a.n_batches, "rows": rows,
                                 "float_violating_mean": float(np.mean(honest_float)),
                                 "integer_violating_mean": float(np.mean(honest_int)),
+                                # 0.01 is the batch gate's admission threshold (integer_verdict's default)
                                 "integer_false_reject_rate": float(np.mean([f > 0.01 for f in honest_int]))}
     na = inv_set.batch_verdict(cal)["not_applicable_fraction"]
     checks["not_applicable_fraction_on_calibration_half"] = na

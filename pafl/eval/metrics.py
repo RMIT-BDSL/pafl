@@ -1,4 +1,18 @@
-"""Detection metrics, plus the two the paper actually argues from."""
+"""Detection metrics at one fixed, clean-calibrated alarm threshold.
+
+fl.train calls `threshold_from_clean` once per run (the 0.995 quantile of the
+final model's clean-validation scores) and `detection_report` plus
+`detection_delay` on every eval set at that threshold. Scores and labels are
+per window; a window is an attack window when any of its rows is labelled.
+
+The paper argues from recall: targeted-attack recall is `detection_report`'s
+"recall" on the positives-only `test_targeted` set that fl.scenario_real builds,
+and the damage an attack does is the drop in that recall against the
+honest-only federation (scripts/summarize_adaptive.py). Global F1 on the full
+test set is reported beside it. `attack_success` is the pilot's measure, F1
+drop against the clean federation, still used by scripts/sim_defences.py and
+scripts/sweep.py.
+"""
 from __future__ import annotations
 import numpy as np
 
@@ -15,11 +29,19 @@ def threshold_from_clean(scores_clean: np.ndarray, quantile: float = 0.995) -> f
 
     Using test data to pick the threshold inflates every number that follows,
     and reviewers of anomaly-detection papers look for exactly this mistake.
+    np.quantile's default linear interpolation; at 0.995 about 0.5 % of clean
+    validation windows sit above the threshold by construction.
     """
     return float(np.quantile(scores_clean, quantile))
 
 
 def detection_report(scores: np.ndarray, labels: np.ndarray, threshold: float) -> dict:
+    """Confusion counts, precision, recall and F1 at `threshold`, with AUC-PR and
+    the best-threshold F1 alongside as threshold-free views.
+
+    A window alarms when its score is strictly above the threshold. On a set
+    with only attack windows, recall is the one meaningful number.
+    """
     pred = (scores > threshold).astype(int)
     tp = int(((pred == 1) & (labels == 1)).sum())
     fp = int(((pred == 1) & (labels == 0)).sum())
@@ -42,6 +64,9 @@ def f1_best(scores: np.ndarray, labels: np.ndarray) -> dict:
     clean-calibrated threshold above; it sits beside it as the threshold-free
     view, the same way AUC-PR does. On a set with no negatives or no positives
     it is undefined.
+
+    Unlike `detection_report`, the returned threshold is inclusive (the k-th
+    highest score is itself flagged), and tied scores are split by sort order.
     """
     n_pos = int(labels.sum())
     if n_pos == 0 or n_pos == len(labels):
@@ -58,6 +83,9 @@ def f1_best(scores: np.ndarray, labels: np.ndarray) -> dict:
 
 
 def auc_pr(scores: np.ndarray, labels: np.ndarray) -> float:
+    """Area under the precision-recall curve as average precision: the sum over
+    ranks of the recall step times the precision there. NaN on a set with no
+    negatives or no positives."""
     if labels.sum() == 0 or labels.sum() == len(labels):
         return float("nan")
     order = np.argsort(-scores)
@@ -75,6 +103,12 @@ def detection_delay(scores: np.ndarray, labels: np.ndarray, threshold: float) ->
     An attack with no alarm anywhere inside it counts as missed and contributes
     no delay, so a detector that finds one attack quickly and misses nine does
     not get to report a good mean delay.
+
+    Windows advance one row at a time, so a delay in windows is a delay in rows:
+    5 s each on SWaT and WADI at the loaders' 5 s stride, 1 h on BATADAL. A
+    segment is a run of consecutive attack-labelled windows, so the labels must
+    be in time order; on the positives-only sets the whole set is one segment
+    and the delay is not meaningful.
     """
     pred = scores > threshold
     segments: list[tuple[int, int]] = []
@@ -105,8 +139,10 @@ def detection_delay(scores: np.ndarray, labels: np.ndarray, threshold: float) ->
 def attack_success(f1_clean_federation: float, f1_poisoned_federation: float) -> dict:
     """How much detection the poisoning removed.
 
-    Reported in absolute F1 points, because that is what the go/no-go criterion
-    is written in, and as a relative fraction for the paper's headline sentence.
+    Reported in absolute F1 points, because that is what the pilot's go/no-go
+    criterion was written in, and as a relative fraction. The paper's damage
+    measure is on targeted recall against the honest-only run instead (see the
+    module docstring).
     """
     drop = f1_clean_federation - f1_poisoned_federation
     return {"f1_drop_absolute": float(drop),

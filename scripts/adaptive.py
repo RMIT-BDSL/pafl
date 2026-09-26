@@ -1,22 +1,55 @@
 #!/usr/bin/env python3
-"""Days 4 and 5. The adaptive attacker, and the number the paper is built on.
+"""The adaptive attacker: what does the physics check cost a poisoner who knows it is there?
 
-An attacker who knows the invariant check is deployed does not submit a batch
-that fails it. It projects the fabricated batch back onto the feasible set and
-submits that instead. The question this script answers is what that projection
-costs the attacker in poisoning power.
+This is the driver behind the paper's main results (the `*_adaptive_*` files). For
+each seed and aggregation rule it runs the same federation in up to five modes
+(pafl.fl.variants.MODES; paper names in brackets):
 
-Three federations are compared under the same defence:
+  clean        all clients honest                                    [clean]
+  honest_only  the attacked run's honest clients alone, no attacker  [honest-only]
+  fabricated   malicious clients train on poisoned data, no check    [naive attack]
+  projected    they first project that data onto the invariants, so
+               the check admits more of it; every update is kept     [physics-aware attack]
+  gated        projected, and the server excludes any client whose
+               batch still fails the check                           [gated]
 
-  clean      every client honest                      -- the reference F1
-  fabricated malicious clients use Recipe A directly  -- caught by the check
-  projected  malicious clients project first          -- passes the check
+`--fabrication` picks the poison. `splice_only` replays real attack rows as normal
+(the paper's replay); `channel_roll` shifts actuator channels against the sensors
+(`--roll-shift 60` rows = 5 min at SWaT's 5 s stride is the paper's setting). Each
+cell stores global F1, AUC-PR and recall on the targeted attacks (the labelled
+attacks the malicious clients try to hide) and on the other attacks. It also stores
+both "doors": the share of malicious updates the rule accepted, and the share of
+malicious batches the check admitted. In the physics-aware and gated modes,
+`projection` records what the projection cost the attacker, in standard deviations
+of shift per malicious batch.
 
-The headline result is the fraction of the attack's F1 damage that survives the
-projection. If most of it survives, physics constrains nothing useful and the
-paper does not work. If little of it does, the defence shrinks the feasible
-attack set rather than merely catching the careless, and that is the sentence
-the abstract wants.
+The paper's numbers come from the cells, not from the summary this script prints.
+The paper measures damage on targeted-attack recall against the honest_only run of
+the same seed. It pools only seeds where the naive attack cost at least one point,
+weighted by that damage. `scripts/summarize_adaptive.py <file>` prints exactly those
+numbers. The summary at the end of this script is the pilot's "criterion 4", kept for
+continuity and stored in the file as `summary`, `headline_attack_capability_removed`
+and `criterion_4_pass`. It uses a different reference (the clean run), pools seeds
+before differencing, scores F1, and keeps rules with at least 3 points of damage.
+
+Several defaults are not the paper's settings: --dataset synthetic, four rules,
+--malicious-fraction 0.2, and a roll shift of 7. The paper's commands, one per
+committed file, are in scripts/reproduce.sh; for example
+
+    python scripts/adaptive.py --dataset swat --r2-min 0.40 --coupling-off-ratio 0.10 \
+        --coupling-support 0.005 --defences fedavg krum median trimmed_mean norm_clip fltrust \
+        foolsgold --fabrication splice_only --malicious-fraction 0.3 --clients 10 --rounds 25 \
+        --local-epochs 2 --seeds 0 1 2 3 4 --out results/swat_adaptive_wide_splice_5seed.json
+
+Resumable: each (seed, rule, mode) cell is written to --out as soon as it finishes,
+and a rerun with the same --out skips the cells already there. Every cell reseeds
+and rebuilds its federation from scratch, so cells do not depend on run order. A
+file filled in stages equals one run of the final command, provided the code did
+not change between stages. Two consequences for a replicator:
+- a stale file at --out silently short-circuits the run;
+- the file's `args` block records only the invocation that created the file. Several
+  committed files were extended later (more seeds, rules or modes), so read the seeds,
+  rules and modes from the cell keys, not from `args`.
 """
 from __future__ import annotations
 import argparse
@@ -36,7 +69,7 @@ from pafl.utils.paths import results_path
 from pafl.utils.logging import get_logger
 from pafl.utils.seeds import set_seed
 
-log = get_logger("day45")
+log = get_logger("adaptive")
 
 
 def main() -> int:
@@ -65,15 +98,17 @@ def main() -> int:
     ap.add_argument("--clients", type=int, default=10)
     ap.add_argument("--rounds", type=int, default=25)
     ap.add_argument("--local-epochs", type=int, default=2)
-    ap.add_argument("--steps-per-client", type=int, default=4000)
+    ap.add_argument("--steps-per-client", type=int, default=4000)   # simulated plant only
     ap.add_argument("--window", type=int, default=10)
     ap.add_argument("--seeds", nargs="+", type=int, default=[0])
+    # store_true with default=True: always on, and the flag cannot switch it off.
+    # Every committed run projected with actuator states protected.
     ap.add_argument("--protect-status", action="store_true", default=True,
                     help="the attacker will not write fractional actuator states")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threshold-quantile", type=float, default=0.995,
                     help="alarm threshold: this quantile of clean validation scores")
-    ap.add_argument("--out", default="results_archive/day45_adaptive.json")
+    ap.add_argument("--out", default="results_archive/adaptive.json")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
 
@@ -87,9 +122,9 @@ def main() -> int:
                 key = f"{seed}|{defence}|{mode}"
                 if key in done["cells"]:
                     continue
-                set_seed(seed)
+                set_seed(seed)          # per cell, so a cell is the same whatever ran before it
                 t0 = time.time()
-                stats: list = []
+                stats: list = []        # filled by the projection (projected and gated modes)
                 sc, inv_set, cols = build_variant(
                     args.dataset, mode, args.malicious_fraction, args.clients, args.window,
                     seed, data_dir=args.data_dir, partition=args.partition,
@@ -134,6 +169,8 @@ def main() -> int:
                     log.warning("interrupted")
                     return 0
 
+    # ---- pilot summary (criterion 4); see the module docstring for how it differs
+    # ---- from the paper's removal numbers (scripts/summarize_adaptive.py)
     cells = list(done["cells"].values())
     summary = []
     for d in args.defences:

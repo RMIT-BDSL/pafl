@@ -1,18 +1,25 @@
 """Load the real testbed datasets into (normal, attack) frame pairs.
 
-One place that knows how each dataset is laid out on disk, so the week-2 scripts
-do not each carry their own copy. The frames are cached twice: in memory for
-the run, and as a pickle next to the data for the next run, because parsing a
-SWaT spreadsheet takes over a minute and every experiment starts by doing it.
+One place that knows how each dataset is laid out on disk, so the drivers in
+scripts/ do not each carry their own copy. The frames are cached twice: in
+memory for the run, and as a pickle next to the data for the next run, because
+parsing a SWaT spreadsheet takes over a minute and every experiment starts by
+doing it.
 
-Downsampling is on by default for SWaT, which is recorded at one row per second.
-The plant does not change state every second, so a stride of five keeps the
-dynamics and cuts the memory and the runtime by five. Turn it off for a final
-run if you want every row.
+This is where the plant-time stride is set. SWaT and WADI are recorded at one
+row per second, and `load_real` keeps every fifth row (`swat_downsample=5`,
+which despite its name applies to WADI too). The plant does not change state
+every second, so a stride of five keeps the dynamics and cuts the memory and
+the runtime by five. No driver overrides it, so every committed SWaT and WADI
+result is at the 5 s stride: a channel roll of 60 rows is 5 min of plant
+time, and the paper's 10-row window is 50 s. Changing the stride changes those
+plant times and every number. BATADAL is hourly and is not downsampled.
 
 The first six hours of the SWaT normal record are the plant filling from empty
 (the published start-up transient) and are dropped by default, as the SWaT
-detection literature does. Nothing is dropped from the attack record.
+detection literature does: 21,600 rows at 1 Hz, before the stride, leaving
+94,680 rows. Nothing is dropped from the SWaT attack record (89,984 rows at
+the stride), and nothing from either WADI or BATADAL record.
 """
 from __future__ import annotations
 import os
@@ -46,6 +53,13 @@ def _disk_cache_dir(folder: Path) -> Path | None:
 
 
 def _cached_swat(path: Path, folder: Path, downsample: int, skip_rows: int, loader=None):
+    """Load one SWaT or WADI file through the disk cache: skip, then stride.
+
+    The key holds the file stem, the stride, the skipped rows and the file's
+    modification time, but not the loader's code. After a change to a loader
+    (load_swat, load_wadi), delete the .pafl_cache folder, or the old frame is
+    served.
+    """
     from .swat import load_swat
     loader = loader or load_swat
     cache = _disk_cache_dir(folder)
@@ -70,9 +84,14 @@ def load_real(dataset: str, data_dir: str | None = None,
               swat_skip_normal_rows: int = SWAT_STARTUP_ROWS):
     """Return (normal_frame, attack_frame) for a real dataset.
 
-    dataset : 'swat' or 'batadal'.
+    dataset : 'swat', 'wadi' or 'batadal'.
     data_dir : the folder holding that dataset; falls back to the project data
-        directory resolved by pafl.utils.paths.
+        directory resolved by pafl.utils.paths (the dataset folder names are
+        matched without regard to case).
+
+    SWaT and WADI files are found anywhere under their folder by name (see
+    find_swat_files, find_wadi_files). BATADAL's two CSVs must sit directly in
+    its folder: dataset03 (the clean year) and dataset04 (the attack file).
     """
     key = (dataset, data_dir, swat_downsample, swat_skip_normal_rows)
     if key in _CACHE:
@@ -108,6 +127,8 @@ def load_real(dataset: str, data_dir: str | None = None,
     elif dataset == "batadal":
         from .batadal import load_batadal
         folder = Path(data_dir) if data_dir else dataset_dir("batadal")
+        # find_csv returns the folder's first CSV when no stem matches, so a
+        # renamed file is not an error here; keep the published names.
         normal = load_batadal(find_csv(folder, "dataset03", "train"), kind="clean")
         attack = load_batadal(find_csv(folder, "dataset04", "test", "attack"), kind="attack")
 

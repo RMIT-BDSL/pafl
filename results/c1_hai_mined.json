@@ -101,11 +101,11 @@
       "preserves": [
         "channel range"
       ],
-      "violating_fraction_full": 0.0004347826086956522,
-      "batch_violating_mean": 0.00036500000000000004,
-      "batch_violating_std": 0.0005759991319437903,
+      "violating_fraction_full": 0.00034782608695652176,
+      "batch_violating_mean": 0.000285,
+      "batch_violating_std": 0.0005777326371255133,
       "batch_admitted_rate": 1.0,
-      "overlap_with_honest": 0.99,
+      "overlap_with_honest": 0.8950000000000001,
       "separated": false
     },
     {

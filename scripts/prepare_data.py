@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""Fetch and verify the real datasets.
+"""Fetch the public datasets and fingerprint every data file.
 
-Only public sources are downloaded. SWaT and WADI are request-based, so this
-script expects you to place the files yourself and then verifies them; it never
-tries to fetch them, and it never uploads them anywhere. The iTrust licence
-forbids redistribution, so if you stage them in S3, make sure the bucket blocks
-public access at the account level first.
+Only HAI is downloaded (a git clone; it needs git-lfs). SWaT, WADI and BATADAL
+are request- or form-based, so the script prints where to get them and expects you
+to place the files yourself (DATA.md gives the exact folder layout the loaders
+read). It never uploads anything. The iTrust licence forbids redistribution, so if
+you stage SWaT or WADI in cloud storage, block public access first.
+
+It then writes a manifest: the SHA-256, relative path and size of every file under
+--root. The manifest lives in data/, which is gitignored with the data; keep it
+with a replication's records, since it pins which dataset release was used.
+ICS-NAD is listed as a source but no experiment uses it.
+
+    python scripts/prepare_data.py --dataset swat     # print SWaT's source; hash every file under data/
 """
 from __future__ import annotations
 import argparse
@@ -51,12 +58,12 @@ SOURCES = {
         "kind": "manual",
         "url": "https://itrust.sutd.edu.sg/itrust-labs_datasets/",
         "note": "iTrust OneDrive. WADI.A1_9 Oct 2017 (848 MB) and WADI.A2_19 Nov 2019 (575 MB). "
-                "Second real distribution network, optional secondary dataset. No redistribution.",
+                "The paper uses WADI.A1_9 Oct 2017 (the loaders read that folder). No redistribution.",
     },
 }
 
 
-def sha256(path: Path, chunk: int = 1 << 20) -> str:
+def sha256(path: Path, chunk: int = 1 << 20) -> str:      # streamed in 1 MiB chunks: the files run to GBs
     h = hashlib.sha256()
     with open(path, "rb") as f:
         while blk := f.read(chunk):
@@ -99,8 +106,9 @@ def main() -> int:
             lines.append(f"{sha256(p)}  {p.relative_to(root)}  {p.stat().st_size}")
     Path(args.manifest).write_text("\n".join(lines) + "\n")
     log.info("manifest written: %s (%d files)", args.manifest, len(lines))
-    log.info("commit the manifest. It is what makes the run reproducible, and it is "
-             "what you cite when a reviewer asks which version of SWaT you used.")
+    log.info("data/ is not committed: keep this manifest with the run's records. It "
+             "pins the dataset version, and it is what you cite when a reviewer asks "
+             "which version of SWaT you used.")
     return 0
 
 

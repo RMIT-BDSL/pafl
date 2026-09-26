@@ -1,12 +1,25 @@
-"""Build the three federations the adaptive-attacker experiments compare.
+"""Build the five federations the adaptive-attacker experiments compare.
 
-    clean       every client honest                        -- the reference
-    fabricated  malicious clients train on Recipe A/B data -- caught by the check
-    projected   the same clients project first             -- passes the check
+    clean        every client honest (all 10 at the paper's setting): a
+                 reference for composition.
+    honest_only  the attacked run's honest clients alone (7 of 10): the damage
+                 reference.
+    fabricated   the malicious clients train on Recipe A/B data: the paper's
+                 "naive attack", the batch the check is built to reject.
+    projected    the same clients first project their batch onto the
+                 invariants: the "physics-aware attack", which aims to pass.
+    gated        projected, and any client whose batch still fails the check
+                 is excluded: the deployed system.
+
+With fabrication="splice_only" the malicious clients replay real attack rows
+unaltered (the paper's "replay"), so "fabricated" is then the replay attacker
+and "projected" is replay plus projection. The check catches replay only where
+the invariants cover the replayed attack.
 
 One construction for the simulated plant and for a real record, used by
-day45_adaptive.py (every aggregation rule) and week2_4b.py (the similarity
-rules, with trust traces), so the two scripts cannot drift apart.
+scripts/adaptive.py (every aggregation rule), scripts/trust_traces.py (the
+similarity rules, with trust traces) and scripts/honest_verdicts.py, so the
+scripts cannot drift apart.
 
 The projected variant must differ from the fabricated one in exactly one way:
 the batch has been moved onto the physics manifold. The pilot's first version
@@ -37,7 +50,7 @@ MODES = ("clean", "honest_only", "fabricated", "projected", "gated")
 # are composition, not poisoning), and it is what "gated" becomes when the gate
 # excludes every malicious client.
 # gated = the deployed system: the attacker projects, the server runs the check,
-# and a malicious client whose batch still fails it is excluded from the round.
+# and any client whose batch still fails it is excluded from the round.
 # "projected" keeps every client in, so it measures what the projection alone
 # does to the poison; "gated" measures what the gate does to the federation.
 
@@ -49,7 +62,22 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
                   target_attack_fraction: float | None = None,
                   steps_per_client: int = 4000, protect_status: bool = True,
                   target_violating: float = 0.005, proj_stats: list | None = None):
-    """Return (scenario, invariant_set, feature_columns) for one variant."""
+    """Return (scenario, invariant_set, feature_columns) for one variant.
+
+    `dataset` is "synthetic" or a real record ("swat", "wadi", "batadal"). On
+    the simulator the invariants are the hand-written plant set, calibrated on
+    one fixed clean run (8,000 steps, seed 12345) whatever the seed, and
+    `steps_per_client` sets each site's length; on a real record they are mined
+    in fl.scenario_real, with `invariant_kw` passing the miner thresholds.
+    A falsy `target_attack_fraction` (None or 0) leaves the config's 0.25.
+
+    The projection (projected and gated) stops once at most `target_violating`
+    of the batch's rows violate, 0.5 %, below the check's 1 % admission cut.
+    With `protect_status` the attacker leaves the actuator channels alone,
+    because fractional pump states would give the batch away by other means;
+    then some batches cannot reach the target and are still rejected.
+    Per-client projection costs are appended to `proj_stats` if given.
+    """
     if mode not in MODES:
         raise ValueError(f"mode must be one of {MODES}, got {mode!r}")
     frac = 0.0 if mode == "clean" else malicious_fraction
@@ -119,7 +147,8 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
     if mode == "gated":
         # The deployed gate does not know who is honest: any client whose batch
         # fails the check sits out the round. (Honest rejections are counted so
-        # the paper can report them; on the real records they are zero.)
+        # the paper can report them; on the real records they are zero.) The
+        # batch is the same every round, so the exclusion holds for the whole run.
         rej_mal = {v["client"] for v in mal_v if not v["admitted"]}
         rej_hon = {v["client"] for v in honest_v if not v["admitted"]}
         rejected = rej_mal | rej_hon

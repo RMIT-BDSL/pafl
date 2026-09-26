@@ -1,10 +1,10 @@
 """WADI loader.
 
-WADI is the Water Distribution testbed at iTrust, SUTD: 123 process channels at
-one row per second, a 14-day normal record and a 2-day attack record with 15
-attacks. It is a distribution network, so it pairs with SWaT (treatment) as the
-second physical testbed. Quirks of the October 2017 release, handled once here
-(they are documented in ../zhu-2025-reprod/DATA_NOTES.md):
+WADI is the Water Distribution testbed at iTrust, SUTD: 127 tag columns at one
+row per second, a 14-day normal record (1,209,601 rows) and a 2-day attack
+record (172,801 rows) with 15 attacks. It is a distribution network, so it pairs
+with SWaT (treatment) as the second physical testbed. The loader keeps 120
+channels. Quirks of the October 2017 release, all handled here:
 
 * a four-line metadata preamble before the header;
 * column names are OPC paths ending in the tag, e.g.
@@ -15,6 +15,10 @@ second physical testbed. Quirks of the October 2017 release, handled once here
   continuation rows for later phases of the same attack;
 * three aggregate, non-physical columns (plant start/stop log, leak differential
   pressure, total consumer required flow) are dropped, as in Zhu et al. 2025.
+
+No rows are dropped from either record; Zhu et al.'s split drops the first
+20,000 normal rows, this one does not. The 5 s stride is applied afterwards, in
+pafl.data.real.
 """
 from __future__ import annotations
 from pathlib import Path
@@ -26,6 +30,7 @@ ATTACK_T0 = pd.Timestamp("2017-10-09 18:00:00")     # first row of WADI_attackda
 
 
 def _header_row(path: Path, probe: int = 10) -> int:
+    """Zero-based line of the column header, after the metadata preamble."""
     with open(path, "r", errors="replace") as f:
         for i in range(probe):
             line = f.readline()
@@ -35,6 +40,7 @@ def _header_row(path: Path, probe: int = 10) -> int:
 
 
 def _tag(col: str) -> str:
+    """The tag at the end of an OPC path; other names pass through."""
     c = str(col).strip()
     return c.rsplit("\\", 1)[-1] if "\\" in c else c
 
@@ -45,6 +51,8 @@ def load_wadi(path: str | Path, nrows: int | None = None, downsample: int = 1,
 
     attack_sheet : attack_description.xlsx; when given, ATT_FLAG is built from
         its start/end times (attack file only). Without it ATT_FLAG is all zero.
+        The labels are computed on the full-resolution rows, before
+        `downsample`, because `attack_labels` maps a time to a row index.
     """
     path = Path(path)
     hdr = _header_row(path)
@@ -67,7 +75,9 @@ def load_wadi(path: str | Path, nrows: int | None = None, downsample: int = 1,
     # Four channels of this release are entirely empty (2_LS_001_AL, 2_LS_002_AL,
     # 2_P_001_STATUS, 2_P_002_STATUS); a handful of analyser channels have short
     # gaps. A NaN anywhere in a window makes the whole window unscorable, so drop
-    # the empty channels and fill the gaps from neighbouring rows.
+    # the empty channels and fill the gaps from neighbouring rows. Both steps
+    # run per file, so the two records keep the same 120 channels only because
+    # the same four are empty in each.
     feats = [c for c in df.columns if c != "datetime"]
     empty = [c for c in feats if df[c].isna().all()]
     df = df.drop(columns=empty)
@@ -89,7 +99,20 @@ def load_wadi(path: str | Path, nrows: int | None = None, downsample: int = 1,
 
 
 def attack_labels(sheet: str | Path, n_rows: int, t0: pd.Timestamp = ATTACK_T0) -> np.ndarray:
-    """0/1 per row of the attack record, from the attack_description.xlsx times."""
+    """0/1 per row of the attack record, from the attack_description.xlsx times.
+
+    A time maps to row (time - t0) in seconds. That is valid because the WADI
+    attack record is gap-free at 1 Hz, which the SWaT attack historian is not
+    (SWaT uses its inline labels instead). An interval covers [start, end).
+
+    Sheet quirks repaired here: the header sits on the "S.No" row; one date
+    reads 1947 and is taken as 2017; five dates read July (2017-07-11) and are
+    taken as October; times may use a dot for a colon ("11.30:40"); a row
+    without a date takes the date of the row above; an end time before its
+    start is taken to cross midnight. The 15 attacks (16 intervals, counting
+    the second phase of attack 7) give 14 contiguous labelled segments,
+    because two pairs overlap: 9,971 rows at 1 Hz, 1,996 at the 5 s stride.
+    """
     x = pd.read_excel(sheet, header=None)
     hdr = next(i for i in range(len(x)) if str(x.iloc[i, 0]).strip() == "S.No")
     df = x.iloc[hdr + 1:].copy()
@@ -131,6 +154,13 @@ def attack_labels(sheet: str | Path, n_rows: int, t0: pd.Timestamp = ATTACK_T0) 
 
 
 def find_wadi_files(folder: str | Path) -> dict[str, Path]:
+    """Locate WADI_14days.csv, WADI_attackdata.csv and attack_description.xlsx.
+
+    The search is recursive and matches on name fragments ("14days", "attack",
+    "attack_description"), taking the first match in sorted path order. The
+    sheet is optional here, but pafl.data.real refuses an attack record whose
+    labels come out empty, so in practice all three files are required.
+    """
     folder = Path(folder)
     out: dict[str, Path] = {}
     for p in sorted(folder.rglob("*")):

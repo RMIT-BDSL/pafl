@@ -1,6 +1,6 @@
 # zk/lite — PA-FL Lite build (zero-knowledge invariant attestation)
 
-This is the build behind the k = 32 feasibility results in the MDPI *Information* paper (12.0 s to prove,
+This is the build behind the paper's k = 32 feasibility results (12.0 s to prove,
 290 ms to verify, 806 B proof). It implements the protocol specified in `../README.md`, `../PLAN.md` and
 `../FORMALIZATION.md`. It reads two things from the rest of the repo: the fixed-point invariant export
 `zk/data/invariants_swat_*.json` and the `pafl` Python package (through `../../.venv/bin/python`).
@@ -26,11 +26,16 @@ batch (deferred, as in the spec).
     scripts/export_batches.py        SWaT federation (build_variant) -> data/batches_swat_<setting>_seed<s>.json
     scripts/build_inputs.mjs         batch -> Poseidon tree, root, challenge indices, input.json (+ .expect.json)
     scripts/run_bench.sh             compile, setup, and per batch: input, witness, prove, verify; timings
-    scripts/collect_results.py       build/<tag>/steps.jsonl + logs -> results.json[<tag>]
+    scripts/collect_results.py       build/<tag>/steps.jsonl + logs -> results.json[<tag>] (run_bench.sh calls it)
+    scripts/verify.mjs               the verifier's side: recompute the indices, check the budgets, verify
     scripts/sample_check.py          honest v/u budget distributions and detection vs k -> results_sampling.json
+    scripts/nonce_sweep.sh           many rounds (nonces) on one build, witness generation only
+    scripts/make_table.py            results.json + results_sampling.json -> the tables below
     ptau/                            fetch_ptau.sh (tracked); ppot_0080_20.ptau (PSE perpetual powers of tau,
                                      2^20, phase-2 prepared) and pot14_final.ptau (dev only) are local only
-    build/<tag>/                     everything generated; breakdown/ has per-component constraint counts
+    build/<tag>/                     everything generated for one build (main, keys, inputs, proofs, logs)
+    build/breakdown/                 per-component constraint counts behind the budget table (local; no
+                                     tracked script writes it)
     results.json                     measurements per build tag
     results_sampling.json            sampling analysis
     LOG.md                           dated working log (local, untracked)
@@ -53,16 +58,46 @@ early development) is not needed.
 
 ## Run
 
-    npm install                                                    # circomlib, circomlibjs
+From `zk/lite`. Tools, none of which `npm` installs: circom 2.1.9 (built with cargo from the
+iden3/circom tag `v2.1.9`), snarkjs 0.7.4 on PATH (`npm install -g snarkjs@0.7.4`), node 23,
+python3, and the repo's `.venv` for the scripts that import `pafl` or numpy. `run_bench.sh` uses
+the BSD forms of `/usr/bin/time` and `stat`, so it runs as written on macOS only. The SWaT archive
+goes where `pafl` looks for it (`../../DATA.md`).
+
+    npm ci                                                         # circomlib 2.0.5, circomlibjs 0.1.7, from package-lock.json
     ptau/fetch_ptau.sh                                             # once: the 1.2 GB setup file (above)
-    ../../.venv/bin/python scripts/export_batches.py --seed 0      # needs SWaT; ~4 s from the cache
+    ../../.venv/bin/python scripts/export_batches.py --seed 0      # needs SWaT; ~4 s once pafl's .pafl_cache exists
     scripts/run_bench.sh wide_k32 ptau/ppot_0080_20.ptau data/batches_swat_wide_seed0.json 1 8 1
     #                    <tag>    <ptau>                  <batches>                          vMax uMax nonce
+    scripts/run_bench.sh wide_k16 ptau/ppot_0080_20.ptau data/batches_swat_wide_seed0.json 1 8 1
+    node scripts/verify.mjs --build build/wide_k32 --batch honest --nonce 1 --vmax 1 --umax 8
     ../../.venv/bin/python scripts/sample_check.py data/batches_swat_wide_seed0.json
+    scripts/nonce_sweep.sh wide_k32 data/batches_swat_wide_seed0.json 40 1 8
+    python3 scripts/make_table.py wide_k32 wide_k16
 
-`<tag>` is `<setting>_k<k>`; `run_bench.sh` generates the main for it if absent. A batch whose
-sampled rows exceed the budgets fails at witness generation (that is the "fabricated batch
-hard-aborts" demonstration); the driver records it and moves on.
+The invariant files in `../data/` are committed; to regenerate them, from the repo root,
+`.venv/bin/python zk/scripts/export_invariants.py --setting wide` (and `--setting narrow`).
+`<tag>` is `<setting>_k<k>`; `run_bench.sh` generates the main for it if absent, then compiles,
+sets up, proves and verifies the four batches, and ends by running `collect_results.py`. It and
+`sample_check.py` overwrite the committed `results.json[<tag>]` and `results_sampling.json`, so
+`git diff` shows what changed. A batch whose sampled rows exceed the budgets fails at witness
+generation (that is the "fabricated batch hard-aborts" demonstration); the driver records it and
+moves on.
+
+Without SWaT, the circuit's size and the prover's cost can still be measured on a synthetic batch.
+Its random rows violate every balance and meet no coupling's steady state, so the budgets must
+cover 3 violations and 6 inapplicable checks per sample (for k = 32, 96 and 192):
+
+    export NODE_OPTIONS=--max-old-space-size=28672                # as run_bench.sh does
+    python3 scripts/gen_main.py --k 32
+    (cd build/wide_k32 && circom main.circom --r1cs --wasm --sym -l ../../node_modules -o .)
+    snarkjs groth16 setup build/wide_k32/main.r1cs ptau/ppot_0080_20.ptau build/wide_k32/circuit.zkey
+    node scripts/build_inputs.mjs --meta build/wide_k32/circuit_meta.json --synthetic random \
+         --vmax 96 --umax 192 --out build/wide_k32/input_synthetic.json
+    node build/wide_k32/main_js/generate_witness.js build/wide_k32/main_js/main.wasm \
+         build/wide_k32/input_synthetic.json build/wide_k32/witness_synthetic.wtns
+    snarkjs groth16 prove build/wide_k32/circuit.zkey build/wide_k32/witness_synthetic.wtns \
+         build/wide_k32/proof_synthetic.json build/wide_k32/public_synthetic.json
 
 ## Design decisions (where this build departs from a literal reading of FORMALIZATION.md)
 
@@ -120,6 +155,10 @@ See `results.json` for timings and `LOG.md` for the dated record.
 | verify, honest batch | 0.29 s | 0.30 s |
 | proof size | 806 B | 808 B |
 
+Times are wall seconds of each command-line process, node start-up included. Peak RSS and "MB"
+are 2^20 bytes. The proof size is that of snarkjs's `proof.json`; the binary Groth16 proof on
+BN254 is 256 B uncompressed.
+
 ### The three-proof demonstration (vMax = 1, uMax = 8)
 
 | batch | violating rows in batch | violations / inapplicable in the k samples | outcome |
@@ -142,7 +181,16 @@ See `results.json` for timings and `LOG.md` for the dated record.
 | 32 | 0.128 | 0.9851 | 0.9990 | 1.0000 | 0.998 | 0.998 | 0.044 |
 | 64 | 0.254 | 0.9634 | 0.9960 | 0.9977 | 1.000 | 1.000 | 0.109 |
 
+Batches from `export_batches.py --seed 0`, draws from `sample_check.py --seed 0` (the defaults).
+The honest columns use 19,992 draws (357 on each of 56 honest windows). A draw counts as
+rejected when v > vMax; the circuit also rejects u > uMax, so the detection columns are lower
+bounds. The splice_only batch is the window of the malicious shard with the most spliced attack
+rows (for seed 0, all 1,024 rows), so its column is for the densest window, not a typical one.
+
 ### 40 rounds at k = 32 (witness generation only; `scripts/nonce_sweep.sh wide_k32 … 40 1 8`)
+
+Nonces 1 to 40. The per-round records are in `build/wide_k32/nonce_sweep_v1_u8.jsonl`, which is
+not committed.
 
 | batch | rounds with a witness | mean violations in 32 samples |
 |---|---|---|

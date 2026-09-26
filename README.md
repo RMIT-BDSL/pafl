@@ -78,8 +78,8 @@ Data-space attacks designed to preserve individual channel statistics while dest
 * **Conservation Scaling:** Multiplies sensor channels by scalar factors, violating volumetric conservation ratios.
 * **Regime Splicing:** Transposes valid segments of telemetry from one historical operating regime into another, creating subtle boundary violations.
 
-### 2. Gradient-Matching Fabrication (Recipe B)
-* Formulates data poisoning as a bi-level optimization problem (adapting *Witches' Brew* techniques for industrial telemetry). Synthesizes training rows optimized so that their gradient update matches a target adversarial direction while resembling the updates of clean batches.
+### 2. Optimised Perturbation (Recipe B)
+* Trains a surrogate autoencoder on the malicious client's own shard, then perturbs the shard's continuous channels, within ±2.5σ of each channel, to maximise the surrogate's reconstruction error, in the manner of error-maximising adversarial poisons (Fowl et al., NeurIPS 2021). Actuator states are left unchanged. `pafl/attacks/recipe_b.py` also holds a gradient-matching path after *Witches' Brew*, which no paper run uses.
 
 ### 3. Exposure Poisoning (Replay Attacks)
 * A malicious client splices unlabelled historical attack sequences into its training data and labels them as normal operations. By oversampling these attack windows during local training (*exposure*), the reconstruction-based autoencoder learns to reconstruct attack states with minimal error, effectively blinding the shared detector to physical sabotage.
@@ -161,7 +161,7 @@ The Groth16 setup needs a 1.2 GB powers-of-tau file, which is not in the reposit
 ## Installation and Environment Setup
 
 ### 1. Prerequisites
-* Python 3.10+ (tested on Python 3.11 and 3.12, macOS Apple Silicon and Linux x86_64).
+* Python 3.10+. The paper's runs used Python 3.13 on macOS (Apple M3 Pro, CPU only); `requirements-lock.txt` lists the exact package versions.
 * Virtual environment isolation (`venv`).
 * For the zero-knowledge build only: Node.js, circom 2.1 and snarkjs (see [`zk/lite/README.md`](zk/lite/README.md)).
 
@@ -182,7 +182,7 @@ pip install -r requirements.txt
 pytest tests/ -q
 ```
 
-`make help` lists the shortcuts (`make setup`, `make test`, `make smoke` for a small end-to-end run).
+`make help` lists the shortcuts (`make setup`, `make test`, `make smoke` for a small end-to-end run, `make reproduce`).
 
 ### 2. Dataset Setup
 Due to licensing and data-use restrictions imposed by testbed providers (e.g., iTrust Singapore), raw physical datasets are not distributed in this repository. Place or symlink the extracted datasets into the `data/` directory (see [`DATA.md`](DATA.md)):
@@ -196,28 +196,28 @@ Due to licensing and data-use restrictions imposed by testbed providers (e.g., i
 
 ## Reproducing the Experiments
 
-Drivers are deterministic given a seed. An adaptive run is resumable: rerunning with more seeds adds the missing cells to an existing output file. Result files go to `results/`; plots and logs go to the local `results_archive/`.
+`scripts/reproduce.sh` holds one command per committed result file, grouped by experiment, with approximate run times. It writes to `results_archive/reproduce/`, so the committed files stay untouched, and `scripts/compare_results.py` checks a rerun against its committed file number by number.
 
 ```bash
-# 1. Invariant separability: do the mined invariants separate honest from fabricated batches? (SWaT, wide set)
-python scripts/day1_residuals.py --dataset swat --roll-shift 60 \
-    --r2-min 0.40 --coupling-off-ratio 0.10 --coupling-support 0.005 \
-    --out results/c1_swat_wide_shift60.json
+make reproduce                    # every experiment, about 6 h on one CPU (needs the datasets)
+make separation                   # or one group: separation coverage honest adaptive sweep trust
+DRY=1 scripts/reproduce.sh        # print the commands without running them
 
-# 2. Coverage: which labelled attacks does each invariant set see?
-python scripts/coverage_table.py --dataset swat --out results/swat_coverage.json
-
-# 3. Adaptive poisoning and gating across the seven aggregation rules and five federated modes
-python scripts/day45_adaptive.py --dataset swat \
-    --r2-min 0.40 --coupling-off-ratio 0.10 --coupling-support 0.005 \
-    --defences fedavg krum median trimmed_mean norm_clip fltrust foolsgold \
-    --fabrication splice_only --malicious-fraction 0.3 --clients 10 --rounds 25 --local-epochs 2 \
-    --modes clean honest_only fabricated projected gated --seeds 0 1 2 3 4 \
-    --out results/swat_adaptive_wide_splice_5seed.json
-
-# 4. Summarize multi-seed metrics and damage mitigation
-python scripts/summarize_adaptive.py results/swat_adaptive_wide_splice_5seed.json
+python scripts/compare_results.py results/swat_adaptive_wide_splice_5seed.json \
+    results_archive/reproduce/swat_adaptive_wide_splice_5seed.json
 ```
+
+| script | writes | what it measures |
+|---|---|---|
+| `separation.py` | `c1_*` | does the invariant check separate honest from fabricated batches (no training) |
+| `coverage.py` | `*_coverage` | which labelled attacks each invariant set sees |
+| `honest_verdicts.py` | `honest_verdicts` | the check's verdict on every honest client shard |
+| `adaptive.py` | `*_adaptive_*` | the five federated modes under each aggregation rule |
+| `sweep.py` | `*_sweep_*` | every rule against every data-space and update-space attack |
+| `trust_traces.py` | `*_trust_traces_*` | FLTrust and FoolsGold trust on the malicious clients, per round |
+| `sim_defences.py` | nothing committed | the simulated plant (the pilot's setting; not in the paper) |
+
+`python scripts/summarize_adaptive.py <file>` prints the damage-removal numbers the paper reports, from any `*_adaptive_*` file. Every cell reseeds before it runs, and the drivers resume: a rerun with the same `--out` skips the cells already there. `requirements-lock.txt` pins the package versions the paper's runs used.
 
 ---
 

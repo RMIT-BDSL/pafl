@@ -6,6 +6,12 @@
 // nonce, (2) check the budgets in the public inputs are the policy it announced, and only then
 // (3) run the pairing check.  Public signal order (no outputs): root, idx[0..k-1], vMax, uMax.
 //
+// Run from zk/lite after run_bench.sh has written build/<tag>/{vk,proof_<batch>,public_<batch>}.json;
+// needs snarkjs on PATH. The nonce and budgets must be the ones the proof was built with
+// (run_bench.sh defaults: nonce 1, vMax 1, uMax 8). The verify time in results.json is
+// run_bench.sh's timing of step (3) alone, node start-up included; (1) and (2) add a
+// Poseidon build and k hashes.
+//
 //   node scripts/verify.mjs --build build/wide_k32 --batch honest --nonce 1 --vmax 1 --umax 8
 import fs from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -22,7 +28,7 @@ const { k, N } = meta;
 if (pub.length !== k + 3) { console.log(`REJECT: ${pub.length} public signals, expected ${k + 3}`); process.exit(1); }
 const root = pub[0], idxPub = pub.slice(1, 1 + k), vPub = pub[1 + k], uPub = pub[2 + k];
 
-// (1) the indices this root and nonce commit the prover to
+// (1) the indices this root and nonce commit the prover to (the loop in build_inputs.mjs)
 const P = await buildPoseidon();
 const H = (xs) => P.F.toObject(P(xs));
 const idx = [];

@@ -1,30 +1,42 @@
 #!/usr/bin/env python3
-"""Week 2. Train the baselines on real data, under every attack.
+"""Every aggregation rule against every attack, data-space and update-space, in one table.
 
-This is the main sweep the week-2 plan calls for, in one resumable driver. It
-answers, for each defence and each attack, two questions: did the aggregation
-rule accept the malicious contribution, and how far did the shared detector's F1
-fall. The clean (attack-free) run of each defence is the reference every drop is
-measured against.
+This produces the `*_sweep_*` files, whose SWaT run (results/swat_sweep_wide_3seed.json)
+is the paper's complementarity evidence. For each rule, a clean run (all clients
+honest, key `<seed>|<rule>|clean|0.0`) is the reference, and each attack is run once
+at each non-zero --malicious-fractions value. Two questions per cell: did the rule
+accept the malicious contribution, and how far did the shared detector fall (F1 and
+targeted-attack recall)?
 
-Attacks come in two families and the driver handles both:
+Attacks come in two families, and the driver handles both:
 
-* Data fabrications -- channel_roll, and the other Recipe A transforms, and
-  recipe_b -- poison the training data. The physics admission check is designed
-  for these.
-* Update-space attacks -- sign_flip, scaling, additive_noise, free_rider, alie,
-  min_max -- poison the submitted update directly. The existing robust rules are
-  designed for several of these. Running both families in one table is how the
-  paper shows the two defence ideas are complementary.
+* Data-space: the Recipe A fabrications (splice_only = the paper's replay,
+  channel_roll, within_regime_permutation) and recipe_b (the paper's optimised perturbation) poison
+  the training data. This is the naive attack: no projection, and no client is
+  excluded.
+* Update-space: sign_flip, scaling, free_rider and min_max (the paper's four) and
+  additive_noise and alie (implemented, not in the paper) poison the submitted update.
+  The malicious clients keep honest data.
+
+The physics check is not applied here. `physics_admitted_rate` is the verdict it
+*would* give on the malicious batches: near zero for the data attacks the invariants
+cover, and 1.0 for every update attack, because their data is honest. That contrast
+is the point of the table.
+
+Defaults are not the paper's settings (--rounds 30; the default --attacks leave out
+splice_only and within_regime_permutation). The paper's command is in
+scripts/reproduce.sh. --steps-per-client does not exist here, because the simulated
+plant uses ScenarioConfig's default of 6,000 rows per client and a real record is
+partitioned into equal shards.
 
 Datasets:
-    --dataset swat --data-dir <folder holding SWaT>   real SWaT
-    --dataset batadal --data-dir <folder>             real BATADAL
-    --dataset synthetic                               the simulator (no data needed)
+    --dataset swat|wadi|batadal [--data-dir <folder>]   a real record (see DATA.md)
+    --dataset synthetic                                  the simulator (no data needed)
 
-Resumable: every (seed, defence, attack, malicious-fraction) cell is written to
-the results file the moment it finishes, so a Colab session cutoff or an AWS
-spot reclamation costs at most one cell.
+Resumable: every (seed, rule, attack, malicious-fraction) cell is written to --out as
+it finishes, and a rerun with the same --out skips cells already present. The
+file's `args` block records only the first invocation. The committed sweep gained
+its recipe_b cells in a second run, so read the attacks from the cell keys.
 """
 from __future__ import annotations
 import argparse
@@ -48,7 +60,7 @@ from pafl.utils.paths import results_path
 from pafl.utils.logging import get_logger
 from pafl.utils.seeds import set_seed
 
-log = get_logger("week2")
+log = get_logger("sweep")
 
 DATA_FABRICATIONS = set(FABRICATIONS) | {"recipe_b"}
 
@@ -58,7 +70,9 @@ def build_scenario(dataset: str, data_dir: str | None, attack: str, mal: float,
                    roll_shift: int | None = None, invariant_kw: dict | None = None):
     """Return a federation dict for the requested dataset and attack."""
     is_update = attack in UPDATE_ATTACKS
-    fabrication = "channel_roll" if is_update else attack   # placeholder unused when update attack
+    # an update attack keeps honest data, so the scenario's fabrication field is a
+    # placeholder that is never applied
+    fabrication = "channel_roll" if is_update else attack
     update_attack = attack if is_update else None
 
     if dataset == "synthetic":
@@ -103,7 +117,7 @@ def main() -> int:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threshold-quantile", type=float, default=0.995,
                     help="alarm threshold: this quantile of clean validation scores")
-    ap.add_argument("--out", default="results_archive/week2_baselines.json")
+    ap.add_argument("--out", default="results_archive/sweep.json")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
 
@@ -129,7 +143,7 @@ def main() -> int:
         if key in done["cells"]:
             continue
         t0 = time.time()
-        set_seed(seed)
+        set_seed(seed)          # per cell: a cell does not depend on what ran before it
         sc = build_scenario(args.dataset, args.data_dir, attack, mal,
                             args.clients, args.window, seed, args.partition,
                             roll_shift=args.roll_shift, invariant_kw=inv_kw)
@@ -163,7 +177,8 @@ def main() -> int:
             log.warning("interrupted; %d cells done", len(done["cells"]))
             return 0
 
-    # --- summarise: F1 drop of each attack against each defence, vs its clean cell ---
+    # --- summarise: drop of each attack against each defence vs the same seed's clean
+    # --- cell (not honest_only, which this driver does not run), one row per seed ---
     cells = done["cells"]
     summary = []
     for seed, defence in itertools.product(args.seeds, args.defences):

@@ -11,6 +11,18 @@ per-row counts (the same quantities the circuit sums):
     the exact hypergeometric value for v_max = 0 (no violating row among k of
     the V violating rows) and the (1 - rho)^k approximation the plan quotes.
 
+Uniform draws of k distinct rows stand in for the Poseidon-derived indices. A draw
+counts as rejected when v > v_max; the circuit also rejects when u > u_max, so the
+detection figures are lower bounds for the circuit (P(u <= 8) is 1.000 for honest
+windows at k = 32, so the honest figures are unaffected). The paper's k = 32 numbers
+are honest_budgets["32"]["P_v_le"]["1"] (98.5 %) and
+detection[channel_roll | splice_only]["per_k"]["32"]["P_reject_v_gt"]["1"] (99.8 %).
+The honest draws are split evenly over the windows, so their total is
+--draws rounded down to a multiple of the window count (19,992 of 20,000 here).
+
+Reads the batch file export_batches.py writes (SWaT rows, local only). From
+zk/lite, writing over the committed results_sampling.json:
+
     python3 scripts/sample_check.py data/batches_swat_wide_seed0.json --draws 20000
 """
 from __future__ import annotations
@@ -27,12 +39,15 @@ LITE = Path(__file__).resolve().parents[1]
 def draw_sums(v_rows: np.ndarray, u_rows: np.ndarray, k: int, draws: int, rs: np.random.Generator):
     """Sum v and u over k distinct indices of one window (rows 1..N-1), `draws` times."""
     n = len(v_rows)
-    idx = np.argsort(rs.random((draws, n)), axis=1)[:, :k]      # k distinct positions per draw
+    idx = np.argsort(rs.random((draws, n)), axis=1)[:, :k]      # k distinct positions per draw (random permutation, first k)
     return v_rows[idx].sum(axis=1), u_rows[idx].sum(axis=1)
 
 
 def honest_windows(pool: dict, N: int) -> list[tuple[np.ndarray, np.ndarray]]:
-    """Every full N-row window (stride N/2) of every honest shard."""
+    """Every full N-row window (stride N/2) of every honest shard.
+
+    A window holds the N-1 per-row counts of rows 1..N-1 of an N-row batch, the rows
+    the protocol can sample."""
     v_all, u_all = np.array(pool["violations"]), np.array(pool["inapplicable"])
     out, off = [], 0
     for span in pool["rows_per_client"]:
@@ -65,6 +80,7 @@ def main() -> int:
     ks = [int(x) for x in a.ks.split(",")]
     vmaxes = [int(x) for x in a.vmaxes.split(",")]
     umaxes = [int(x) for x in a.umaxes.split(",")]
+    # one generator for every draw, used in a fixed order, so --seed 0 reproduces the committed file
     rs = np.random.default_rng(a.seed)
 
     # ---- honest budgets, over every honest window of the federation's honest shards

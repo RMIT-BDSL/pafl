@@ -1,22 +1,30 @@
 """The adaptive attacker: project a fabricated batch back onto the physics.
 
-Detecting a careless attacker is a weak result. The question that makes the
-paper is what the invariant requirement costs an attacker who knows about it
-and optimises against it. Such an attacker solves
+`project_batch` is the paper's physics-aware attacker. Given the mined
+invariants and their tolerances, it moves a poisoned batch the least it can
+so that the batch passes the check. It solves
 
     min_X  ||X - X_fabricated||   subject to   |residual_j(X)| <= eps_j  for all j
 
-and submits the projection instead. The headline number of the paper is how much
-attack success that projection destroys.
+and submits the projection instead. pafl/fl/variants.py builds the federations
+the paper compares. Mode `fabricated` is the paper's "naive attack": the
+Recipe A/B or replay batch submitted as is. Mode `projected` is the
+"physics-aware attack": the same batch after `project_batch`, admitted
+regardless of the gate. Mode `gated` is the same projected batch with the
+gate enforced. Comparing them measures how much poisoning damage survives the
+projection.
 
-Two properties make this cheap, and both come from a design choice made for the
-circuit rather than for the attacker. Every invariant is linear in the channels,
-so each constraint is a slab between parallel hyperplanes, the feasible set is
-convex, and alternating projection converges to a nearby feasible point. Being
-linear also means the Jacobian is constant, so it is recovered once by probing
-instead of once per row. The module checks that linearity holds and says so
-loudly when it does not, because a non-linear invariant would silently make the
-attacker look weaker than it is.
+Two properties make this cheap, and both come from a design choice made for
+the circuit rather than for the attacker. Every invariant is affine in the
+channels of two consecutive rows. Each constraint is therefore a slab between
+parallel hyperplanes, and the feasible set is convex. The paper describes the
+solve as alternating projections. The code uses the active-set minimum-norm
+correction documented on `project_batch`. Being affine also means the Jacobian
+is constant, so it is recovered once by finite-difference probing instead of
+once per row. The module checks that the Jacobian really is constant and warns
+loudly when it is not, because a non-linear invariant would silently make the
+attacker look weaker than it is. The same affine model is what
+pafl/zk/fixed_point.py exports to the circuit.
 """
 from __future__ import annotations
 import numpy as np
@@ -41,7 +49,11 @@ def _jacobian_at(inv_set: InvariantSet, df: pd.DataFrame, columns: list[str],
     """d residual_j / d channel, for the previous row and the current row.
 
     Shape (n_invariants, 2 * n_columns). Invariants in this project touch at
-    most two consecutive rows.
+    most two consecutive rows. Forward differences with step `delta` = 1e-4
+    are exact for an affine residual up to float rounding (about 1e-12
+    relative, which `zk.fixed_point.snap_noise` removes). The step is small
+    enough that rint() of an actuator state cannot flip, so probing never
+    changes which rules apply.
     """
     n_col = len(columns)
     lo = max(row - 1, 0)
@@ -71,7 +83,12 @@ def applicable_rows(inv_set: InvariantSet, df: pd.DataFrame) -> np.ndarray:
 
 
 def _probe_rows(inv_set: InvariantSet, df: pd.DataFrame) -> tuple[int, int, int]:
-    """Three rows (near 1/3, 1/2, 2/3 of the batch) on which every rule applies."""
+    """Three rows (near 1/3, 1/2, 2/3 of the batch) on which every rule applies.
+
+    If no such row exists the fallback rows are arbitrary, and an inapplicable
+    rule then contributes a zero Jacobian row and a wrong intercept. Callers
+    who need the model to be right, such as the fixed-point export, check for
+    a fully applicable row first."""
     ok = applicable_rows(inv_set, df).all(axis=1)
     ok[0] = False
     idx = np.where(ok)[0]
@@ -84,7 +101,13 @@ def _probe_rows(inv_set: InvariantSet, df: pd.DataFrame) -> tuple[int, int, int]
 
 def constant_jacobian(inv_set: InvariantSet, df: pd.DataFrame, columns: list[str],
                       atol: float = 1e-4) -> np.ndarray:
-    """Compute the Jacobian once and verify it does not depend on the row."""
+    """Compute the Jacobian once and verify it does not depend on the row.
+
+    The comparison is made at two rows a third of the batch apart. The
+    tolerances (atol 1e-4 of the largest coefficient, rtol 1e-3) sit far above
+    finite-difference noise (about 1e-12 relative), so only a Jacobian that
+    really depends on the row trips the warning. A range bound, which is
+    piecewise, would trip it."""
     import warnings
 
     r1, _, r2 = _probe_rows(inv_set, df)
@@ -106,6 +129,7 @@ def affine_model(inv_set: InvariantSet, df: pd.DataFrame, columns: list[str]
     Every invariant here is affine, so once J and c are known the residuals of
     the whole batch are one matrix product. That removes the dataframe from the
     inner loop and turns the projection into a few hundred cheap numpy steps.
+    The intercept c is read off at the middle probe row.
     """
     J = constant_jacobian(inv_set, df, columns)
     X = df[columns].to_numpy(float)
@@ -173,7 +197,21 @@ def project_batch(df: pd.DataFrame, inv_set: InvariantSet, columns: list[str],
     lands every one of them just inside its tolerance is found in closed form as
     dX = A^T (A A^T)^-1 gap, and the active set is then recomputed. Constraints
     are sparse and banded -- each touches two consecutive rows -- so the normal
-    equations stay cheap even for a batch of thousands of rows.
+    equations stay cheap even for a batch of thousands of rows. Each pass is a
+    minimum-norm step, so the result is a nearby feasible point, not a
+    certified optimum of the QP.
+
+    Settings in the paper runs (pafl/fl/variants.py): `protect` = every
+    discrete channel, `target_violating` = 0.005, everything else at its
+    default. The loop stops as soon as at most `target_violating` of rows
+    violate, so 0.005 leaves half of the 1 % admission threshold as margin.
+    `margin` = 0.95 aims each repaired residual at 95 % of its tolerance
+    rather than exactly at the edge. If `n_outer` passes run out first,
+    the batch is returned as it stands and may still fail the check. The
+    caller re-checks it and records `admitted_after`. A stronger attacker sets
+    `target_violating` = 0 or leaves the actuators unprotected. The second
+    option is cheaper (tests/test_attacks.py) but writes fractional pump
+    states.
 
     A note on what did not work, because it is instructive. Projecting each
     violating row independently over-corrects: an invariant at row t and the
@@ -186,7 +224,10 @@ def project_batch(df: pd.DataFrame, inv_set: InvariantSet, columns: list[str],
     `protect` names channels the attacker leaves alone, normally the discrete
     actuator states, since fractional pump states would give the fabrication away
     by other means. Protecting channels shrinks the feasible set and raises the
-    cost, and that cost is one of the things worth measuring.
+    cost, and that cost is one of the things worth measuring. With actuators
+    unprotected, applicability is still taken from the input batch and is not
+    recomputed as states move; the caller's final `batch_verdict` is the
+    ground truth. Deterministic: no random numbers are drawn.
     """
     from scipy.sparse import eye as speye
     from scipy.sparse.linalg import cg
@@ -237,6 +278,10 @@ def project_batch(df: pd.DataFrame, inv_set: InvariantSet, columns: list[str],
         gap = np.clip(r_act, -eps[invs] * margin, eps[invs] * margin) - r_act
 
         # min ||dX|| s.t. A dX = gap  ->  dX = A^T (A A^T)^-1 gap
+        # The 1e-10 ridge keeps A A^T positive definite when constraints are
+        # linearly dependent or a row of A is empty (all its channels
+        # protected). CG's convergence flag `info` is not checked; an
+        # unconverged solve shows up as a batch that is still violating.
         AAt = (A @ A.T).tocsc() + 1e-10 * speye(A.shape[0], format="csc")
         lam, info = cg(AAt, gap, rtol=1e-9, maxiter=2000)
         dX = (A.T @ lam).reshape(n_rows, n_col)
@@ -251,7 +296,11 @@ def project_batch(df: pd.DataFrame, inv_set: InvariantSet, columns: list[str],
 
 def projection_cost(original: pd.DataFrame, projected: pd.DataFrame,
                     columns: list[str]) -> dict:
-    """How far the attacker had to move, in units of each channel's own scale."""
+    """How far the attacker had to move, in units of each channel's own scale.
+
+    Sigma is each channel's standard deviation in the original batch. A row
+    counts as moved if any channel shifted by more than 1e-6 sigma. These are
+    the `projection` records in the adaptive result files."""
     a = original[columns].to_numpy(float)
     b = projected[columns].to_numpy(float)
     scale = a.std(axis=0) + 1e-9

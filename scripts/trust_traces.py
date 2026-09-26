@@ -1,30 +1,31 @@
 #!/usr/bin/env python3
-"""Week 2. The FLTrust interaction (criterion 4b), measured properly.
+"""Similarity-weighted rules (FLTrust, FoolsGold): does projection raise the attacker's trust?
 
-The pilot found that projecting a fabricated batch onto the physics manifold
-made the attack *stronger* against FLTrust, while removing it against FedAvg and
-trimmed mean. The pilot could not tell whether that was a property of FLTrust, a
-property of similarity-weighted trust in general, or a one-seed accident. This
-script settles it, and produces the trace the paper argues from.
+This produces the `*_trust_traces_*` files (results/swat_trust_traces_wide_3seed.json),
+which feed the paper's similarity figure. The pilot found that projecting a fabricated
+batch onto the invariants made the attack stronger against FLTrust while weakening
+it against FedAvg and trimmed mean. This driver tests whether that holds across seeds
+and for FoolsGold too.
 
-It runs three federations -- clean, fabricated, projected -- against each
-similarity-based defence (FLTrust and, newly, FoolsGold), across several seeds,
-and records for every round the trust weight each rule assigned to the malicious
-clients. Two claims are then testable:
+For each seed and rule it runs three federations: clean, fabricated (the paper's
+naive attack) and projected (physics-aware). It records, for every round, the mean
+trust weight the rule gave the malicious clients (`traces`), taken from the rule's
+own per-client weights in run_federation's trust log. Two claims are then testable:
 
-* The mechanism. Does projection raise the malicious clients' acceptance and
-  trust weight? This is expected to hold in every seed, because it follows from
-  the definition of a cosine-similarity rule: moving a batch onto the manifold
-  moves its update toward the honest cone, which is exactly what these rules
-  reward. The acceptance jump is the robust, replicated fact.
+* The mechanism: projection raises the malicious clients' acceptance and trust
+  weight. This should hold in every seed, because a cosine-similarity rule rewards
+  exactly what projection does, which is move the update toward the honest cone.
+* The consequence: raised trust becomes more F1 damage. This is noisier, so the
+  summary reports it per seed (`per_seed`) and flags any rule where projection
+  helped the attacker.
 
-* The consequence. Does that raised trust translate into more F1 damage? This is
-  the noisier claim. The script reports it per seed and in aggregate, and flags
-  where projection helped the attacker, so the paper can state the magnitude
-  honestly rather than averaging a null seed into a headline.
+There is no honest_only or gated mode here; damage is measured against the clean
+run. The poison is fixed at build_variant's default, channel_roll; there is no
+--fabrication flag. Pass --roll-shift 60 for the paper's setting (the default is 7).
+The paper's command is in scripts/reproduce.sh.
 
-If FoolsGold shows the same interaction as FLTrust, the finding generalises to
-similarity-weighted defences as a class, and that is the conference-paper spin.
+Resumable like the other drivers: cells already in --out are skipped, and `args`
+records the first invocation only.
 """
 from __future__ import annotations
 import argparse
@@ -43,15 +44,15 @@ from pafl.utils.paths import results_path
 from pafl.utils.logging import get_logger
 from pafl.utils.seeds import set_seed
 
-log = get_logger("week2_4b")
+log = get_logger("trust_traces")
 
 
 def build(dataset, data_dir, mode, mal, clients, window, seed, partition, roll_shift=None,
           invariant_kw=None):
     """Return (scenario, inv_set, cols). mode in clean|fabricated|projected.
 
-    Thin wrapper over pafl.fl.variants.build_variant, kept so the call sites in
-    this script read the same as in day45_adaptive.py.
+    Thin wrapper over pafl.fl.variants.build_variant, so the federations are built
+    exactly as in adaptive.py (same shards, attacker and projection per seed).
     """
     return build_variant(dataset, mode, mal, clients, window, seed,
                          data_dir=data_dir, partition=partition, roll_shift=roll_shift,
@@ -59,7 +60,11 @@ def build(dataset, data_dir, mode, mal, clients, window, seed, partition, roll_s
 
 
 def malicious_trust(trust_log):
-    """Mean trust weight on malicious clients, per round and overall."""
+    """Mean trust weight on malicious clients, per round and overall.
+
+    A round with no malicious client (the clean federation) scores 0.0, so the
+    clean cells' mean trust is 0 by construction, not by measurement.
+    """
     per_round = []
     for rec in trust_log:
         mal = [t for t, m in zip(rec["trust"], rec["is_malicious"]) if m]
@@ -89,7 +94,7 @@ def main() -> int:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threshold-quantile", type=float, default=0.995,
                     help="alarm threshold: this quantile of clean validation scores")
-    ap.add_argument("--out", default="results_archive/week2_4b.json")
+    ap.add_argument("--out", default="results_archive/trust_traces.json")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
 

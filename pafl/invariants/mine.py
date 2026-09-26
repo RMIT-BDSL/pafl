@@ -1,24 +1,35 @@
 """Automatic invariant discovery, after Feng et al. (NDSS 2019).
 
-Their framework combines two strategies, and this module implements both plus a
-third that recovers conservation laws directly:
+Their framework combines a distribution-driven strategy (fit a Gaussian mixture
+to each continuous channel to find its operating states, then look for actuator
+settings that are deterministic inside a state) with an event-driven one (L1
+regression around each actuator transition, to find which sensor conditions
+trigger it). This module has three miners:
 
-* distribution-driven -- fit a Gaussian mixture to each continuous channel to
-  find its operating states, then look for actuator settings that are
-  deterministic inside a state;
-* event-driven -- around each actuator transition, use L1-regularised
-  regression to find which sensor conditions trigger it;
-* linear-relation mining -- regress the first difference of each level channel
-  on the flow channels with a Lasso. On a plant with tanks this recovers the
-  mass balance, coefficients and all, without being told the topology.
+* `mine_state_rules` -- the distribution-driven strategy;
+* `mine_couplings` -- a steady-state actuator-to-flow test. It takes the place
+  of the event-driven strategy, which is not implemented: it asks what an
+  actuator's state implies for a flow, not what triggers the switch;
+* `mine_linear_balances` -- linear-relation mining, which recovers conservation
+  laws directly: regress the first difference of each level channel on the
+  flow channels with a Lasso. On a plant with tanks this recovers the mass
+  balance, coefficients and all, without being told the topology.
 
-The output is an InvariantSet, so mined and hand-written rules are
-interchangeable everywhere downstream.
+The miners return candidates; `build_invariant_set` turns them into an
+InvariantSet, so mined and hand-written rules are interchangeable everywhere
+downstream.
 
 Selection matters as much as discovery. Feng et al. report five to forty-five
 thousand invariants for a single plant. A zero-knowledge circuit can afford
-five to ten, so this module ranks candidates by how tight they are relative to
-the natural variation of the target, and keeps the best few.
+five to ten, so `build_invariant_set` ranks candidates by how tight they are
+relative to the natural variation of the target, and keeps the best few.
+
+Two assemblies call these miners, with different settings. `build_invariant_set`
+serves scripts/separation.py for the mined criterion-1 sets (c1_hai_mined.json,
+c1_batadal_mined.json, and the simulator with --mined). The federated runs, the
+coverage table and the ZK export use `pafl.data.swat.swat_invariants` instead,
+on every real record: it keeps every coupling and balance that passes its
+thresholds (the paper's narrow and wide sets) and never uses the state rules.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -46,6 +57,12 @@ def classify_channels(df: pd.DataFrame, max_discrete_levels: int = 6,
     always, so a pure unique-count rule would call its flow discrete and drop
     it from the mass balance it belongs to. Second, for any channel whose name
     carries no convention, the unique-count rule applies.
+
+    The prefix convention is BATADAL's and the simulator's. SWaT, WADI and HAI
+    tags carry none, so on those records the unique-count rule decides every
+    channel: at most `max_discrete_levels` distinct values means discrete. It
+    is evaluated on the frame passed in, so a channel can classify differently
+    on a short slice than on the whole record.
 
     The dtype guard is written to survive a non-numeric column (a datetime, a
     string label) without raising, because real datasets carry those.
@@ -78,6 +95,12 @@ def classify_channels(df: pd.DataFrame, max_discrete_levels: int = 6,
 
 @dataclass
 class MinedRelation:
+    """A fitted balance: diff(target)[t] ~= const + sum(w * channel[t]).
+
+    `r2` and the two standard deviations are in-sample, on the rows the Lasso
+    was fitted to, and describe the first difference of the target.
+    """
+
     target: str
     terms: list[tuple[str, float]]
     const: float
@@ -95,6 +118,13 @@ class MinedRelation:
 
 
 def is_balance_target(c: str) -> bool:
+    """Could this channel be the stored quantity of a balance?
+
+    Name patterns only, covering the conventions of the records used here:
+    L_T* (BATADAL, the simulator), LIT* and PIT* (SWaT), *_LT_* (WADI), P*_LIT01
+    and P1_TIT0* (HAI). Pressures and temperatures are admitted too, so on HAI and
+    WADI some "balance" candidates are not mass balances at all; r2 decides.
+    """
     u = c.upper()
     return (
         u.startswith("L")
@@ -112,6 +142,12 @@ def is_balance_target(c: str) -> bool:
 
 
 def is_flow_tag(c: str) -> bool:
+    """Could this channel be a flow into or out of a store?
+
+    F_* (BATADAL, the simulator), FIT* (SWaT, WADI), P1_FT0* (HAI). The "FT"
+    substring test is loose and would also match an unrelated name that
+    happens to contain it.
+    """
     u = c.upper()
     return (
         u.startswith("F")
@@ -128,7 +164,19 @@ def is_flow_tag(c: str) -> bool:
 def mine_linear_balances(df: pd.DataFrame, targets: list[str] | None = None,
                          predictors: list[str] | None = None, alpha: float = 1e-4,
                          min_coef: float = 1e-3, max_terms: int = 6) -> list[MinedRelation]:
-    """Lasso of each target's first difference on the predictor channels."""
+    """Lasso of each target's first difference on the predictor channels.
+
+    Flows enter at the same row as the difference they explain (see the time
+    alignment note in pafl.invariants.spec). Every candidate is returned, good
+    or bad; the caller decides what to keep, by r2 (`swat_invariants`) or by
+    tightness (`build_invariant_set`). The real-data builders call this with
+    alpha 5e-4 and max_terms 8 rather than the defaults, which only
+    `build_invariant_set` uses.
+
+    The predictors are standardised but the target is not, so the strength of
+    `alpha` depends on the units of the target's first difference; `min_coef`
+    is applied to the coefficient in raw channel units.
+    """
     from sklearn.linear_model import Lasso
     from sklearn.preprocessing import StandardScaler
 
@@ -202,12 +250,18 @@ def mine_linear_balances(df: pd.DataFrame, targets: list[str] | None = None,
 
 @dataclass
 class MinedCoupling:
+    """An actuator whose steady state predicts a continuous channel.
+
+    `flow` is usually a flow meter but can be any continuous channel; on WADI
+    one coupling attaches to a pump speed (2_P_003_SPEED).
+    """
+
     status: str
     flow: str
-    nominal: float
+    nominal: float          # mean of the channel in the steady on state
     off_max: float          # high quantile of |flow| in the off state (not the max)
     on_std: float
-    support: float
+    support: float          # share of rows in the rarer of the two steady states
     off_value: float = 0.0  # the actuator encodings that mean stopped / running
     on_value: float = 1.0
 
@@ -230,6 +284,18 @@ def mine_couplings(df: pd.DataFrame, min_support: float = 0.02,
       the previous row's. The first row after a switch carries the flow lag.
     * The off-state flow is judged by a high quantile, not its maximum. One
       glitch row otherwise vetoes an exact relation.
+
+    The three knobs the paper varies are fractions. `min_support` is a share
+    of all rows (0.02 narrow, 0.005 wide). `max_off_ratio` bounds the
+    off-state quantile as a share of the channel's largest absolute reading
+    over the whole frame (0.05 narrow, 0.10 wide). Lowering `min_support` is
+    not monotone: a rare third actuator value can then qualify and become the
+    new "off" or "on" state, which is why the wide set on WADI keeps fewer
+    couplings than the default one.
+
+    Two further acceptance tests are fixed: the on-state coefficient of
+    variation must be at most 0.35, and the on-state mean must exceed
+    `on_off_separation` times the off-state quantile.
     """
     cont, disc = classify_channels(df)
     out: list[MinedCoupling] = []
@@ -280,6 +346,8 @@ def mine_couplings(df: pd.DataFrame, min_support: float = 0.02,
 
 @dataclass
 class MinedStateRule:
+    """While `sensor` lies in [lo, hi] (one mixture component), `actuator` == value."""
+
     sensor: str
     actuator: str
     component: int
@@ -293,7 +361,13 @@ class MinedStateRule:
 def mine_state_rules(df: pd.DataFrame, n_components: int = 3, min_purity: float = 0.98,
                      min_support: float = 0.03, max_rules: int = 40) -> list[MinedStateRule]:
     """Fit a mixture to each sensor, then look for actuators that are constant
-    inside one mixture component."""
+    inside one mixture component.
+
+    These rules are only counted: `build_invariant_set` reports them among the
+    candidates but never puts one in a set. The mixture is fitted on at most
+    about 10,000 evenly spaced rows, for speed, with a fixed random_state, so
+    the result is deterministic.
+    """
     from sklearn.mixture import GaussianMixture
 
     cont, disc = classify_channels(df)
@@ -338,6 +412,15 @@ def build_invariant_set(df: pd.DataFrame, max_invariants: int = 10,
 
     Returns the set and a report describing everything that was found, because
     the count of candidates before selection is a number the paper reports.
+
+    The order of admission is also the order of truncation to `max_invariants`:
+    balances with tightness at most `tightness_max`, tightest first; then one
+    coupling per actuator, the most stable on-state first; then, only while
+    there is room, looser balances (r2 above 0.10 or tightness at most 0.85).
+    The set is not calibrated here. The miners run with their defaults: the
+    coupling thresholds equal the narrow setting of `swat_invariants`, but the
+    balances use alpha 1e-4 and at most 6 terms, and are selected by tightness
+    rather than by r2_min.
     """
     relations = mine_linear_balances(df)
     couplings = mine_couplings(df) if include_couplings else []

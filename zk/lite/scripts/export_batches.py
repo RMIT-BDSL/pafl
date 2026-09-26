@@ -15,6 +15,13 @@ verdicts, per-row violation / inapplicability counts, and (telemetry-free) per-r
 counts over every honest shard for sizing the v / u budgets.  The file holds SWaT
 rows and stays local.
 
+The splice_only batch is the N-row window of the malicious shard with the most
+spliced attack rows (for seed 0, a window made entirely of attack rows), so the
+detection figures on it are for the densest window, not a typical one.
+
+Needs the SWaT archive where pafl's loader finds it (see DATA.md at the repo root)
+and the repo's virtualenv. From zk/lite:
+
     ../../.venv/bin/python scripts/export_batches.py --seed 0
 """
 from __future__ import annotations
@@ -35,6 +42,8 @@ from pafl.fl.variants import build_variant                                    # 
 from pafl.zk.fixed_point import (integer_applicable, integer_verdict,          # noqa: E402
                                  integer_violations, quantise_rows)
 
+# miner thresholds of the two invariant sets, as in zk/scripts/export_invariants.py; the
+# asserts in main() stop the run if the rebuilt set differs from the export
 SETTINGS = {
     "narrow": dict(r2_min=0.60, coupling_off_ratio=0.05, coupling_support=0.02),
     "wide": dict(r2_min=0.40, coupling_off_ratio=0.10, coupling_support=0.005),
@@ -42,7 +51,10 @@ SETTINGS = {
 
 
 def row_stats(X_hat: np.ndarray, q: dict) -> tuple[np.ndarray, np.ndarray]:
-    """Per-row counts of violated rules and of rules that did not apply (row 0 excluded)."""
+    """Per-row counts of violated rules and of rules that did not apply.
+
+    Row 0 has no predecessor, so every rule counts as inapplicable there; callers
+    drop it (the protocol never samples it)."""
     V = integer_violations(X_hat, q)
     A = integer_applicable(X_hat, q)
     return V.sum(axis=1).astype(int), (~A).sum(axis=1).astype(int)

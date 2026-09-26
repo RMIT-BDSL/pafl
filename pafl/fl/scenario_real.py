@@ -32,6 +32,25 @@ attack:
 
 Invariants are mined and calibrated on clean data the malicious clients never
 touch, so the admission check is fair: it was not fitted to the attack.
+
+The normal record is cut in time order, from the front: 30 % for the invariants
+(mined on the first half, tolerances calibrated on the second), 15 % clean
+validation (the alarm threshold), 5 % FLTrust's root set, and the remaining
+50 % split into the client shards, 5 % of the record each at 10 clients. On
+SWaT, after the loader drops the 6 h start-up and keeps every 5th row, that is
+94,680 rows: 28,404 / 14,202 / 4,734 rows, and 4,734-row shards. WADI (241,921
+rows) gives shards of about 12,100 rows; BATADAL (8,761 hourly rows) runs with 5
+clients of about 876 rows.
+
+Names. A "shard" is one client's partition of the record. The "batch" is what a
+client trains on and submits to the check (`ClientData.raw`); in these runs it
+is the client's whole shard, spliced and fabricated for a malicious client, and
+the same every round. The ZK build (zk/lite) proves the check on 1,024-row
+batches cut from a shard. `splice_only` is the paper's "replay" attacker (real
+attack rows, no fabrication) and `channel_roll` the channel roll, whose shift
+is in rows (`roll_shift`; SWaT's 60 rows is 5 min at the 5 s stride).
+Targeted-attack recall is the recall on `test_targeted`: the attack windows
+touching the target segments the malicious clients try to hide.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -51,23 +70,29 @@ log = get_logger("pafl.scenario_real")
 
 @dataclass
 class RealScenarioConfig:
+    """One real-data federation. The defaults are the paper's settings except
+    `roll_shift` (the SWaT and WADI runs pass 60; BATADAL keeps 7 rows, 7 h)
+    and the miner thresholds, which are the narrow set; the wide set is passed
+    in by the scripts."""
     n_clients: int = 10
     malicious_fraction: float = 0.3
     fabrication: str = "channel_roll"     # a Recipe A name, or "recipe_b"
-    roll_shift: int | None = None         # channel_roll shift in rows; None = the recipe's 7.
+    roll_shift: int | None = None         # channel_roll shift in rows; None or 0 = the recipe's 7.
                                           # State it in plant time: SWaT at a 5 s stride needs
-                                          # 60 rows for a 5 min misalignment.
+                                          # 60 rows for a 5 min misalignment (the SWaT/WADI runs).
     partition: str = "temporal"           # temporal | iid
     window: int = 10
     seed: int = 0
     poison_strength: float = 0.5          # share of a malicious client's windows drawn from attack windows
     update_attack: str | None = None      # if set, malicious clients keep honest data and attack the update
     update_attack_kw: dict | None = None
-    target_attack_fraction: float = 0.25  # share of a malicious shard's rows replaced by attack segments
+    target_attack_fraction: float = 0.25  # share of a malicious shard's rows replaced by attack segments;
+                                          # the WADI runs use 0.10: all of WADI's attacks fit in 0.25,
+                                          # which would leave no untargeted set
     val_fraction: float = 0.15            # clean slice for threshold calibration
-    root_fraction: float = 0.05           # clean slice the server holds for FLTrust
-    invariant_fraction: float = 0.30      # clean slice invariants are fitted on
-    max_invariants: int = 40
+    root_fraction: float = 0.05           # clean slice the server holds for FLTrust (one shard's size)
+    invariant_fraction: float = 0.30      # clean slice: invariants mined on one half, calibrated on the other
+    max_invariants: int = 40              # the miner's cap; the SWaT sets (5 or 9) never reach it
     # Miner thresholds (see pafl.data.swat.swat_invariants). These decide how
     # many attacks the invariant set can see, which on real data decides how
     # much poison the gate can remove. On SWaT the defaults give 5 invariants
@@ -84,13 +109,19 @@ class RealScenarioConfig:
     # on the normal file then flags two thirds of normal test windows for
     # reasons that have nothing to do with attacks, and no poisoning effect can
     # be read off. Excluding them is standard in the SWaT literature and the
-    # paper states it. BATADAL has no such channels, so the default is harmless.
+    # paper states it. The match is a substring match, so on WADI it drops the
+    # 18 *_AIT_* channels too (120 features to 102; SWaT 51 to 42). BATADAL has
+    # no such channels, so the default is harmless there.
     exclude_channel_prefixes: tuple[str, ...] = ("AIT",)
 
 
 def _fabricate(batch: pd.DataFrame, kind: str, cols: list[str], seed: int,
                inv_set: InvariantSet, window: int, roll_shift: int | None = None) -> pd.DataFrame:
-    """Dispatch to Recipe A (a fixed transform) or Recipe B (optimised)."""
+    """Dispatch to Recipe A (a fixed transform) or Recipe B (optimised).
+
+    `splice_only`, the replay attacker, is a Recipe A entry that returns the
+    batch unchanged. `roll_shift` reaches channel_roll only.
+    """
     if kind in FABRICATIONS:
         kw = {"shift": roll_shift} if (kind == "channel_roll" and roll_shift) else {}
         return fabricate_a(batch, kind, seed=seed, **kw)
@@ -117,7 +148,8 @@ def choose_target_segments(attack: pd.DataFrame, budget_rows: int,
     Segments are drawn in random order until `budget_rows` is met; the last one
     is truncated to fit. Every malicious client splices this same set, which is
     what a single adversary controlling several clients would do, and it is what
-    makes "recall on the targeted attacks" a well-defined number.
+    makes "recall on the targeted attacks" a well-defined number. The rows cut
+    off the last segment are not targets, so their windows count as untargeted.
     """
     segs = attack_segments(attack)
     chosen: list[np.ndarray] = []
@@ -146,6 +178,10 @@ def splice_attacks(shard: pd.DataFrame, attack: pd.DataFrame, cols: list[str],
     The returned frame carries ATT_FLAG = 1 on the spliced rows so the caller
     can oversample them; the caller drops that label before training, because
     the client presents these rows as normal.
+
+    Start positions are drawn independently, so two segments can overlap and
+    the later one overwrites the earlier: the spliced share can fall below
+    `fraction` (which is only read when `segments` is None).
     """
     out = shard.copy().reset_index(drop=True)
     out[cols] = out[cols].astype(float)      # attack rows may carry interpolated values
@@ -165,7 +201,10 @@ def splice_attacks(shard: pd.DataFrame, attack: pd.DataFrame, cols: list[str],
 
 
 def targeted_window_mask(n_rows: int, segments: list[np.ndarray], window: int) -> np.ndarray:
-    """Boolean over the windows of a frame: does the window touch a target row?"""
+    """Boolean over the windows of a frame: does the window touch a target row?
+
+    Window w covers rows w .. w + window - 1, the layout of make_windows.
+    """
     rows = np.zeros(n_rows, bool)
     for seg in segments:
         rows[seg] = True
@@ -184,6 +223,11 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
     attack : labelled frame with ATT_FLAG (e.g. SWaT attack file). Used for the
              shared test set and as the source of the attack segments a
              malicious client splices into its shard.
+
+    Randomness: `rs` (seeded by cfg.seed) picks the malicious clients, where
+    each spliced segment lands and the oversampling draws, in client order. The
+    target set has its own generator (see below), fabrications take cfg.seed +
+    client id, and the temporal split and the slices are deterministic.
     """
     rs = np.random.default_rng(cfg.seed)
     cols = [c for c in feature_columns(normal)
@@ -212,6 +256,8 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
              len(inv_set), inv_report["kept_couplings"], inv_report["kept_balances"])
 
     # --- scaler fitted on the pooled clean client data ---
+    # Before any client fabricates, and shared by every client and every eval
+    # set: an idealisation, since a real federation would have to agree on it.
     scaler = Scaler.fit(client_pool[cols].to_numpy(np.float32))
 
     # --- partition the client pool ---
@@ -222,7 +268,8 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
     mal_ids = set(rs.choice(cfg.n_clients, size=n_mal, replace=False).tolist()) if n_mal else set()
 
     # One coordinated adversary, one target set, drawn from its own generator so
-    # that the clean, fabricated and projected federations of a seed share it.
+    # that the clean, fabricated and projected federations of a seed share it
+    # (the clean run draws nothing from `rs`). The +777 is only an offset.
     shard_rows = len(frames[0])
     targets = choose_target_segments(attack, int(round(shard_rows * cfg.target_attack_fraction)),
                                      np.random.default_rng(cfg.seed + 777))
@@ -282,7 +329,9 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
 
     # The targeted attack windows (the adversary's objective) and the other
     # attack windows, as positives-only sets: their recall is what a targeted
-    # poison moves, where the global F1 over 36 diverse attacks may not.
+    # poison moves, where the global F1 over every attack in the record (SWaT:
+    # 36 listed attacks, 35 contiguous labelled runs) may not. A window that
+    # touches a target row counts as targeted even if it also touches others.
     tmask = targeted_window_mask(len(attack), targets, cfg.window)
     tgt = (yt == 1) & tmask
     oth = (yt == 1) & ~tmask

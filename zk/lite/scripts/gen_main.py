@@ -9,7 +9,9 @@ constant and tolerance into the template parameters and writes
     build/<tag>/circuit_meta.json what the input builder needs: channel layout,
                                   chunking, depth, k, K, bit widths, budgets
 
-Nothing here reads telemetry.
+Nothing here reads telemetry, so the circuit, its constraint count and its keys
+can be built from the committed invariant files alone. run_bench.sh calls this
+when build/<tag>/main.circom is absent; by hand, from zk/lite:
 
     python3 scripts/gen_main.py --invariants ../data/invariants_swat_wide.json --k 32
 """
@@ -24,6 +26,9 @@ DEFAULT_INV = LITE.parent / "data" / "invariants_swat_wide.json"          # zk/d
 
 
 def chunking(n: int) -> tuple[int, int]:
+    """(chunks, chunk size): the fewest chunks of at most 16 inputs (circomlib's Poseidon
+    limit), equal in size. Must match chunkCount/chunkSize in the circuit and
+    chunkedHashPlus in build_inputs.mjs."""
     nc = (n + 15) // 16
     cs = (n + nc - 1) // nc
     return nc, cs
@@ -42,6 +47,8 @@ def main() -> int:
     ap.add_argument("--invariants", default=str(DEFAULT_INV))
     ap.add_argument("--k", type=int, default=32)
     ap.add_argument("--depth", type=int, default=10, help="Merkle depth; N = 2^depth rows")
+    # 32 bits: SWaT's largest |x_hat| is ~6.65e7 < 2^26 (LIT301 ~ 1014 mm), so the
+    # 2^31 bias leaves wide headroom for readings the projection pushes negative
     ap.add_argument("--x-bits", type=int, default=32, help="range check on every opened channel value")
     ap.add_argument("--tag", default=None, help="build subdirectory; default <setting>_k<k>")
     a = ap.parse_args()
@@ -74,10 +81,12 @@ def main() -> int:
         if app["type"] == "coupling":
             is_coupling.append(1)
             status_idx.append(pos[app["status_channel"]])
+            # SWaT actuator states are small integers, so these are exact multiples of S
             off_hat.append(int(round(app["off_value"] * S)))
             on_hat.append(int(round(app["on_value"] * S)))
             assert off_hat[-1] != on_hat[-1]
         else:
+            # balances always apply; the zeros are placeholders the circuit never reads
             is_coupling.append(0)
             status_idx.append(0)
             off_hat.append(0)
@@ -92,7 +101,9 @@ def main() -> int:
     off_circ = [v + B if is_coupling[j] else 0 for j, v in enumerate(off_hat)]
     on_circ = [v + B if is_coupling[j] else 0 for j, v in enumerate(on_hat)]
 
-    # residual bound: |r| <= sum |coef| (2^xBits - 1) + |c'|; the soft range check needs |r| < K
+    # residual bound: |r| <= sum |coef| (2^xBits - 1) + |c'|; the soft range check needs |r| < K.
+    # K is the next power of two above 2 r_bound, a factor of two of slack; for the wide set
+    # r_bound < 2^53, K = 2^54 and rBits = 56, far below the ~254-bit field
     x_max = (1 << a.x_bits) - 1
     r_bound = max(sum(abs(v) for v in coef_prev[j] + coef_cur[j]) * x_max + abs(c_circ[j]) for j in range(n_rules))
     K = 1 << (r_bound.bit_length() + 1)                 # K > 2 |r|max

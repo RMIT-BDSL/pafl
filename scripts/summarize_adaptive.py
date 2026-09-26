@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
-"""Print the three-federation comparison from one or more day45 result files.
+"""Print the five-mode comparison, and the paper's damage-removal numbers, from adaptive.py files.
 
-For every defence: clean / fabricated / projected, as global F1 and, where the
-scenario defines a target set (real data), as recall on the targeted attacks
-and on the other attacks. Also the two doors: the share of malicious updates the
-aggregation rule accepted, and the share of malicious batches the physics check
-admitted (before projection in the fabricated column, after it in the
-projected column). Per-seed rows follow the mean so a single seed cannot hide.
+    python scripts/summarize_adaptive.py results/swat_adaptive_wide_splice_5seed.json [...]
+
+For every aggregation rule it prints the mean over seeds of clean / honest_only /
+fabricated (naive) / projected (physics-aware) / gated. The metric is global F1 and,
+where the scenario defines a target set (real data), recall on the targeted attacks
+and on the other attacks. It also prints the two doors: the share of malicious updates
+the rule accepted, and the share of malicious batches the physics check admitted
+(before projection in the fabricated column, after it in the projected column).
+Per-seed rows follow the mean so a single seed cannot hide.
+
+The two "removed" columns are the numbers the paper's removal table reports, on the
+"targeted recall" rows. Damage in a seed = reference − naive, where the reference is
+that seed's honest_only run, or its clean run when the file has no honest_only mode.
+Only seeds with at least one point of damage count; `[n/5 seeds]` shows how many did.
+Removed by projection = 1 − Σ(reference − projected) / Σ(reference − naive) over
+those seeds, and removed by the gate uses the gated run in place of projected; both
+are therefore weighted by each seed's damage. Values above 100 % mean the gated run
+landed within seed noise above the reference.
+
+This is a different number from the `summary` / `criterion_4_pass` block that
+adaptive.py itself writes (see its docstring).
 """
 from __future__ import annotations
 import argparse
@@ -23,7 +38,11 @@ def load(path):
 
 
 def removal(dfn, field, seeds, get, min_damage=0.01):
-    """(removed by projection, removed by gate, seeds used), damage-weighted."""
+    """(removed by projection, removed by gate, seeds used), damage-weighted.
+
+    `min_damage` is on the metric's own 0-1 scale: 0.01 = one point of recall or F1.
+    A seed without a physics-aware cell counts as no removal (projected = naive).
+    """
     df_sum = dp_sum = dg_sum = 0.0
     n = 0
     for s in seeds:
