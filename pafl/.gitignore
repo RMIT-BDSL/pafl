@@ -1,6 +1,0 @@
-__pycache__/
-*.pyc
-data/
-results/*.pkl
-logs_*.txt
-.ipynb_checkpoints/
