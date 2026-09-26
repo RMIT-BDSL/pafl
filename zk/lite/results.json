@@ -11,7 +11,7 @@
   "r_bits": 56,
   "constraints": 9343,
   "constraints_nonlinear": 9343,
-  "constraints_linear": 9343,
+  "constraints_linear": 0,
   "constraints_per_sample": 9343,
   "wires": 9346,
   "public_inputs": 4,
@@ -292,7 +292,7 @@
   },
   "toolchain": {
    "circom": "circom compiler 2.1.9",
-   "snarkjs": null,
+   "snarkjs": "snarkjs@0.7.4",
    "node": "v23.10.0"
   },
   "machine": "Apple M3 Pro",
@@ -310,7 +310,7 @@
   "r_bits": 56,
   "constraints": 297736,
   "constraints_nonlinear": 297736,
-  "constraints_linear": 297736,
+  "constraints_linear": 0,
   "constraints_per_sample": 9304,
   "wires": 297770,
   "public_inputs": 35,
@@ -715,7 +715,7 @@
   },
   "toolchain": {
    "circom": "circom compiler 2.1.9",
-   "snarkjs": null,
+   "snarkjs": "snarkjs@0.7.4",
    "node": "v23.10.0"
   },
   "machine": "Apple M3 Pro",
@@ -733,7 +733,7 @@
   "r_bits": 56,
   "constraints": 148888,
   "constraints_nonlinear": 148888,
-  "constraints_linear": 148888,
+  "constraints_linear": 0,
   "constraints_per_sample": 9306,
   "wires": 148906,
   "public_inputs": 19,
@@ -1074,7 +1074,7 @@
   },
   "toolchain": {
    "circom": "circom compiler 2.1.9",
-   "snarkjs": null,
+   "snarkjs": "snarkjs@0.7.4",
    "node": "v23.10.0"
   },
   "machine": "Apple M3 Pro",

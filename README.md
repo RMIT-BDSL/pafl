@@ -71,26 +71,26 @@ Traditionally, process invariants have been deployed as runtime anomaly detectio
 
 To rigorously test this admission gate, `pafl` implements and evaluates a taxonomy of data-space and update-space attacks:
 
-### 1. Telemetry Fabrication (Recipe A)
-Data-space attacks designed to preserve individual channel statistics while destroying physical inter-channel consistency:
-* **Channel Roll:** Circularly shifts sensor channels in time relative to actuator channels by a calibrated plant duration (e.g., 60 samples = 5 minutes). This preserves the mean, variance, and autocorrelation of every individual stream while corrupting the physical coupling between pumps and flow meters.
-* **Within-Regime Permutation:** Randomly shuffles time steps within stationary operating regimes, breaking temporal continuity and differential mass balances.
-* **Conservation Scaling:** Multiplies sensor channels by scalar factors, violating volumetric conservation ratios.
-* **Regime Splicing:** Transposes valid segments of telemetry from one historical operating regime into another, creating subtle boundary violations.
+### 1. Telemetry Fabrication
+Data-space attacks that break the physical relations between channels. All but conservation scaling keep every channel's own distribution unchanged:
+* **Channel Roll:** Circularly shifts the actuator channels in time against the sensor channels, by a plant duration (the paper uses 60 rows = 5 minutes at the 5 s stride). Each channel keeps its values, variance and autocorrelation; what breaks is the coupling between an actuator's state and the flow it drives, so a pump reads off while its flow meter shows flow.
+* **Within-Regime Permutation:** Clusters the rows into operating regimes (k-means on the continuous channels, 4 regimes) and permutes the actuator states among the rows of each regime. The sensor channels are untouched, so the mass balances still hold; the actuator–flow couplings break.
+* **Conservation Scaling:** Multiplies every flow channel by a factor of 1.3 and leaves the tank levels unchanged, so the mass balances fail and so do the couplings whose on-state flow no longer matches. The flow distributions change too, so a distribution check would also notice.
+* **Regime Splicing:** Cuts the record into 12 segments and reorders them. Every row is real plant data and only the joins are physically impossible, so very few rows violate an invariant and the check admits the batch (a documented limitation).
 
-### 2. Optimised Perturbation (Recipe B)
+### 2. Optimised Perturbation
 * Trains a surrogate autoencoder on the malicious client's own shard, then perturbs the shard's continuous channels, within ±2.5σ of each channel, to maximise the surrogate's reconstruction error, in the manner of error-maximising adversarial poisons (Fowl et al., NeurIPS 2021). Actuator states are left unchanged. `pafl/attacks/recipe_b.py` also holds a gradient-matching path after *Witches' Brew*, which no paper run uses.
 
 ### 3. Exposure Poisoning (Replay Attacks)
-* A malicious client splices unlabelled historical attack sequences into its training data and labels them as normal operations. By oversampling these attack windows during local training (*exposure*), the reconstruction-based autoencoder learns to reconstruct attack states with minimal error, effectively blinding the shared detector to physical sabotage.
+* A malicious client overwrites about a quarter of its shard (a tenth on WADI) with real segments from the labelled attack record and presents them as normal operation. Half of its local training windows are drawn from those attack windows (*exposure*), so the shared autoencoder learns to reconstruct the attacks and they stop raising alarms. Every data-space attacker above carries the same spliced segments; the fabrications are applied on top of them.
 
 ### 4. Adaptive Adversary (Manifold Projection)
-* Evaluates an informed adversary that possesses full knowledge of the declared invariant set. The attacker takes fabricated or poisoned telemetry and computes the minimum-norm projection onto the physical invariant manifold:
-  $$\min_{\tilde{x}} \|\tilde{x} - x_{\text{fabricated}}\|_2 \quad \text{subject to} \quad A \tilde{x} = b \pm \epsilon$$
-  Discrete actuator states are held fixed, so the projection moves only continuous sensor readings. This lets us evaluate how much poisoning survives once the attacker is forced to satisfy the physical checks.
+* An informed adversary that knows the mined invariants and their tolerances. It moves its poisoned batch the least it can so that the batch passes the check:
+  $$\min_{\tilde{X}} \|\tilde{X} - X_{\text{poisoned}}\|_2 \quad \text{subject to} \quad |r_j(\tilde{X}_t)| \le \epsilon_j \ \text{for every row } t \text{ and invariant } j$$
+  Every invariant is affine, so each constraint is a slab and the problem is convex; it is solved by an active-set loop of minimum-norm corrections. Actuator states are held fixed, so only continuous sensor readings move, and the loop stops once at most 0.5% of rows violate, half the 1% admission threshold. This measures how much poisoning survives once the attacker is forced to satisfy the physical checks.
 
 ### 5. Update-Space Baselines
-* Classical model-space attacks for comparison across aggregation rules: sign flipping, update scaling, free riding, and min–max coordinate perturbation. These clients train on honest data and tamper only with the update, so they fall to the aggregation rule, not to the physics check.
+* Classical model-space attacks for comparison across aggregation rules: sign flipping (the negated update), update scaling (×10), free riding (small Gaussian noise instead of training), and min–max (Shejwalkar and Houmansadr: the honest mean shifted against its own direction as far as the largest honest-to-honest distance allows). These clients train on honest data and tamper only with the update, so the physics check admits their batches and the aggregation rule is the only defence.
 
 ---
 
@@ -102,7 +102,7 @@ The repository is modularized into discrete functional components:
 pafl/
 ├── data/            # Ingestion, scaling, and temporal sharding for industrial datasets
 ├── invariants/      # Automated invariant mining, specification, and calibration
-├── attacks/         # Recipe A/B fabrications, replay exposure, and adaptive projection
+├── attacks/         # Fabrications, optimised perturbation, update-space attacks, and adaptive projection
 ├── fl/              # Federated architectures, local training loops, the admission gate, and aggregation rules
 ├── eval/            # Evaluation metrics (F1, AUC-PR, targeted/untargeted recall)
 ├── utils/           # Paths, logging, and seeding

@@ -4,14 +4,16 @@
 run_bench.sh calls this as its last step; it reads only build/<tag>/ (steps.jsonl,
 compile.log, r1cs_info.txt, the .expect.json side files, proofs and keys), so it can
 be rerun without repeating the benchmark. Times are wall seconds of each CLI process
-and memory is peak RSS in MiB, both from /usr/bin/time -l; the toolchain and machine
-fields are read from the host at collection time, not at measurement time.
+and memory is peak RSS in MiB, both from /usr/bin/time as run_bench.sh records them (-l
+on macOS, a GNU -f format on Linux); the toolchain and machine fields are read from the
+host at collection time, not at measurement time.
 
     python3 scripts/collect_results.py wide_k32
 """
 from __future__ import annotations
 import datetime as dt
 import json
+import platform
 import re
 import subprocess
 import sys
@@ -30,7 +32,9 @@ def main(tag: str) -> int:
     grab = lambda label: int(m.group(1)) if (m := re.search(rf"{label}:\s*(\d+)", info)) else None
     compile_log = (b / "compile.log").read_text() if (b / "compile.log").exists() else ""
     nl = re.search(r"non-linear constraints:\s*(\d+)", compile_log)
-    li = re.search(r"linear constraints:\s*(\d+)", compile_log)
+    # (?<!non-): "linear constraints" also occurs inside "non-linear constraints", so an
+    # unanchored pattern read the non-linear count twice (the values committed before 26 Sep 2026)
+    li = re.search(r"(?<!non-)linear constraints:\s*(\d+)", compile_log)
 
     def size(p):
         p = b / p
@@ -64,10 +68,25 @@ def main(tag: str) -> int:
         }
 
     def ver(cmd):
+        # first non-empty output line, whatever the exit status: `snarkjs --version` prints
+        # "snarkjs@0.7.4" and then its usage text, and exits 99
         try:
-            return subprocess.check_output(cmd, text=True, stderr=subprocess.STDOUT, timeout=60).strip().splitlines()[0]
-        except Exception:
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired):
             return None
+        lines = [l.strip() for l in (r.stdout + r.stderr).splitlines() if l.strip()]
+        return lines[0] if lines else None
+
+    def cpu_name():
+        if platform.system() == "Darwin":
+            return ver(["sysctl", "-n", "machdep.cpu.brand_string"])
+        try:
+            for line in open("/proc/cpuinfo"):
+                if line.lower().startswith("model name"):
+                    return line.split(":", 1)[1].strip()
+        except OSError:
+            pass
+        return platform.processor() or platform.machine() or None
 
     entry = {
         "tag": tag, "setting": meta["setting"], "k": meta["k"], "depth": meta["depth"], "N": meta["N"],
@@ -84,7 +103,7 @@ def main(tag: str) -> int:
         "batches": batches,
         "toolchain": {"circom": ver(["circom", "--version"]), "snarkjs": ver(["snarkjs", "--version"]),
                       "node": ver(["node", "--version"])},
-        "machine": ver(["sysctl", "-n", "machdep.cpu.brand_string"]),
+        "machine": cpu_name(),
         "measured": dt.datetime.now().isoformat(timespec="seconds"),
     }
     out = LITE / "results.json"

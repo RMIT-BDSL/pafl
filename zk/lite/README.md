@@ -60,8 +60,10 @@ early development) is not needed.
 
 From `zk/lite`. Tools, none of which `npm` installs: circom 2.1.9 (built with cargo from the
 iden3/circom tag `v2.1.9`), snarkjs 0.7.4 on PATH (`npm install -g snarkjs@0.7.4`), node 23,
-python3, and the repo's `.venv` for the scripts that import `pafl` or numpy. `run_bench.sh` uses
-the BSD forms of `/usr/bin/time` and `stat`, so it runs as written on macOS only. The SWaT archive
+python3, and the repo's `.venv` for the scripts that import `pafl` or numpy. `run_bench.sh` checks
+the circom and snarkjs versions and stops on any other (set `PAFL_ANY_TOOLCHAIN=1` to run anyway).
+It runs on macOS and on Linux; on Linux it needs GNU time at `/usr/bin/time` (the `time` package on
+Debian/Ubuntu). The published timings were measured on macOS (Apple M3 Pro). The SWaT archive
 goes where `pafl` looks for it (`../../DATA.md`).
 
     npm ci                                                         # circomlib 2.0.5, circomlibjs 0.1.7, from package-lock.json
