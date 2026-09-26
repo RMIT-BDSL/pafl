@@ -48,6 +48,6 @@ $PY -W ignore scripts/day45_adaptive.py --dataset batadal --defences fedavg trim
 log "6/6 Recipe B trial: one FedAvg cell on SWaT (first-order path)"
 $PY -W ignore scripts/week2_baselines.py --dataset swat "${WIDE[@]}" --defences fedavg \
   --attacks recipe_b --malicious-fractions 0.0 0.3 --clients 10 --rounds 25 --seeds 0 \
-  --out results/probe_swat_recipe_b.json 2>&1 | grep -v Warning | grep -E "week2  |wrote|Error|Traceback" 
+  --out results_archive/probes/probe_swat_recipe_b.json 2>&1 | grep -v Warning | grep -E "week2  |wrote|Error|Traceback" 
 
 log "done"

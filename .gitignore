@@ -4,47 +4,41 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 *.pkl
+node_modules/
 
 # data never enters the repo (SWaT/WADI licences forbid redistribution; BATADAL/HAI are public but large)
 data
 data/
 .pafl_cache/
 
-# regenerable outputs and logs
-results/*.png
-results/*.log
-results/overnight*.log
-results/wadi_runs.log
+# results/ holds only the result files the paper reads, and all of them are committed. Plots, logs, probes,
+# smoke tests and pilot-era outputs go to results_archive/, which stays local.
+results_archive/
+
+# logs and archives, wherever they are
+*.log
+LOG.md
 *.tgz
 
-# local helpers and browsable copies that live local only
-scripts/_chain_*.sh
-
-# pilot-only material
-pilot-paper/
-scripts/go_nogo.py
-results/day1_residuals*.json
-results/day2_defences.json
-results/day45_adaptive.json
-results/day45_adaptive_3seed.json
-results/go_nogo.json
-results/probe_*.json
-results/swat_probe_*.json
-
-# all latex on overleaf
+# all LaTeX lives on Overleaf
 *.tex
 *.bib
 *.cls
 *.bst
 
-
-results/_probes/
-results/logs/
-pilot-paper/data/
-LOG.md
+# local-only helpers and the frozen pilot
+scripts/_chain_*.sh
+scripts/go_nogo.py
+pilot-paper/
 
 # PA-FL Lite: the fixed-point invariant sets are derived parameters (no telemetry) and are tracked;
 # anything else under zk/data/ (quantised batches are SWaT rows) stays out of the repo
 !zk/data/
 zk/data/*
 !zk/data/invariants_*.json
+
+# PA-FL Lite build (zk/lite): the proving keys and compiled circuits (build/, ~680 MB) and the powers-of-tau
+# files (~1.1 GB) are regenerable and stay local; zk/lite/data/ is covered by the `data` rule above
+zk/lite/build/
+zk/lite/ptau/*
+!zk/lite/ptau/fetch_ptau.sh

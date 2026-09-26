@@ -48,7 +48,7 @@ def main() -> int:
     ap.add_argument("--window", type=int, default=10)
     ap.add_argument("--seeds", nargs="+", type=int, default=[0])
     ap.add_argument("--device", default="cpu")
-    ap.add_argument("--out", default="results/day2_defences.json")
+    ap.add_argument("--out", default="results_archive/day2_defences.json")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
 

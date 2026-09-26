@@ -16,4 +16,6 @@ Invariant set: `narrow` = miner defaults (SWaT: 5 rules), `wide` = r2 0.40 / off
 Attacker: `roll<N>` = channel roll shifted by N rows (60 rows = 5 min at the 5 s stride), `splice` = exposure-only replay of real attack rows.
 
 Read any adaptive file with `python scripts/summarize_adaptive.py <file>`; LaTeX with `python scripts/tables.py <file>`.
-`_probes/` and `logs/` are local scratch and are not committed. Pilot-era files live in `pilot-paper/data/` (not committed).
+Only the files the paper reads live here, and all of them are committed. Plots, logs, probes, smoke tests and pilot-era
+outputs go to `../results_archive/`, which is gitignored: `day1_residuals.py` writes its histogram there as
+`<stem of --out>.png`, and the pilot scripts default there. Pilot-era inputs live in `pilot-paper/data/` (not committed).

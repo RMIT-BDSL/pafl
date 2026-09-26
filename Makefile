@@ -28,24 +28,24 @@ test:
 	$(PY) -m pytest tests/ -q
 
 smoke:
-	$(PY) scripts/day1_residuals.py --steps 3000 --out results/smoke_day1.json --figure results/smoke_day1.png
+	$(PY) scripts/day1_residuals.py --steps 3000 --out results_archive/smoke_day1.json
 	$(PY) scripts/day2_defences.py --clients 4 --rounds 5 --local-epochs 1 --steps-per-client 1500 \
-		--defences fedavg krum --seeds 0 --out results/smoke_day2.json
+		--defences fedavg krum --seeds 0 --out results_archive/smoke_day2.json
 
 day1:
 	$(PY) scripts/day1_residuals.py --steps 8000 --seed 0
 	$(PY) scripts/day1_residuals.py --steps 8000 --seed 0 --mined \
-		--out results/day1_residuals_mined.json --figure results/day1_residuals_mined.png
+		--out results_archive/day1_residuals_mined.json
 
 day1-batadal:
 	$(PY) scripts/day1_residuals.py --dataset batadal --seed 0 \
-		--out results/c1_batadal_expert.json --figure results/c1_batadal_expert.png
+		--out results/c1_batadal_expert.json
 	$(PY) scripts/day1_residuals.py --dataset batadal --seed 0 --mined \
-		--out results/c1_batadal_mined.json --figure results/c1_batadal_mined.png
+		--out results/c1_batadal_mined.json
 
 day1-swat:
 	$(PY) scripts/day1_residuals.py --dataset swat --seed 0 \
-		--out results/c1_swat_narrow_shift7.json --figure results/c1_swat_narrow_shift7.png
+		--out results/c1_swat_narrow_shift7.json
 
 day2:
 	$(PY) scripts/day2_defences.py --clients $(CLIENTS) --rounds $(ROUNDS) --local-epochs 2 \
@@ -56,11 +56,11 @@ day45:
 	$(PY) scripts/day45_adaptive.py --clients $(CLIENTS) --rounds $(ROUNDS) --local-epochs 2 \
 		--steps-per-client $(STEPS) --malicious-fraction 0.3 --seeds 0 1 2 \
 		--defences fedavg fltrust trimmed_mean --device $(DEVICE) \
-		--out results/day45_adaptive_3seed.json
+		--out results_archive/day45_adaptive_3seed.json
 
 report:
 	$(PY) scripts/go_nogo.py --day1 results/c1_batadal_expert.json \
-		--day2 results/sim_defences_mal30_2seed.json --day45 results/day45_adaptive_3seed.json
+		--day2 results/sim_defences_mal30_2seed.json --day45 results_archive/day45_adaptive_3seed.json
 
 pilot: day1 day2 day45 report
 

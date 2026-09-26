@@ -6,7 +6,8 @@ separate? If the two distributions overlap, the premise of the paper fails here,
 for the price of an afternoon, and you switch to Idea 1 with four days lost
 instead of four weeks.
 
-Outputs results/day1_residuals.json and a figure.
+Outputs results_archive/day1_residuals.json and a histogram by default; the paper's criterion-1 runs pass
+--out results/c1_<dataset>_<set>_<shift>.json. The PNG always goes to results_archive/ (plots are not committed).
 """
 from __future__ import annotations
 import argparse
@@ -79,11 +80,12 @@ def main() -> int:
                     help="rows in one client batch, i.e. what gets admitted or rejected")
     ap.add_argument("--max-violating-frac", type=float, default=0.01,
                     help="the admission rule: reject a batch above this violating fraction")
-    ap.add_argument("--out", default="results/day1_residuals.json")
-    ap.add_argument("--figure", default="results/day1_residuals.png")
+    ap.add_argument("--out", default="results_archive/day1_residuals.json")
+    ap.add_argument("--figure", default=None,
+                    help="histogram PNG; default results_archive/<stem of --out>.png")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
-    args.figure = str(results_path(args.figure))
+    args.figure = str(results_path(args.figure or f"results_archive/{Path(args.out).stem}.png"))
 
     set_seed(args.seed)
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)

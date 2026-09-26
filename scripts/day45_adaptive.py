@@ -73,7 +73,7 @@ def main() -> int:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threshold-quantile", type=float, default=0.995,
                     help="alarm threshold: this quantile of clean validation scores")
-    ap.add_argument("--out", default="results/day45_adaptive.json")
+    ap.add_argument("--out", default="results_archive/day45_adaptive.json")
     args = ap.parse_args()
     args.out = str(results_path(args.out))
 

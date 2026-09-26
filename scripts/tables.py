@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LaTeX tables from the adaptive-run JSON files. No number is typed by hand.
 
-    python scripts/tables.py results/day45_swat_wide_splice_3seed.json --metric targeted_recall
+    python scripts/tables.py results/swat_adaptive_wide_splice_5seed.json --metric targeted_recall
 
 Prints a booktabs table: one row per aggregation rule, columns clean /
 fabricated / projected / gated (mean over seeds, with min–max in small type),

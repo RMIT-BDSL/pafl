@@ -15,6 +15,9 @@ with at most v violations and at most u inapplicable checks.
 **Not proved.** That the submitted model update was computed from that batch. Last-layer gradient
 binding is specified in the paper's design section and is the next implementation step.
 
+**Built.** The measured implementation behind the paper's k = 32 numbers is [`lite/`](lite/README.md). It uses
+the PSE `ppot_0080_20.ptau` (2^20, phase-2 prepared), since the Hermez files are no longer served.
+
 **Toolchain.** circom 2.1.9, snarkjs 0.7.4, node 23, circomlib and circomlibjs,
 `powersOfTau28_hez_final_20.ptau`.
 
