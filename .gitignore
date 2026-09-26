@@ -15,9 +15,10 @@ data/
 # smoke tests and pilot-era outputs go to results_archive/, which stays local.
 results_archive/
 
-# logs and archives, wherever they are
+# logs, local planning notes and archives
 *.log
 LOG.md
+PLAN-to-DATE.md
 *.tgz
 
 # all LaTeX lives on Overleaf

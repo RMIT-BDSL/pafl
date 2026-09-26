@@ -4,7 +4,6 @@
 
 
 - **Dataset Guide & Licensing:** [`DATA.md`](DATA.md) — *Detailed descriptions, schemas, telemetry examples, and acquisition instructions (strict non-redistribution notice).*
-- **Research Plan & Milestones:** [`PLAN-to-DATE.md`](PLAN-to-DATE.md) — *Key architectural decisions, experiment schedules, and submission deadlines.*
 - **Zero-Knowledge Extension:** [`zk/README.md`](zk/README.md) — *Circom / Groth16 circuit definitions for PA-FL Lite.*
 - **Learning Resources:** [`tutorials/`](tutorials/) — *Visual (HTML) workflows of federated training loops and pilot results.*
 

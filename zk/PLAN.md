@@ -2,8 +2,7 @@
 
 **A Step-by-Step Practical Guide to Building and Benchmarking Zero-Knowledge Invariant Attestation**
 
-*Companion Theoretical Specification: [`FORMALIZATION.md`](FORMALIZATION.md)*  
-*Dated Research Log: [`../LOG.md`](../LOG.md) | High-Level Milestones: [`../PLAN-to-DATE.md`](../PLAN-to-DATE.md) §5*
+*Companion Theoretical Specification: [`FORMALIZATION.md`](FORMALIZATION.md)*
 
 ---
 
