@@ -34,13 +34,11 @@ Industrial telemetry differs fundamentally from generic machine learning data (e
 
 In cyber-physical systems, these relationships are known as **process invariants**:
 * **Mass and Energy Balances:** For example, the rate of change of water level in a storage tank must equal the volumetric inflow minus the volumetric outflow:
-  ```math
-  \frac{d}{dt} L(t) = \alpha \cdot F_{\text{in}}(t) - \beta \cdot F_{\text{out}}(t) \pm \epsilon
-  ```
+
+  $`\frac{d}{dt} L(t) = \alpha \cdot F_{\text{in}}(t) - \beta \cdot F_{\text{out}}(t) \pm \epsilon`$
 * **Actuator-to-Sensor Couplings:** An actuator commanded to an "OFF" state cannot induce downstream fluid flow or pressure increases:
-  ```math
-  \text{Pump} = \text{OFF} \implies \text{Flow} = 0 \pm \epsilon_{\text{noise}}
-  ```
+
+  $`\text{Pump} = \text{OFF} \implies \text{Flow} = 0 \pm \epsilon_{\text{noise}}`$
 
 Traditionally, process invariants have been deployed as runtime anomaly detection heuristics. **This project formalizes process invariants as a cryptographically verifiable admission requirement.** The invariants are mined from a clean record of normal operation before federated training begins. Before an aggregation server admits a client's local model update into the global federation, the client must prove that its training batch satisfies those invariants. The check acts on the data behind the update and complements, rather than replaces, robust aggregation.
 
@@ -90,9 +88,9 @@ Data-space attacks that break the physical relations between channels. All but c
 
 ### 4. Adaptive Adversary (Manifold Projection)
 * An informed adversary that knows the mined invariants and their tolerances. It moves its poisoned batch the least it can so that the batch passes the check:
-  ```math
-  \min_{\tilde{X}} \|\tilde{X} - X_{\text{poisoned}}\|_2 \quad \text{subject to} \quad |r_j(\tilde{X}_t)| \le \epsilon_j \ \text{for every row } t \text{ and invariant } j
-  ```
+
+  $`\min_{\tilde{X}} \|\tilde{X} - X_{\text{poisoned}}\|_2 \quad \text{subject to} \quad |r_j(\tilde{X}_t)| \le \epsilon_j \ \text{for every row } t \text{ and invariant } j`$
+
   Every invariant is affine, so each constraint is a slab and the problem is convex; it is solved by an active-set loop of minimum-norm corrections. Actuator states are held fixed, so only continuous sensor readings move, and the loop stops once at most 0.5% of rows violate, half the 1% admission threshold. This measures how much poisoning survives once the attacker is forced to satisfy the physical checks.
 
 ### 5. Update-Space Baselines
@@ -156,9 +154,8 @@ To keep telemetry private in multi-operator consortia, PA-FL Lite enforces the a
 * **Succinct Proof:** The client proves in zero knowledge that:
   1. Each sampled row $x_i$ and its predecessor $x_{i-1}$ are authentic leaves of the Merkle root $R$.
   2. The sampled rows satisfy every applicable affine invariant within its declared tolerance:
-     ```math
-     \left| J^{\text{prev}}_m x_{i-1} + J^{\text{cur}}_m x_i + c_m \right| \le \epsilon_m
-     ```
+
+     $`\left| J^{\text{prev}}_m x_{i-1} + J^{\text{cur}}_m x_i + c_m \right| \le \epsilon_m`$
   3. At most $v_{\max}$ sampled rows violate an invariant, and at most $u_{\max}$ checks are inapplicable (a coupling applies only when its actuator is in a steady state).
 * **Scope:** The proof covers the training batch, not the model update; binding the update to the batch is left to future work.
 
