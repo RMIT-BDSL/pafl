@@ -232,8 +232,8 @@ python scripts/compare_results.py results/swat_adaptive_wide_splice_5seed.json \
 
 ```bibtex
 @article{pafl2026,
-  title   = {Title},
-  author  = {Authors},
+  title   = {Physics-Attested Federated Learning: Securing Collaborative Anomaly Detection in Critical Water Infrastructure},
+  author  = {Nijsse, Jeff and Su, Shu and Oholeguy, Benjamin and Tirumala, Sreenivas},
   journal = {Journal},
   volume  = {Volume},
   year    = {Year}
