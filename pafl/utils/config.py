@@ -1,7 +1,8 @@
 """Config loading. YAML in, dot-accessible dict out.
 
 Unused by the paper pipeline. The drivers take every setting on the command
-line, and no YAML config ships with the repository.
+line, and no YAML config ships with the repository. It needs PyYAML, which
+requirements.txt does not list: `pip install pyyaml` before importing it.
 """
 from __future__ import annotations
 from pathlib import Path
