@@ -113,7 +113,7 @@ pafl/
 └── zk/              # Fixed-point export of the invariant sets for the circuit
 scripts/             # Experiment execution drivers and summary generators
 results/             # The committed result files (JSON); see results/README.md
-results_archive/     # Local only (gitignored): plots, logs, probes, smoke tests, pilot outputs
+results_archive/     # Local only (gitignored): plots, logs, probes, test outputs, pilot outputs
 tests/               # Unit and regression test suites (pytest)
 tutorials/           # Interactive HTML dashboards and visual architecture flows
 zk/                  # PA-FL Lite: specification, fixed-point invariant sets, and the build in zk/lite/
@@ -166,7 +166,7 @@ The Groth16 setup needs a 1.2 GB powers-of-tau file, which is not in the reposit
 ## Installation and Environment Setup
 
 ### 1. Prerequisites
-* Python 3.10+. The paper's runs used Python 3.13 on macOS (Apple M3 Pro, CPU only); `requirements-lock.txt` lists the exact package versions.
+* Python 3.12 or newer. `requirements.txt` pins the package versions the paper's runs used (Python 3.13 on macOS, Apple M3 Pro, CPU only).
 * Virtual environment isolation (`venv`).
 * For the zero-knowledge build only: Node.js, circom 2.1 and snarkjs (see [`zk/lite/README.md`](zk/lite/README.md)).
 
@@ -187,7 +187,7 @@ pip install -r requirements.txt
 pytest tests/ -q
 ```
 
-`make help` lists the shortcuts (`make setup`, `make test`, `make smoke` for a small end-to-end run, `make reproduce`).
+`make help` lists the shortcuts (`make setup`, `make test`, `make test-drivers` for a short end-to-end run of two drivers, `make reproduce`).
 
 ### 2. Dataset Setup
 Due to licensing and data-use restrictions imposed by testbed providers (e.g., iTrust Singapore), raw physical datasets are not distributed in this repository. Place or symlink the extracted datasets into the `data/` directory (see [`DATA.md`](DATA.md)):
@@ -222,7 +222,7 @@ python scripts/compare_results.py results/swat_adaptive_wide_splice_5seed.json \
 | `trust_traces.py` | `*_trust_traces_*` | FLTrust and FoolsGold trust on the malicious clients, per round |
 | `sim_defences.py` | nothing committed | the simulated plant (the pilot's setting; not in the paper) |
 
-`python scripts/summarize_adaptive.py <file>` prints the damage-removal numbers the paper reports, from any `*_adaptive_*` file. Every cell reseeds before it runs, and the drivers resume: a rerun with the same `--out` skips the cells already there. `requirements-lock.txt` pins the package versions the paper's runs used.
+`python scripts/summarize_adaptive.py <file>` prints the damage-removal numbers the paper reports, from any `*_adaptive_*` file. Every cell reseeds before it runs, and the drivers resume: a rerun with the same `--out` skips the cells already there.
 
 ---
 

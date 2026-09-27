@@ -15,8 +15,7 @@ data/
 # ...but pafl/data/ is the data-loading code package, not data
 !pafl/data/
 
-# results/ holds only the result files the paper reads, and all of them are committed. Plots, logs, probes,
-# smoke tests and pilot-era outputs go to results_archive/, which stays local.
+# results/ holds only the result files the paper reads, and all of them are committed.
 results_archive/
 
 # logs, local planning notes and archives

@@ -271,7 +271,7 @@ A standalone Python script evaluating empirical detection probability across var
 
 | Phase | Timeline | Core Focus | Milestone Exit Gate |
 |:---|:---:|:---|:---|
-| **Day A** | 0.5 Day | Toolchain setup, `powersOfTau` download, test circuit smoke test | Proof generates cleanly on minimal Poseidon test |
+| **Day A** | 0.5 Day | Toolchain setup, `powersOfTau` download, a test circuit | Proof generates cleanly on minimal Poseidon test |
 | **Day B** | 1.0 Day | Exporter scripts (`export_*.py`), `test_zk_export.py`, Circuit Stages 1 & 2 | Float parity test passes; Stage 2 compiles under budget |
 | **Day C** | 1.0 Day | Stage 3 Merkle circuit, $`k \in \{8, 16, 32, 64\}`$ sweep, attack validation | Honest batch proves; fabricated batch hard-aborts |
 | **Day D** | 0.5 Day | Populate `results.json`, format LaTeX table for Section 5 of manuscript | Manuscript results table finalized |

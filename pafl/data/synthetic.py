@@ -2,8 +2,8 @@
 
 Why this exists. Three reasons, and only the first is obvious.
 
-1. It lets the whole pipeline run before any real dataset is downloaded, so a
-   smoke test needs no network and no licence.
+1. It lets the whole pipeline run before any real dataset is downloaded, so the
+   tests need no network and no licence.
 2. Its physics are known exactly, so the invariant residuals of honest data are
    ground truth rather than an estimate. That makes it the cleanest place to
    check criterion 1, the pilot's first go/no-go test (the "day-1 kill

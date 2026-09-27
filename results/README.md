@@ -29,6 +29,6 @@ numbers the paper reports; `python scripts/tables.py <file>` prints it as LaTeX.
   also carry a file's name from before it was renamed.
 - The `c1_*` files do not record the miner thresholds; the file name and `n_invariants` identify the setting.
 
-Only the result files live here, and all of them are committed. Plots, logs, probes, smoke tests and reruns go to
+Only the result files live here, and all of them are committed. Plots, logs, probes, test outputs and reruns go to
 `../results_archive/`, which is gitignored: `separation.py` writes its histogram there as `<stem of --out>.png`, and the
 drivers' default `--out` points there. Pilot-era inputs live in `pilot-paper/data/` (not committed).
