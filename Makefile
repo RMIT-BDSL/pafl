@@ -1,8 +1,8 @@
-.PHONY: help setup test test-drivers reproduce separation coverage honest adaptive sweep trust clean
+.PHONY: help setup test test-drivers reproduce separation coverage honest adaptive alpha sweep trust clean
 
 # the project's virtual environment when there is one
 PY ?= $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
-GROUPS := separation coverage honest adaptive sweep trust
+GROUPS := separation coverage honest adaptive alpha sweep trust
 
 help:
 	@echo "make setup       install dependencies"

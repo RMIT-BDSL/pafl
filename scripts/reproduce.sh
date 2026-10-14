@@ -39,6 +39,7 @@ WIDE=(--r2-min 0.40 --coupling-off-ratio 0.10 --coupling-support 0.005)
 ALL7=(fedavg krum median trimmed_mean norm_clip fltrust foolsgold)
 THREE=(fedavg trimmed_mean fltrust)          # the rule subset of the smaller supporting runs
 FED=(--malicious-fraction 0.3 --rounds 25 --local-epochs 2)
+SEEDS20=($(seq 0 19))                       # the revision's headline seeds
 
 run() {
   echo "+ $*"
@@ -67,15 +68,15 @@ honest() {
 }
 
 adaptive() {
-  # SWaT, the headline files: both invariant sets x both attackers, 7 rules, all 5 modes, seeds 0-4
+  # SWaT, the headline files: both invariant sets x both attackers, 7 rules, all 5 modes, seeds 0-19
   run scripts/adaptive.py --dataset swat "${WIDE[@]}" --defences "${ALL7[@]}" --fabrication splice_only \
-    "${FED[@]}" --clients 10 --seeds 0 1 2 3 4 --out "$OUT/swat_adaptive_wide_splice_5seed.json"
+    "${FED[@]}" --clients 10 --seeds "${SEEDS20[@]}" --out "$OUT/swat_adaptive_wide_splice_20seed.json"
   run scripts/adaptive.py --dataset swat "${WIDE[@]}" --defences "${ALL7[@]}" --fabrication channel_roll --roll-shift 60 \
-    "${FED[@]}" --clients 10 --seeds 0 1 2 3 4 --out "$OUT/swat_adaptive_wide_roll60_5seed.json"
+    "${FED[@]}" --clients 10 --seeds "${SEEDS20[@]}" --out "$OUT/swat_adaptive_wide_roll60_20seed.json"
   run scripts/adaptive.py --dataset swat --defences "${ALL7[@]}" --fabrication splice_only \
-    "${FED[@]}" --clients 10 --seeds 0 1 2 3 4 --out "$OUT/swat_adaptive_narrow_splice_5seed.json"
+    "${FED[@]}" --clients 10 --seeds "${SEEDS20[@]}" --out "$OUT/swat_adaptive_narrow_splice_20seed.json"
   run scripts/adaptive.py --dataset swat --defences "${ALL7[@]}" --fabrication channel_roll --roll-shift 60 \
-    "${FED[@]}" --clients 10 --seeds 0 1 2 3 4 --out "$OUT/swat_adaptive_narrow_roll60_5seed.json"
+    "${FED[@]}" --clients 10 --seeds "${SEEDS20[@]}" --out "$OUT/swat_adaptive_narrow_roll60_20seed.json"
   # WADI: three rules, 3 seeds; a 10 % target budget, so that some attacks stay untargeted
   run scripts/adaptive.py --dataset wadi --defences "${THREE[@]}" --fabrication splice_only --roll-shift 60 \
     --target-attack-fraction 0.10 "${FED[@]}" --clients 10 --seeds 0 1 2 \
@@ -90,6 +91,21 @@ adaptive() {
   run scripts/adaptive.py --dataset batadal --defences "${THREE[@]}" --fabrication channel_roll \
     --modes clean fabricated projected gated "${FED[@]}" --clients 5 --seeds 0 1 2 \
     --out "$OUT/batadal_adaptive_roll_3seed.json"
+}
+
+alpha() {
+  # Gate admission threshold alpha (default 1 %): gated mode only, wide set, both attackers, seeds 0-19.
+  # The attacker keeps the paper's projection target (0.5 %); the other modes do not depend on alpha,
+  # so they are read from the 1 % files above. One output file per alpha (alpha is not in the cell key).
+  for a in 0.005 0.02 0.05; do
+    tag=${a/0./0p}
+    run scripts/adaptive.py --dataset swat "${WIDE[@]}" --defences "${ALL7[@]}" --fabrication splice_only \
+      --modes gated --max-violating-frac "$a" "${FED[@]}" --clients 10 --seeds "${SEEDS20[@]}" \
+      --out "$OUT/swat_adaptive_wide_splice_20seed_alpha${tag}.json"
+    run scripts/adaptive.py --dataset swat "${WIDE[@]}" --defences "${ALL7[@]}" --fabrication channel_roll --roll-shift 60 \
+      --modes gated --max-violating-frac "$a" "${FED[@]}" --clients 10 --seeds "${SEEDS20[@]}" \
+      --out "$OUT/swat_adaptive_wide_roll60_20seed_alpha${tag}.json"
+  done
 }
 
 sweep() {
@@ -107,7 +123,7 @@ trust() {
     --out "$OUT/swat_trust_traces_wide_3seed.json"
 }
 
-ALL_GROUPS=(separation coverage honest adaptive sweep trust)
+ALL_GROUPS=(separation coverage honest adaptive alpha sweep trust)
 if [ $# -eq 0 ]; then set -- "${ALL_GROUPS[@]}"; fi
 for g in "$@"; do
   case " ${ALL_GROUPS[*]} " in

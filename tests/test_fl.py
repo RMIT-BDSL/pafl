@@ -171,3 +171,39 @@ def test_verdicts_cover_honest_clients_and_gate_counts_add_up():
     sc_h, _, _ = build_variant("synthetic", "honest_only", 0.5, 4, 10, 0, steps_per_client=1200)
     assert sc_h["physics_admitted_rate"] is None
     assert all(not x["is_malicious"] for x in sc_h["physics_verdicts"])
+
+
+def test_alpha_sets_every_verdict_and_the_gate():
+    """The admission threshold alpha reaches honest and malicious verdicts, before and
+    after projection, and the gate's exclusions; it never changes the violating fractions."""
+    from pafl.fl.variants import build_variant
+    base = dict(steps_per_client=1200)
+    sc_def, _, _ = build_variant("synthetic", "fabricated", 0.5, 4, 10, 0, **base)
+    sc_one, _, _ = build_variant("synthetic", "fabricated", 0.5, 4, 10, 0, max_violating_frac=0.01, **base)
+    assert sc_def["physics_verdicts"] == sc_one["physics_verdicts"]          # default is the paper's 1 %
+    sc_all, _, _ = build_variant("synthetic", "fabricated", 0.5, 4, 10, 0, max_violating_frac=1.0, **base)
+    sc_none, _, _ = build_variant("synthetic", "fabricated", 0.5, 4, 10, 0, max_violating_frac=-1.0, **base)
+    fr = [v["violating_fraction"] for v in sc_one["physics_verdicts"]]
+    assert fr == [v["violating_fraction"] for v in sc_all["physics_verdicts"]]
+    assert all(v["admitted"] for v in sc_all["physics_verdicts"])
+    assert not any(v["admitted"] for v in sc_none["physics_verdicts"])
+    # gated: alpha = 1 admits every projected batch, so nobody is excluded
+    stats: list = []
+    sc_g, _, _ = build_variant("synthetic", "gated", 0.5, 4, 10, 0, target_violating=0.0,
+                               max_violating_frac=1.0, proj_stats=stats, **base)
+    assert sc_g["n_excluded_by_gate"] == 0 and len(sc_g["clients"]) == 4
+    assert stats and all(s["admitted_after"] for s in stats)
+    # alpha below zero rejects every batch, honest ones included
+    sc_x, _, _ = build_variant("synthetic", "gated", 0.5, 4, 10, 0, target_violating=0.0,
+                               max_violating_frac=-1.0, **base)
+    assert sc_x["n_excluded_by_gate"] == 4 and sc_x["n_honest_excluded_by_gate"] == 2
+
+
+def test_real_scenario_passes_alpha_to_the_gate():
+    from pafl.data.synthetic import simulate, default_attacks
+    from pafl.fl.scenario_real import RealScenarioConfig, build_real_scenario
+    normal = simulate(6000, seed=1); normal["ATT_FLAG"] = 0
+    attack = simulate(3000, seed=2, attacks=default_attacks(3000, seed=2, n=6))
+    sc = build_real_scenario(normal, attack, RealScenarioConfig(n_clients=4, malicious_fraction=0.5,
+                                                                seed=0, max_violating_frac=1.0))
+    assert all(v["admitted"] for v in sc["physics_verdicts"])

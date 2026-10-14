@@ -7,16 +7,19 @@ on, rather than only on the criterion-1 batches drawn from the same record
 (criterion 1 is the pilot's name for the separation experiment,
 scripts/separation.py, whose results are results/c1_*.json).
 
-A batch is admitted when at most 1 % of its rows violate any invariant, the
-default of `InvariantSet.batch_verdict`, which no federated run changes.
+A batch is admitted when at most `max_violating_frac` of its rows violate any
+invariant. The default, 1 %, is `InvariantSet.batch_verdict`'s and the paper's
+alpha; scripts/adaptive.py --max-violating-frac changes it for the alpha
+sensitivity runs.
 """
 from __future__ import annotations
 
 import numpy as np
 
 
-def client_verdicts(clients, inv_set) -> dict:
-    """Run `inv_set.batch_verdict` on every client's raw batch.
+def client_verdicts(clients, inv_set, max_violating_frac: float = 0.01) -> dict:
+    """Run `inv_set.batch_verdict` on every client's raw batch at admission
+    threshold `max_violating_frac`.
 
     Returns the fields a scenario dict carries:
       physics_verdicts              one entry per client (client, is_malicious,
@@ -30,7 +33,7 @@ def client_verdicts(clients, inv_set) -> dict:
     """
     verdicts = []
     for c in clients:
-        v = inv_set.batch_verdict(c.raw)
+        v = inv_set.batch_verdict(c.raw, max_violating_frac)
         verdicts.append({"client": int(c.client_id), "is_malicious": bool(c.is_malicious),
                          "violating_fraction": float(v["violating_fraction"]),
                          "admitted": bool(v["admitted"])})

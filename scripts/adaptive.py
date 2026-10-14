@@ -50,6 +50,11 @@ not change between stages. Two consequences for a replicator:
 - the file's `args` block records only the invocation that created the file. Several
   committed files were extended later (more seeds, rules or modes), so read the seeds,
   rules and modes from the cell keys, not from `args`.
+
+`--max-violating-frac` is the gate's admission threshold alpha (default 1 %, the
+paper's). It is not part of the cell key, so write each alpha to its own --out.
+`--target-violating` is the attacker's projection target (default 0.5 %), kept
+fixed when alpha varies. Each `projection` entry carries its seed, rule and mode.
 """
 from __future__ import annotations
 import argparse
@@ -105,6 +110,11 @@ def main() -> int:
     # Every committed run projected with actuator states protected.
     ap.add_argument("--protect-status", action="store_true", default=True,
                     help="the attacker will not write fractional actuator states")
+    ap.add_argument("--max-violating-frac", type=float, default=0.01,
+                    help="the gate's admission threshold alpha: a batch is admitted when at most this "
+                         "share of its rows violate an invariant (paper: 0.01)")
+    ap.add_argument("--target-violating", type=float, default=0.005,
+                    help="the attacker's projection target, independent of alpha (paper: 0.005)")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--threshold-quantile", type=float, default=0.995,
                     help="alarm threshold: this quantile of clean validation scores")
@@ -133,7 +143,10 @@ def main() -> int:
                     invariant_kw=dict(r2_min=args.r2_min, coupling_off_ratio=args.coupling_off_ratio,
                                       coupling_support=args.coupling_support),
                     steps_per_client=args.steps_per_client,
-                    protect_status=args.protect_status, proj_stats=stats)
+                    protect_status=args.protect_status, target_violating=args.target_violating,
+                    max_violating_frac=args.max_violating_frac, proj_stats=stats)
+                for s in stats:         # so each projected batch can be matched to its cell
+                    s.update(seed=seed, defence=defence, mode=mode)
                 out = run_federation(
                     sc["clients"], sc["eval_sets"],
                     FLConfig(rounds=args.rounds, local_epochs=args.local_epochs,
@@ -158,6 +171,8 @@ def main() -> int:
                     "n_honest_rejected": sc.get("n_honest_rejected"),
                     "n_malicious_in_round": sc.get("n_malicious"),
                     "n_invariants": len(inv_set),
+                    "max_violating_frac": args.max_violating_frac,
+                    "target_violating": args.target_violating,
                     "wall_seconds": round(time.time() - t0, 2),
                 }
                 done["projection"].extend(stats)

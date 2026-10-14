@@ -37,8 +37,8 @@ WIDE = dict(r2_min=0.40, coupling_off_ratio=0.10, coupling_support=0.005)
 
 # (name, dataset, invariant kw, seeds, build kw) -- one row per adaptive result file family
 CONFIGS = [
-    ("swat_wide", "swat", WIDE, [0, 1, 2, 3, 4], dict(n_clients=10, malicious_fraction=0.3)),
-    ("swat_narrow", "swat", NARROW, [0, 1, 2, 3, 4], dict(n_clients=10, malicious_fraction=0.3)),
+    ("swat_wide", "swat", WIDE, list(range(20)), dict(n_clients=10, malicious_fraction=0.3)),
+    ("swat_narrow", "swat", NARROW, list(range(20)), dict(n_clients=10, malicious_fraction=0.3)),
     ("wadi_default", "wadi", NARROW, [0, 1, 2], dict(n_clients=10, malicious_fraction=0.3, target_attack_fraction=0.10)),
     ("batadal_mined", "batadal", NARROW, [0, 1, 2], dict(n_clients=5, malicious_fraction=0.3)),
 ]

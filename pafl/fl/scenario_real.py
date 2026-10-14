@@ -92,6 +92,7 @@ class RealScenarioConfig:
     val_fraction: float = 0.15            # clean slice for threshold calibration
     root_fraction: float = 0.05           # clean slice the server holds for FLTrust (one shard's size)
     invariant_fraction: float = 0.30      # clean slice: invariants mined on one half, calibrated on the other
+    max_violating_frac: float = 0.01      # the gate's admission threshold alpha (paper: 1 %)
     max_invariants: int = 40              # the miner's cap; the SWaT sets (5 or 9) never reach it
     # Miner thresholds (see pafl.data.swat.swat_invariants). These decide how
     # many attacks the invariant set can see, which on real data decides how
@@ -355,7 +356,7 @@ def build_real_scenario(normal: pd.DataFrame, attack: pd.DataFrame,
     # so a results table can show both doors (what the check admits, what the
     # rule admits), the honest ones so the false-rejection claim is measured on
     # the shards the federation actually trains on.
-    gate = client_verdicts(clients, inv_set)
+    gate = client_verdicts(clients, inv_set, cfg.max_violating_frac)
 
     return {
         "clients": clients,

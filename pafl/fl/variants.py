@@ -61,7 +61,8 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
                   roll_shift: int | None = None, invariant_kw: dict | None = None,
                   target_attack_fraction: float | None = None,
                   steps_per_client: int = 4000, protect_status: bool = True,
-                  target_violating: float = 0.005, proj_stats: list | None = None):
+                  target_violating: float = 0.005, max_violating_frac: float = 0.01,
+                  proj_stats: list | None = None):
     """Return (scenario, invariant_set, feature_columns) for one variant.
 
     `dataset` is "synthetic" or a real record ("swat", "wadi", "batadal"). On
@@ -77,6 +78,11 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
     because fractional pump states would give the batch away by other means;
     then some batches cannot reach the target and are still rejected.
     Per-client projection costs are appended to `proj_stats` if given.
+
+    `max_violating_frac` is the gate's admission threshold alpha (1 % in the
+    paper). It sets every verdict, honest and malicious, before and after
+    projection. The attacker's `target_violating` is independent of it: the
+    alpha-sensitivity runs vary the gate and keep the paper's attacker.
     """
     if mode not in MODES:
         raise ValueError(f"mode must be one of {MODES}, got {mode!r}")
@@ -92,7 +98,7 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
         calib = simulate(8000, seed=12345)
         inv_set = synthetic_invariants(calib, include_weak_bounds=False).calibrate(calib)
         sc["invariants"] = inv_set
-        sc.update(client_verdicts(sc["clients"], inv_set))
+        sc.update(client_verdicts(sc["clients"], inv_set, max_violating_frac))
     else:
         from .scenario_real import RealScenarioConfig, build_real_scenario
         from ..data.real import load_real
@@ -101,6 +107,7 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
             n_clients=n_clients, malicious_fraction=frac, fabrication=fabrication,
             roll_shift=roll_shift, window=window, seed=seed, partition=partition,
             **({"target_attack_fraction": target_attack_fraction} if target_attack_fraction else {}),
+            max_violating_frac=max_violating_frac,
             **(invariant_kw or {})))
         inv_set = sc["invariants"]
 
@@ -124,7 +131,7 @@ def build_variant(dataset: str, mode: str, malicious_fraction: float, n_clients:
         t0 = time.time()
         projected = project_batch(c.raw, inv_set, cols, protect=protect,
                                   target_violating=target_violating)
-        v = inv_set.batch_verdict(projected)
+        v = inv_set.batch_verdict(projected, max_violating_frac)
         stat = projection_cost(c.raw, projected, cols)
         stat.update({"client": c.client_id, "violating_after": v["violating_fraction"],
                      "admitted_after": v["admitted"], "seconds": round(time.time() - t0, 2)})
