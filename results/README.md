@@ -13,11 +13,13 @@ Naming: `<experiment>_<dataset>_<setting>_<seeds>.json`
 | `<dataset>_sweep_*` | `sweep.py` | every defence against every attack (data and update attacks) |
 | `<dataset>_trust_traces_*` | `trust_traces.py` | FLTrust and FoolsGold per-round trust weights on the malicious clients |
 | `<...>_alpha<α>` | `adaptive.py` | gated federations rerun at admission threshold α (`0p005` = 0.5%); the headline files are α = 1% |
-| `removal_stats` | `removal_stats.py` | bootstrap CIs, exact Wilcoxon tests and the pooled test for damage removal; removal vs malicious clients excluded; detector metrics per federation |
+| `removal_stats` | `removal_stats.py` | bootstrap CIs and exact Wilcoxon tests for damage removal per rule; pooled tests with the seed as the unit; removal vs malicious clients excluded; detector metrics per federation |
 | `alpha_sensitivity` | `alpha_sensitivity.py` | honest rejection, coverage, admission after projection and gate removal at α = 0.5, 1, 2, 5% |
 
 Invariant set: `narrow` = miner defaults (SWaT: 5 rules), `wide` = r2 0.40 / off-ratio 0.10 / support 0.005 (SWaT: 9 rules), `default` on WADI (the narrow thresholds).
 Seeds: the four SWaT adaptive files have 20 seeds (0–19; Revision 1); seeds 0–4 reproduce the earlier 5-seed files.
+A seed draws the malicious clients, the fabrication and the training; the partition is temporal, so client c holds the
+same shard in every seed, and the 140 honest shard-verdicts of `honest_verdicts` cover 10 distinct SWaT shards.
 Attacker: `roll<N>` = channel roll shifted by N rows (60 rows = 5 min at the 5 s stride), `splice` = exposure-only replay of real attack rows.
 
 **Rerunning.** `scripts/reproduce.sh` has the exact command for every file here. It writes to

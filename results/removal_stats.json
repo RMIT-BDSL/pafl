@@ -1,7 +1,7 @@
 {
  "note": "Uncertainty and detector metrics for the adaptive-attacker results (Revision 1).",
  "min_damage": 0.01,
- "n_boot": 10000,
+ "n_boot": 100000,
  "files": {
   "swat_wide_replay": {
    "file": "swat_adaptive_wide_splice_20seed",
@@ -29,6 +29,7 @@
     18,
     19
    ],
+   "reference": "honest_only",
    "rules": {
     "fedavg": {
      "seeds": 20,
@@ -49,16 +50,17 @@
      "naive_damage_mean": 0.11716683556245001,
      "removed_projection": 0.588943752572622,
      "removed_projection_ci95": [
-      0.33066231173415966,
-      0.8421450150157099
+      0.3317510217840962,
+      0.8395975486833706
      ],
      "removed_gate": 0.8167726601846326,
      "removed_gate_ci95": [
-      0.6151168468530137,
-      1.021780126194303
+      0.6141919455134639,
+      1.0170494793673286
      ],
      "wilcoxon_p_gate": 0.0009765625,
      "wilcoxon_p_projection": 0.00146484375,
+     "wilcoxon_p_gate_vs_projection": 0.0625,
      "per_seed": [
       {
        "seed": 1,
@@ -160,6 +162,7 @@
      ],
      "wilcoxon_p_gate": 0.5,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 3,
@@ -205,16 +208,17 @@
      "naive_damage_mean": 0.06212640730776088,
      "removed_projection": 0.5041250388950558,
      "removed_projection_ci95": [
-      0.25804960312737707,
-      0.7280676051471119
+      0.25853933881759017,
+      0.7316481375233035
      ],
      "removed_gate": 0.6777695862786606,
      "removed_gate_ci95": [
-      0.4145415654976503,
-      0.9895096923355179
+      0.41313463963143865,
+      0.9872149014445395
      ],
      "wilcoxon_p_gate": 0.000244140625,
      "wilcoxon_p_projection": 0.000244140625,
+     "wilcoxon_p_gate_vs_projection": 0.0078125,
      "per_seed": [
       {
        "seed": 1,
@@ -330,16 +334,17 @@
      "naive_damage_mean": 0.07039165527908592,
      "removed_projection": 0.5948652436218166,
      "removed_projection_ci95": [
-      0.3683409728984202,
-      0.8359257240570712
+      0.3688342063217208,
+      0.8393643512160794
      ],
      "removed_gate": 0.7679739723945727,
      "removed_gate_ci95": [
-      0.5639983734225053,
-      0.9871059360463885
+      0.5640843325457541,
+      0.9828265681000841
      ],
      "wilcoxon_p_gate": 0.000244140625,
      "wilcoxon_p_projection": 0.00048828125,
+     "wilcoxon_p_gate_vs_projection": 0.0390625,
      "per_seed": [
       {
        "seed": 1,
@@ -453,16 +458,17 @@
      "naive_damage_mean": 0.08163668880619923,
      "removed_projection": 0.7477224556431488,
      "removed_projection_ci95": [
-      0.46271487882941625,
-      0.9569939253759853
+      0.4644319478128484,
+      0.9571063455017702
      ],
      "removed_gate": 0.9234265852056008,
      "removed_gate_ci95": [
-      0.740286831064617,
-      1.0289914094156143
+      0.7405072602784316,
+      1.0277443194447888
      ],
      "wilcoxon_p_gate": 0.0009765625,
      "wilcoxon_p_projection": 0.0009765625,
+     "wilcoxon_p_gate_vs_projection": 0.21875,
      "per_seed": [
       {
        "seed": 1,
@@ -566,6 +572,7 @@
      ],
      "wilcoxon_p_gate": 0.03125,
      "wilcoxon_p_projection": 0.0625,
+     "wilcoxon_p_gate_vs_projection": 0.625,
      "per_seed": [
       {
        "seed": 0,
@@ -620,16 +627,17 @@
      "naive_damage_mean": 0.10576636930480085,
      "removed_projection": -0.13980621810133376,
      "removed_projection_ci95": [
-      -0.7001524468468818,
-      0.26079799252757896
+      -0.699331662589777,
+      0.2695082155400803
      ],
      "removed_gate": 0.05404247321281963,
      "removed_gate_ci95": [
-      -0.532399604039927,
-      0.5172855365530358
+      -0.5341607972331137,
+      0.5254809580294622
      ],
      "wilcoxon_p_gate": 0.47265625,
      "wilcoxon_p_projection": 0.875,
+     "wilcoxon_p_gate_vs_projection": 0.25,
      "per_seed": [
       {
        "seed": 6,
@@ -717,6 +725,7 @@
     18,
     19
    ],
+   "reference": "honest_only",
    "rules": {
     "fedavg": {
      "seeds": 20,
@@ -736,16 +745,17 @@
      "naive_damage_mean": 0.09092918904318688,
      "removed_projection": 0.39707176491000584,
      "removed_projection_ci95": [
-      0.1754047982138975,
-      0.6943245443326392
+      0.17173320662173133,
+      0.6956555686261527
      ],
      "removed_gate": 0.8159296817318307,
      "removed_gate_ci95": [
-      0.5748760145523214,
-      1.0487642375952875
+      0.5746853247280561,
+      1.0514833004267297
      ],
      "wilcoxon_p_gate": 0.001953125,
      "wilcoxon_p_projection": 0.00390625,
+     "wilcoxon_p_gate_vs_projection": 0.03125,
      "per_seed": [
       {
        "seed": 1,
@@ -840,6 +850,7 @@
      ],
      "wilcoxon_p_gate": 0.5,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 3,
@@ -882,16 +893,17 @@
      "naive_damage_mean": 0.06668320386301377,
      "removed_projection": 0.5270584352222152,
      "removed_projection_ci95": [
-      0.23358281929325667,
-      0.7846786776435016
+      0.22627626839050885,
+      0.7867127606837351
      ],
      "removed_gate": 0.7056742199749155,
      "removed_gate_ci95": [
-      0.3828200222947153,
-      0.99990825075339
+      0.3874101044750211,
+      0.9982826775544509
      ],
      "wilcoxon_p_gate": 0.0009765625,
      "wilcoxon_p_projection": 0.0029296875,
+     "wilcoxon_p_gate_vs_projection": 0.015625,
      "per_seed": [
       {
        "seed": 1,
@@ -984,16 +996,17 @@
      "naive_damage_mean": 0.06094349778757624,
      "removed_projection": 0.4297284880644763,
      "removed_projection_ci95": [
-      0.11823655194648496,
-      0.7842937260363348
+      0.12185620226573099,
+      0.7871823334670982
      ],
      "removed_gate": 0.6587889363409578,
      "removed_gate_ci95": [
-      0.345191532277634,
-      0.95826986663849
+      0.3394937721953779,
+      0.960727210314643
      ],
      "wilcoxon_p_gate": 0.00244140625,
      "wilcoxon_p_projection": 0.02685546875,
+     "wilcoxon_p_gate_vs_projection": 0.15625,
      "per_seed": [
       {
        "seed": 1,
@@ -1089,16 +1102,17 @@
      "naive_damage_mean": 0.08501477231480596,
      "removed_projection": 0.6582335645012264,
      "removed_projection_ci95": [
-      0.29598826778935305,
-      0.9305053728224587
+      0.29615551031575527,
+      0.929867966449339
      ],
      "removed_gate": 0.8755017812464794,
      "removed_gate_ci95": [
       0.6092438535793383,
-      0.9975057607574397
+      0.9986817852596387
      ],
      "wilcoxon_p_gate": 0.015625,
      "wilcoxon_p_projection": 0.03125,
+     "wilcoxon_p_gate_vs_projection": 0.0625,
      "per_seed": [
       {
        "seed": 1,
@@ -1165,15 +1179,16 @@
      "removed_projection": 0.11049712159246794,
      "removed_projection_ci95": [
       -0.08143717231053271,
-      0.3772803358124036
+      0.3562665729529404
      ],
      "removed_gate": 0.339907818491595,
      "removed_gate_ci95": [
       -0.01577273172199778,
-      0.8123422531768735
+      0.8132059288604474
      ],
      "wilcoxon_p_gate": 0.09375,
      "wilcoxon_p_projection": 0.1875,
+     "wilcoxon_p_gate_vs_projection": 0.25,
      "per_seed": [
       {
        "seed": 0,
@@ -1229,16 +1244,17 @@
      "naive_damage_mean": 0.11120892516078598,
      "removed_projection": -0.1603896214508338,
      "removed_projection_ci95": [
-      -0.8055317389496481,
-      0.22331435416609424
+      -0.8225663631556384,
+      0.22178650953137127
      ],
      "removed_gate": 0.2136116926421261,
      "removed_gate_ci95": [
-      -0.42789615145110527,
-      0.7265442320868164
+      -0.4318595646398004,
+      0.7252239051686722
      ],
      "wilcoxon_p_gate": 0.150390625,
      "wilcoxon_p_projection": 0.673828125,
+     "wilcoxon_p_gate_vs_projection": 0.125,
      "per_seed": [
       {
        "seed": 2,
@@ -1333,6 +1349,7 @@
     18,
     19
    ],
+   "reference": "honest_only",
    "rules": {
     "fedavg": {
      "seeds": 20,
@@ -1353,16 +1370,17 @@
      "naive_damage_mean": 0.11716683556245001,
      "removed_projection": 0.44497170520281737,
      "removed_projection_ci95": [
-      0.2135933457357052,
-      0.6908080690963515
+      0.21124192087237453,
+      0.6880691894237337
      ],
      "removed_gate": 0.531452870029002,
      "removed_gate_ci95": [
-      0.30096010792046674,
-      0.7713913060325107
+      0.30091714379827617,
+      0.7723957319891668
      ],
      "wilcoxon_p_gate": 0.001953125,
      "wilcoxon_p_projection": 0.0048828125,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -1464,6 +1482,7 @@
      ],
      "wilcoxon_p_gate": 0.5,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 3,
@@ -1509,16 +1528,17 @@
      "naive_damage_mean": 0.06212640730776088,
      "removed_projection": 0.489575337048182,
      "removed_projection_ci95": [
-      0.15999465884241168,
-      0.7715233268049803
+      0.15717692906897782,
+      0.7698738157188226
      ],
      "removed_gate": 0.6149473764087774,
      "removed_gate_ci95": [
-      0.29102899039115554,
-      0.8590622322558256
+      0.28635864636652003,
+      0.8572684689809996
      ],
      "wilcoxon_p_gate": 0.000244140625,
      "wilcoxon_p_projection": 0.0006103515625,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -1634,16 +1654,17 @@
      "naive_damage_mean": 0.07039165527908592,
      "removed_projection": 0.4518481415027248,
      "removed_projection_ci95": [
-      0.2270199725071922,
-      0.6983163230367377
+      0.22608700543133903,
+      0.703458643676654
      ],
      "removed_gate": 0.5693613296724178,
      "removed_gate_ci95": [
-      0.3331557829802423,
-      0.81322316914982
+      0.33419850568645015,
+      0.8135844734465978
      ],
      "wilcoxon_p_gate": 0.0006103515625,
      "wilcoxon_p_projection": 0.0008544921875,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -1757,16 +1778,17 @@
      "naive_damage_mean": 0.08163668880619923,
      "removed_projection": 0.6704141003819254,
      "removed_projection_ci95": [
-      0.3570360259512945,
-      0.9263957347016708
+      0.3571189222375014,
+      0.9206799276909445
      ],
      "removed_gate": 0.6975106628833321,
      "removed_gate_ci95": [
-      0.3842495851687286,
-      0.9655203814766571
+      0.371845534683273,
+      0.973505490944631
      ],
      "wilcoxon_p_gate": 0.0009765625,
      "wilcoxon_p_projection": 0.0009765625,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -1870,6 +1892,7 @@
      ],
      "wilcoxon_p_gate": 0.125,
      "wilcoxon_p_projection": 0.125,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": [
       {
        "seed": 0,
@@ -1924,16 +1947,17 @@
      "naive_damage_mean": 0.10576636930480085,
      "removed_projection": -0.29330100289754224,
      "removed_projection_ci95": [
-      -0.9078073325855414,
-      0.22998314783352442
+      -0.8958116377985084,
+      0.22123770370113016
      ],
      "removed_gate": -0.15693367727334473,
      "removed_gate_ci95": [
-      -0.8063622572124562,
-      0.4571093469709082
+      -0.8241467254822255,
+      0.45721428380001106
      ],
      "wilcoxon_p_gate": 0.76953125,
      "wilcoxon_p_projection": 0.90234375,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 6,
@@ -2021,6 +2045,7 @@
     18,
     19
    ],
+   "reference": "honest_only",
    "rules": {
     "fedavg": {
      "seeds": 20,
@@ -2040,16 +2065,17 @@
      "naive_damage_mean": 0.09092918904318688,
      "removed_projection": 0.3494046744155581,
      "removed_projection_ci95": [
-      0.11620449302181565,
-      0.6402955144884582
+      0.11470716239255077,
+      0.6447648389363806
      ],
      "removed_gate": 0.47284677165660227,
      "removed_gate_ci95": [
-      0.21320538683343807,
-      0.77812350650397
+      0.2128336425390296,
+      0.7792505938770198
      ],
      "wilcoxon_p_gate": 0.001953125,
      "wilcoxon_p_projection": 0.009765625,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -2144,6 +2170,7 @@
      ],
      "wilcoxon_p_gate": 0.5,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 3,
@@ -2186,16 +2213,17 @@
      "naive_damage_mean": 0.06668320386301377,
      "removed_projection": 0.4491396525335448,
      "removed_projection_ci95": [
-      0.17217022494064593,
-      0.7382632674995466
+      0.17134066838840714,
+      0.7327652399086475
      ],
      "removed_gate": 0.5797979795310206,
      "removed_gate_ci95": [
-      0.27055963707975483,
-      0.8539624579265208
+      0.26730413444619766,
+      0.8530241561113114
      ],
      "wilcoxon_p_gate": 0.001953125,
      "wilcoxon_p_projection": 0.001953125,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -2288,16 +2316,17 @@
      "naive_damage_mean": 0.06094349778757624,
      "removed_projection": 0.5595737111006017,
      "removed_projection_ci95": [
-      0.2454090846519006,
-      0.8363308679588041
+      0.25040080411725096,
+      0.8342898260788709
      ],
      "removed_gate": 0.7094457032083419,
      "removed_gate_ci95": [
-      0.42058167560983195,
-      0.9215372031851262
+      0.4179695212833403,
+      0.9181226744050511
      ],
      "wilcoxon_p_gate": 0.0068359375,
      "wilcoxon_p_projection": 0.00927734375,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -2393,16 +2422,17 @@
      "naive_damage_mean": 0.08501477231480596,
      "removed_projection": 0.5832222936434552,
      "removed_projection_ci95": [
-      0.2583872790655512,
-      0.8544929544981746
+      0.25551673201956526,
+      0.8553256567101599
      ],
      "removed_gate": 0.6254296464188123,
      "removed_gate_ci95": [
-      0.27551661621371026,
-      0.9099391980592424
+      0.27471904003255376,
+      0.9110355401515594
      ],
      "wilcoxon_p_gate": 0.015625,
      "wilcoxon_p_projection": 0.015625,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 1,
@@ -2474,10 +2504,11 @@
      "removed_gate": -0.14192964979347655,
      "removed_gate_ci95": [
       -0.43568832254021217,
-      0.19218360576335924
+      0.18570465066372277
      ],
      "wilcoxon_p_gate": 0.59375,
      "wilcoxon_p_projection": 0.59375,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": [
       {
        "seed": 0,
@@ -2533,16 +2564,17 @@
      "naive_damage_mean": 0.11120892516078598,
      "removed_projection": -0.2257624542872887,
      "removed_projection_ci95": [
-      -0.9210167784877862,
-      0.1736262978503252
+      -0.9306463141142631,
+      0.17512246571644152
      ],
      "removed_gate": -0.05166140293579646,
      "removed_gate_ci95": [
-      -0.7752569200148969,
-      0.3679907747594257
+      -0.7568140737957951,
+      0.36041969491865256
      ],
      "wilcoxon_p_gate": 0.455078125,
      "wilcoxon_p_projection": 0.751953125,
+     "wilcoxon_p_gate_vs_projection": 0.5,
      "per_seed": [
       {
        "seed": 2,
@@ -2620,6 +2652,7 @@
     1,
     2
    ],
+   "reference": "honest_only",
    "rules": {
     "fedavg": {
      "seeds": 3,
@@ -2638,6 +2671,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     },
     "trimmed_mean": {
@@ -2657,6 +2691,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     },
     "fltrust": {
@@ -2676,6 +2711,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     }
    }
@@ -2689,6 +2725,7 @@
     1,
     2
    ],
+   "reference": "honest_only",
    "rules": {
     "fedavg": {
      "seeds": 3,
@@ -2707,6 +2744,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     },
     "trimmed_mean": {
@@ -2726,6 +2764,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     },
     "fltrust": {
@@ -2745,6 +2784,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     }
    }
@@ -2758,44 +2798,67 @@
     1,
     2
    ],
+   "reference": "clean",
    "rules": {
     "fedavg": {
      "seeds": 3,
-     "informative": 0,
-     "informative_seeds": [],
-     "naive_damage_mean": null,
-     "removed_projection": NaN,
+     "informative": 1,
+     "informative_seeds": [
+      1
+     ],
+     "naive_damage_mean": 0.04166666666666663,
+     "removed_projection": 0.0,
      "removed_projection_ci95": [
       NaN,
       NaN
      ],
-     "removed_gate": NaN,
+     "removed_gate": 0.0,
      "removed_gate_ci95": [
       NaN,
       NaN
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
-     "per_seed": []
+     "wilcoxon_p_gate_vs_projection": null,
+     "per_seed": [
+      {
+       "seed": 1,
+       "dmg_naive": 0.04166666666666663,
+       "dmg_projected": 0.04166666666666663,
+       "dmg_gated": 0.04166666666666663,
+       "mal_excluded": 0
+      }
+     ]
     },
     "trimmed_mean": {
      "seeds": 3,
-     "informative": 0,
-     "informative_seeds": [],
-     "naive_damage_mean": null,
-     "removed_projection": NaN,
+     "informative": 1,
+     "informative_seeds": [
+      1
+     ],
+     "naive_damage_mean": 0.06439393939393939,
+     "removed_projection": 0.0,
      "removed_projection_ci95": [
       NaN,
       NaN
      ],
-     "removed_gate": NaN,
+     "removed_gate": 0.0,
      "removed_gate_ci95": [
       NaN,
       NaN
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
-     "per_seed": []
+     "wilcoxon_p_gate_vs_projection": null,
+     "per_seed": [
+      {
+       "seed": 1,
+       "dmg_naive": 0.06439393939393939,
+       "dmg_projected": 0.06439393939393939,
+       "dmg_gated": 0.06439393939393939,
+       "mal_excluded": 0
+      }
+     ]
     },
     "fltrust": {
      "seeds": 3,
@@ -2814,6 +2877,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     }
    }
@@ -2827,44 +2891,83 @@
     1,
     2
    ],
+   "reference": "clean",
    "rules": {
     "fedavg": {
      "seeds": 3,
-     "informative": 0,
-     "informative_seeds": [],
-     "naive_damage_mean": null,
-     "removed_projection": NaN,
+     "informative": 3,
+     "informative_seeds": [
+      0,
+      1,
+      2
+     ],
+     "naive_damage_mean": 0.031565656565656554,
+     "removed_projection": 0.28000000000000047,
      "removed_projection_ci95": [
-      NaN,
-      NaN
+      -0.5,
+      0.5000000000000004
      ],
-     "removed_gate": NaN,
+     "removed_gate": 0.28000000000000047,
      "removed_gate_ci95": [
-      NaN,
-      NaN
+      -0.5,
+      0.5000000000000004
      ],
-     "wilcoxon_p_gate": null,
-     "wilcoxon_p_projection": null,
-     "per_seed": []
+     "wilcoxon_p_gate": 0.5,
+     "wilcoxon_p_projection": 0.5,
+     "wilcoxon_p_gate_vs_projection": null,
+     "per_seed": [
+      {
+       "seed": 0,
+       "dmg_naive": 0.015151515151515138,
+       "dmg_projected": 0.022727272727272707,
+       "dmg_gated": 0.022727272727272707,
+       "mal_excluded": 0
+      },
+      {
+       "seed": 1,
+       "dmg_naive": 0.06818181818181818,
+       "dmg_projected": 0.03409090909090906,
+       "dmg_gated": 0.03409090909090906,
+       "mal_excluded": 0
+      },
+      {
+       "seed": 2,
+       "dmg_naive": 0.011363636363636354,
+       "dmg_projected": 0.011363636363636354,
+       "dmg_gated": 0.011363636363636354,
+       "mal_excluded": 0
+      }
+     ]
     },
     "trimmed_mean": {
      "seeds": 3,
-     "informative": 0,
-     "informative_seeds": [],
-     "naive_damage_mean": null,
-     "removed_projection": NaN,
+     "informative": 1,
+     "informative_seeds": [
+      1
+     ],
+     "naive_damage_mean": 0.02651515151515149,
+     "removed_projection": 0.0,
      "removed_projection_ci95": [
       NaN,
       NaN
      ],
-     "removed_gate": NaN,
+     "removed_gate": 0.0,
      "removed_gate_ci95": [
       NaN,
       NaN
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
-     "per_seed": []
+     "wilcoxon_p_gate_vs_projection": null,
+     "per_seed": [
+      {
+       "seed": 1,
+       "dmg_naive": 0.02651515151515149,
+       "dmg_projected": 0.02651515151515149,
+       "dmg_gated": 0.02651515151515149,
+       "mal_excluded": 0
+      }
+     ]
     },
     "fltrust": {
      "seeds": 3,
@@ -2883,6 +2986,7 @@
      ],
      "wilcoxon_p_gate": null,
      "wilcoxon_p_projection": null,
+     "wilcoxon_p_gate_vs_projection": null,
      "per_seed": []
     }
    }
@@ -2890,41 +2994,165 @@
  },
  "pooled": {
   "swat_wide": {
-   "pairs": 119,
-   "removed_gate": 0.6238652053126015,
-   "removed_projection": 0.3817434989789896,
-   "wilcoxon_p_gate": 3.2137846274952946e-16,
-   "wilcoxon_p_projection": 9.112594580153898e-12,
-   "sign_gate": {
-    "better": 100,
-    "worse": 12,
-    "tied": 7,
-    "p_one_sided": 9.637908607826958e-19
+   "all_rules": {
+    "pairs": 119,
+    "seeds": 17,
+    "unit": "seed",
+    "removed_gate": 0.6238652053126015,
+    "removed_gate_ci95": [
+     0.41791261433136595,
+     0.8282295386873804
+    ],
+    "removed_projection": 0.3817434989789894,
+    "removed_projection_ci95": [
+     0.25599214608884474,
+     0.49942841204750726
+    ],
+    "wilcoxon_p_gate": 1.52587890625e-05,
+    "wilcoxon_p_projection": 3.0517578125e-05,
+    "wilcoxon_p_gate_vs_projection": 0.00390625,
+    "seeds_gate_better": 16,
+    "seeds_gate_beyond_projection": 8,
+    "pairs_sign_gate": {
+     "better": 100,
+     "worse": 12,
+     "tied": 7,
+     "p_one_sided": 9.637908607826958e-19
+    }
    },
-   "sign_projection": {
-    "better": 85,
-    "worse": 22,
-    "tied": 12,
-    "p_one_sided": 3.187740825583467e-10
+   "without_krum_foolsgold": {
+    "pairs": 96,
+    "seeds": 14,
+    "unit": "seed",
+    "removed_gate": 0.7761247947470027,
+    "removed_gate_ci95": [
+     0.5703613274829559,
+     0.967352232378179
+    ],
+    "removed_projection": 0.5501851251514085,
+    "removed_projection_ci95": [
+     0.369469257715245,
+     0.7339379840811888
+    ],
+    "wilcoxon_p_gate": 0.0001220703125,
+    "wilcoxon_p_projection": 0.0001220703125,
+    "wilcoxon_p_gate_vs_projection": 0.0078125,
+    "seeds_gate_better": 13,
+    "seeds_gate_beyond_projection": 7,
+    "pairs_sign_gate": {
+     "better": 87,
+     "worse": 6,
+     "tied": 3,
+     "p_one_sided": 8.252324568076232e-20
+    }
    }
   },
   "swat_narrow": {
-   "pairs": 119,
-   "removed_gate": 0.4260735092742953,
-   "removed_projection": 0.30788268069107483,
-   "wilcoxon_p_gate": 6.146331551644576e-12,
-   "wilcoxon_p_projection": 1.2876596882449981e-09,
-   "sign_gate": {
-    "better": 91,
-    "worse": 18,
-    "tied": 10,
-    "p_one_sided": 3.1833010775742184e-13
+   "all_rules": {
+    "pairs": 119,
+    "seeds": 17,
+    "unit": "seed",
+    "removed_gate": 0.42607350927429555,
+    "removed_gate_ci95": [
+     0.22801409071438097,
+     0.6152405096478216
+    ],
+    "removed_projection": 0.30788268069107494,
+    "removed_projection_ci95": [
+     0.14706960780425085,
+     0.4537542577529663
+    ],
+    "wilcoxon_p_gate": 7.62939453125e-05,
+    "wilcoxon_p_projection": 0.000152587890625,
+    "wilcoxon_p_gate_vs_projection": 0.25,
+    "seeds_gate_better": 14,
+    "seeds_gate_beyond_projection": 2,
+    "pairs_sign_gate": {
+     "better": 91,
+     "worse": 18,
+     "tied": 10,
+     "p_one_sided": 3.1833010775742184e-13
+    }
    },
-   "sign_projection": {
-    "better": 84,
-    "worse": 23,
-    "tied": 12,
-    "p_one_sided": 1.2010141336716403e-09
+   "without_krum_foolsgold": {
+    "pairs": 96,
+    "seeds": 14,
+    "unit": "seed",
+    "removed_gate": 0.5753736913092486,
+    "removed_gate_ci95": [
+     0.3575697727882525,
+     0.7717525293164827
+    ],
+    "removed_projection": 0.47944545396805427,
+    "removed_projection_ci95": [
+     0.2835033460452337,
+     0.6671246148564269
+    ],
+    "wilcoxon_p_gate": 0.00030517578125,
+    "wilcoxon_p_projection": 0.00030517578125,
+    "wilcoxon_p_gate_vs_projection": 0.5,
+    "seeds_gate_better": 12,
+    "seeds_gate_beyond_projection": 1,
+    "pairs_sign_gate": {
+     "better": 81,
+     "worse": 9,
+     "tied": 6,
+     "p_one_sided": 6.396987262372912e-16
+    }
+   }
+  },
+  "batadal_mined": {
+   "all_rules": {
+    "pairs": 6,
+    "seeds": 3,
+    "unit": "seed",
+    "removed_gate": 0.11666666666666681,
+    "removed_gate_ci95": [
+     -0.5,
+     0.16981132075471717
+    ],
+    "removed_projection": 0.11666666666666681,
+    "removed_projection_ci95": [
+     -0.5,
+     0.16981132075471717
+    ],
+    "wilcoxon_p_gate": 0.5,
+    "wilcoxon_p_projection": 0.5,
+    "wilcoxon_p_gate_vs_projection": null,
+    "seeds_gate_better": 1,
+    "seeds_gate_beyond_projection": 0,
+    "pairs_sign_gate": {
+     "better": 1,
+     "worse": 1,
+     "tied": 4,
+     "p_one_sided": 0.75
+    }
+   },
+   "without_krum_foolsgold": {
+    "pairs": 6,
+    "seeds": 3,
+    "unit": "seed",
+    "removed_gate": 0.11666666666666681,
+    "removed_gate_ci95": [
+     -0.5,
+     0.16981132075471717
+    ],
+    "removed_projection": 0.11666666666666681,
+    "removed_projection_ci95": [
+     -0.5,
+     0.16981132075471717
+    ],
+    "wilcoxon_p_gate": 0.5,
+    "wilcoxon_p_projection": 0.5,
+    "wilcoxon_p_gate_vs_projection": null,
+    "seeds_gate_better": 1,
+    "seeds_gate_beyond_projection": 0,
+    "pairs_sign_gate": {
+     "better": 1,
+     "worse": 1,
+     "tied": 4,
+     "p_one_sided": 0.75
+    }
    }
   }
  },
@@ -3082,8 +3310,28 @@
   },
   "wadi_replay": {},
   "wadi_roll": {},
-  "batadal_replay": {},
-  "batadal_roll": {}
+  "batadal_replay": {
+   "0": {
+    "pairs": 2,
+    "seeds": [
+     1
+    ],
+    "removed_gate": 0.0,
+    "removed_projection": 0.0
+   }
+  },
+  "batadal_roll": {
+   "0": {
+    "pairs": 4,
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "removed_gate": 0.21875000000000033,
+    "removed_projection": 0.21875000000000033
+   }
+  }
  },
  "detector": {
   "swat_wide_replay": {

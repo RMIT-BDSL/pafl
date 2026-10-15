@@ -8,7 +8,11 @@ batch is rejected (1% in the paper). For alpha in {0.5, 1, 2, 5}% this collects,
 without training:
 
   honest     honest client shards rejected, per invariant set (honest_verdicts.json:
-             a shard is rejected when its violating fraction exceeds alpha)
+             a shard is rejected when its violating fraction exceeds alpha). The
+             partition is temporal, so client c holds the same shard in every seed and
+             a seed only decides which clients are malicious: the 20 SWaT seeds give
+             140 honest shard-verdicts but only 10 distinct shards. Both counts are
+             written ("rejected" per verdict, "rejected_distinct" per shard).
   coverage   labelled attack segments covered, SWaT narrow / wide and WADI
              ({swat,wadi}_coverage.json: covered when more than alpha of the
              segment's rows violate)
@@ -51,9 +55,14 @@ def main() -> int:
 
     hv = load("honest_verdicts")["configs"]
     for name, c in hv.items():
-        hon = [v["violating_fraction"] for v in c["verdicts"] if not v["is_malicious"]]
-        res["honest"][name] = {"shards": len(hon),
-                               "rejected": {str(al): int(sum(f > al for f in hon)) for al in ALPHAS}}
+        hon = [v for v in c["verdicts"] if not v["is_malicious"]]
+        shard = {}
+        for v in hon:                                   # one violating fraction per client's shard
+            assert shard.setdefault(v["client"], v["violating_fraction"]) == v["violating_fraction"]
+        res["honest"][name] = {"shards": len(hon), "distinct_shards": len(shard),
+                               "worst_violating": max(shard.values()),
+                               "rejected": {str(al): int(sum(v["violating_fraction"] > al for v in hon)) for al in ALPHAS},
+                               "rejected_distinct": {str(al): sorted(cl for cl, f in shard.items() if f > al) for al in ALPHAS}}
 
     for ds in ("swat", "wadi"):
         cov = load(f"{ds}_coverage")
@@ -105,9 +114,10 @@ def main() -> int:
 
     Path(a.out).write_text(json.dumps(res, indent=1))
 
-    print("honest shards rejected:", "  ".join(f"{n} " + "/".join(str(c["rejected"][str(al)]) for al in ALPHAS)
-                                               + f" of {c['shards']}" for n, c in res["honest"].items()),
-          f"   (alpha = {', '.join(f'{100*x:g}%' for x in ALPHAS)})")
+    print(f"honest shards rejected (alpha = {', '.join(f'{100*x:g}%' for x in ALPHAS)}): distinct shards (verdicts)")
+    for n, c in res["honest"].items():
+        print(f"  {n:14s} " + "  ".join(f"{len(c['rejected_distinct'][str(al)])}/{c['distinct_shards']} ({c['rejected'][str(al)]}/{c['shards']})"
+                                         for al in ALPHAS) + f"   worst {100*c['worst_violating']:.3f}%")
     for ds, sets in res["coverage"].items():
         for s, c in sets.items():
             print(f"coverage {ds} {s}: " + " / ".join(str(c["covered"][str(al)]) for al in ALPHAS) + f" of {c['segments']}")

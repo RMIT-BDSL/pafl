@@ -10,38 +10,72 @@
  "honest": {
   "swat_wide": {
    "shards": 140,
+   "distinct_shards": 10,
+   "worst_violating": 0.005069708491761723,
    "rejected": {
     "0.005": 10,
     "0.01": 0,
     "0.02": 0,
     "0.05": 0
+   },
+   "rejected_distinct": {
+    "0.005": [
+     7
+    ],
+    "0.01": [],
+    "0.02": [],
+    "0.05": []
    }
   },
   "swat_narrow": {
    "shards": 140,
+   "distinct_shards": 10,
+   "worst_violating": 0.0031685678073510772,
    "rejected": {
     "0.005": 0,
     "0.01": 0,
     "0.02": 0,
     "0.05": 0
+   },
+   "rejected_distinct": {
+    "0.005": [],
+    "0.01": [],
+    "0.02": [],
+    "0.05": []
    }
   },
   "wadi_default": {
    "shards": 21,
+   "distinct_shards": 10,
+   "worst_violating": 0.0013227513227513227,
    "rejected": {
     "0.005": 0,
     "0.01": 0,
     "0.02": 0,
     "0.05": 0
+   },
+   "rejected_distinct": {
+    "0.005": [],
+    "0.01": [],
+    "0.02": [],
+    "0.05": []
    }
   },
   "batadal_mined": {
    "shards": 9,
+   "distinct_shards": 5,
+   "worst_violating": 0.0,
    "rejected": {
     "0.005": 0,
     "0.01": 0,
     "0.02": 0,
     "0.05": 0
+   },
+   "rejected_distinct": {
+    "0.005": [],
+    "0.01": [],
+    "0.02": [],
+    "0.05": []
    }
   }
  },
