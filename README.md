@@ -204,12 +204,13 @@ Due to licensing and data-use restrictions imposed by testbed providers (e.g., i
 `scripts/reproduce.sh` holds one command per committed result file, grouped by experiment, with approximate run times. It writes to `results_archive/reproduce/`, so the committed files stay untouched, and `scripts/compare_results.py` checks a rerun against its committed file number by number.
 
 ```bash
-make reproduce                    # every experiment, about 6 h on one CPU (needs the datasets)
-make separation                   # or one group: separation coverage honest adaptive sweep trust
+make reproduce                    # every experiment, about 20 h on one CPU (needs the datasets)
+make separation                   # or one group: separation coverage honest adaptive alpha sweep trust
+make stats                        # removal CIs and tests, alpha sensitivity (reads results/ only)
 DRY=1 scripts/reproduce.sh        # print the commands without running them
 
-python scripts/compare_results.py results/swat_adaptive_wide_splice_5seed.json \
-    results_archive/reproduce/swat_adaptive_wide_splice_5seed.json
+python scripts/compare_results.py results/swat_adaptive_wide_splice_20seed.json \
+    results_archive/reproduce/swat_adaptive_wide_splice_20seed.json
 ```
 
 | script | writes | what it measures |
@@ -220,6 +221,8 @@ python scripts/compare_results.py results/swat_adaptive_wide_splice_5seed.json \
 | `adaptive.py` | `*_adaptive_*` | the five federated modes under each aggregation rule |
 | `sweep.py` | `*_sweep_*` | every rule against every data-space and update-space attack |
 | `trust_traces.py` | `*_trust_traces_*` | FLTrust and FoolsGold trust on the malicious clients, per round |
+| `removal_stats.py` | `removal_stats` | bootstrap CIs and exact tests for damage removal, removal vs clients excluded, detector metrics (no training) |
+| `alpha_sensitivity.py` | `alpha_sensitivity` | honest rejection, coverage, admission and gate removal across α (no training) |
 | `sim_defences.py` | nothing committed | the simulated plant (the pilot's setting; not in the paper) |
 
 `python scripts/summarize_adaptive.py <file>` prints the damage-removal numbers the paper reports, from any `*_adaptive_*` file. Every cell reseeds before it runs, and the drivers resume: a rerun with the same `--out` skips the cells already there.

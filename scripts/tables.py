@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A LaTeX table from one adaptive.py result file, for inspection. No number is typed by hand.
 
-    python scripts/tables.py results/swat_adaptive_wide_splice_5seed.json --metric targeted_recall
+    python scripts/tables.py results/swat_adaptive_wide_splice_20seed.json --metric targeted_recall
 
 Prints a booktabs table with one row per aggregation rule. The columns are clean /
 honest_only / fabricated (naive) / projected (physics-aware) / gated, each the mean

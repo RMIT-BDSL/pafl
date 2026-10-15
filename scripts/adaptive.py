@@ -39,7 +39,7 @@ committed file, are in scripts/reproduce.sh; for example
     python scripts/adaptive.py --dataset swat --r2-min 0.40 --coupling-off-ratio 0.10 \
         --coupling-support 0.005 --defences fedavg krum median trimmed_mean norm_clip fltrust \
         foolsgold --fabrication splice_only --malicious-fraction 0.3 --clients 10 --rounds 25 \
-        --local-epochs 2 --seeds 0 1 2 3 4 --out results/swat_adaptive_wide_splice_5seed.json
+        --local-epochs 2 --seeds $(seq 0 19) --out results/swat_adaptive_wide_splice_20seed.json
 
 Resumable: each (seed, rule, mode) cell is written to --out as soon as it finishes,
 and a rerun with the same --out skips the cells already there. Every cell reseeds

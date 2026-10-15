@@ -1,0 +1,651 @@
+{
+ "note": "Sensitivity of the results to the admission threshold alpha (Revision 1).",
+ "alphas": [
+  0.005,
+  0.01,
+  0.02,
+  0.05
+ ],
+ "min_damage": 0.01,
+ "honest": {
+  "swat_wide": {
+   "shards": 140,
+   "rejected": {
+    "0.005": 10,
+    "0.01": 0,
+    "0.02": 0,
+    "0.05": 0
+   }
+  },
+  "swat_narrow": {
+   "shards": 140,
+   "rejected": {
+    "0.005": 0,
+    "0.01": 0,
+    "0.02": 0,
+    "0.05": 0
+   }
+  },
+  "wadi_default": {
+   "shards": 21,
+   "rejected": {
+    "0.005": 0,
+    "0.01": 0,
+    "0.02": 0,
+    "0.05": 0
+   }
+  },
+  "batadal_mined": {
+   "shards": 9,
+   "rejected": {
+    "0.005": 0,
+    "0.01": 0,
+    "0.02": 0,
+    "0.05": 0
+   }
+  }
+ },
+ "coverage": {
+  "swat": {
+   "narrow": {
+    "segments": 35,
+    "covered": {
+     "0.005": 15,
+     "0.01": 12,
+     "0.02": 9,
+     "0.05": 4
+    }
+   },
+   "wide": {
+    "segments": 35,
+    "covered": {
+     "0.005": 25,
+     "0.01": 20,
+     "0.02": 19,
+     "0.05": 13
+    }
+   }
+  },
+  "wadi": {
+   "default": {
+    "segments": 14,
+    "covered": {
+     "0.005": 5,
+     "0.01": 3,
+     "0.02": 3,
+     "0.05": 3
+    }
+   }
+  }
+ },
+ "projected": {
+  "replay": {
+   "batches": 60,
+   "admitted": {
+    "0.005": 18,
+    "0.01": 38,
+    "0.02": 55,
+    "0.05": 60
+   }
+  },
+  "roll": {
+   "batches": 60,
+   "admitted": {
+    "0.005": 18,
+    "0.01": 38,
+    "0.02": 55,
+    "0.05": 60
+   }
+  }
+ },
+ "removal": {
+  "replay": {
+   "0.005": {
+    "file": "swat_adaptive_wide_splice_20seed_alpha0p005",
+    "rules": {
+     "fedavg": {
+      "informative": 11,
+      "removed_gate": 0.9509543858767222,
+      "removed_projection": 0.588943752572622,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 1.0345345308509621,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "median": {
+      "informative": 13,
+      "removed_gate": 0.9724957827667002,
+      "removed_projection": 0.5041250388950558,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 13,
+      "removed_gate": 1.0108463442889217,
+      "removed_projection": 0.5948652436218166,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 11,
+      "removed_gate": 1.0116153671190269,
+      "removed_projection": 0.7477224556431488,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.7107125390982105,
+      "removed_projection": 0.47210689291982477,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 8,
+      "removed_gate": 0.49335556776437184,
+      "removed_projection": -0.13980621810133376,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     }
+    }
+   },
+   "0.01": {
+    "file": "swat_adaptive_wide_splice_20seed",
+    "rules": {
+     "fedavg": {
+      "informative": 11,
+      "removed_gate": 0.8167726601846326,
+      "removed_projection": 0.588943752572622,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 0.28551031472863264,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "median": {
+      "informative": 13,
+      "removed_gate": 0.6777695862786606,
+      "removed_projection": 0.5041250388950558,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 13,
+      "removed_gate": 0.7679739723945727,
+      "removed_projection": 0.5948652436218166,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 11,
+      "removed_gate": 0.9234265852056007,
+      "removed_projection": 0.7477224556431488,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.6271908204985513,
+      "removed_projection": 0.47210689291982477,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 8,
+      "removed_gate": 0.05404247321281952,
+      "removed_projection": -0.13980621810133376,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     }
+    }
+   },
+   "0.02": {
+    "file": "swat_adaptive_wide_splice_20seed_alpha0p02",
+    "rules": {
+     "fedavg": {
+      "informative": 11,
+      "removed_gate": 0.588943752572622,
+      "removed_projection": 0.588943752572622,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 0.0,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "median": {
+      "informative": 13,
+      "removed_gate": 0.5041250388950558,
+      "removed_projection": 0.5041250388950558,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 13,
+      "removed_gate": 0.5948652436218166,
+      "removed_projection": 0.5948652436218166,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 11,
+      "removed_gate": 0.7477224556431488,
+      "removed_projection": 0.7477224556431488,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.47210689291982477,
+      "removed_projection": 0.47210689291982477,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 8,
+      "removed_gate": -0.13980621810133376,
+      "removed_projection": -0.13980621810133376,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     }
+    }
+   },
+   "0.05": {
+    "file": "swat_adaptive_wide_splice_20seed_alpha0p05",
+    "rules": {
+     "fedavg": {
+      "informative": 11,
+      "removed_gate": 0.588943752572622,
+      "removed_projection": 0.588943752572622,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 0.0,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "median": {
+      "informative": 13,
+      "removed_gate": 0.5041250388950558,
+      "removed_projection": 0.5041250388950558,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 13,
+      "removed_gate": 0.5948652436218166,
+      "removed_projection": 0.5948652436218166,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 11,
+      "removed_gate": 0.7477224556431488,
+      "removed_projection": 0.7477224556431488,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.47210689291982477,
+      "removed_projection": 0.47210689291982477,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 8,
+      "removed_gate": -0.13980621810133376,
+      "removed_projection": -0.13980621810133376,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     }
+    }
+   }
+  },
+  "roll": {
+   "0.005": {
+    "file": "swat_adaptive_wide_roll60_20seed_alpha0p005",
+    "rules": {
+     "fedavg": {
+      "informative": 10,
+      "removed_gate": 0.9417303207724443,
+      "removed_projection": 0.39707176491000606,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 1.0345345308509621,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "median": {
+      "informative": 10,
+      "removed_gate": 0.9061360689578175,
+      "removed_projection": 0.5270584352222152,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 11,
+      "removed_gate": 0.9814226981374046,
+      "removed_projection": 0.4297284880644763,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 7,
+      "removed_gate": 0.9311728851222403,
+      "removed_projection": 0.6582335645012264,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.4743658221343683,
+      "removed_projection": 0.11049712159246794,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 9,
+      "removed_gate": 0.4873168612065256,
+      "removed_projection": -0.1603896214508338,
+      "mal_excluded_mean": 2.1,
+      "honest_excluded_mean": 0.5,
+      "honest_excluded_runs": 10,
+      "runs": 20
+     }
+    }
+   },
+   "0.01": {
+    "file": "swat_adaptive_wide_roll60_20seed",
+    "rules": {
+     "fedavg": {
+      "informative": 10,
+      "removed_gate": 0.8159296817318307,
+      "removed_projection": 0.39707176491000606,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 0.28551031472863264,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "median": {
+      "informative": 10,
+      "removed_gate": 0.7056742199749155,
+      "removed_projection": 0.5270584352222152,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 11,
+      "removed_gate": 0.6587889363409578,
+      "removed_projection": 0.4297284880644763,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 7,
+      "removed_gate": 0.8755017812464794,
+      "removed_projection": 0.6582335645012264,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.339907818491595,
+      "removed_projection": 0.11049712159246794,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 9,
+      "removed_gate": 0.2136116926421261,
+      "removed_projection": -0.1603896214508338,
+      "mal_excluded_mean": 1.1,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     }
+    }
+   },
+   "0.02": {
+    "file": "swat_adaptive_wide_roll60_20seed_alpha0p02",
+    "rules": {
+     "fedavg": {
+      "informative": 10,
+      "removed_gate": 0.39707176491000606,
+      "removed_projection": 0.39707176491000606,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 0.0,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "median": {
+      "informative": 10,
+      "removed_gate": 0.5270584352222152,
+      "removed_projection": 0.5270584352222152,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 11,
+      "removed_gate": 0.4297284880644763,
+      "removed_projection": 0.4297284880644763,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 7,
+      "removed_gate": 0.6582335645012264,
+      "removed_projection": 0.6582335645012264,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.11049712159246794,
+      "removed_projection": 0.11049712159246794,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 9,
+      "removed_gate": -0.1603896214508338,
+      "removed_projection": -0.1603896214508338,
+      "mal_excluded_mean": 0.25,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     }
+    }
+   },
+   "0.05": {
+    "file": "swat_adaptive_wide_roll60_20seed_alpha0p05",
+    "rules": {
+     "fedavg": {
+      "informative": 10,
+      "removed_gate": 0.39707176491000606,
+      "removed_projection": 0.39707176491000606,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "krum": {
+      "informative": 3,
+      "removed_gate": 0.0,
+      "removed_projection": 0.0,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "median": {
+      "informative": 10,
+      "removed_gate": 0.5270584352222152,
+      "removed_projection": 0.5270584352222152,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "trimmed_mean": {
+      "informative": 11,
+      "removed_gate": 0.4297284880644763,
+      "removed_projection": 0.4297284880644763,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "norm_clip": {
+      "informative": 7,
+      "removed_gate": 0.6582335645012264,
+      "removed_projection": 0.6582335645012264,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "fltrust": {
+      "informative": 5,
+      "removed_gate": 0.11049712159246794,
+      "removed_projection": 0.11049712159246794,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     },
+     "foolsgold": {
+      "informative": 9,
+      "removed_gate": -0.1603896214508338,
+      "removed_projection": -0.1603896214508338,
+      "mal_excluded_mean": 0.0,
+      "honest_excluded_mean": 0.0,
+      "honest_excluded_runs": 0,
+      "runs": 20
+     }
+    }
+   }
+  }
+ }
+}

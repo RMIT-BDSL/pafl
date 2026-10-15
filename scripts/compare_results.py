@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Compare a rerun result file with the committed one, number by number.
 
-    python scripts/compare_results.py results/swat_adaptive_wide_splice_5seed.json \
-        results_archive/reproduce/swat_adaptive_wide_splice_5seed.json
+    python scripts/compare_results.py results/swat_adaptive_wide_splice_20seed.json \
+        results_archive/reproduce/swat_adaptive_wide_splice_20seed.json
 
 Walks both JSON files and reports every number that differs by more than --tol,
 every string that differs, and every key or cell present in only one file. Exit

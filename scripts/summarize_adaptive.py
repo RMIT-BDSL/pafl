@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Print the five-mode comparison, and the paper's damage-removal numbers, from adaptive.py files.
 
-    python scripts/summarize_adaptive.py results/swat_adaptive_wide_splice_5seed.json [...]
+    python scripts/summarize_adaptive.py results/swat_adaptive_wide_splice_20seed.json [...]
 
 For every aggregation rule it prints the mean over seeds of clean / honest_only /
 fabricated (naive) / projected (physics-aware) / gated. The metric is global F1 and,
@@ -14,7 +14,7 @@ Per-seed rows follow the mean so a single seed cannot hide.
 The two "removed" columns are the numbers the paper's removal table reports, on the
 "targeted recall" rows. Damage in a seed = reference − naive, where the reference is
 that seed's honest_only run, or its clean run when the file has no honest_only mode.
-Only seeds with at least one point of damage count; `[n/5 seeds]` shows how many did.
+Only seeds with at least one point of damage count; `[n/N seeds]` shows how many did.
 Removed by projection = 1 − Σ(reference − projected) / Σ(reference − naive) over
 those seeds, and removed by the gate uses the gated run in place of projected; both
 are therefore weighted by each seed's damage. Values above 100 % mean the gated run

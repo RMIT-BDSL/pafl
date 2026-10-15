@@ -1,4 +1,4 @@
-.PHONY: help setup test test-drivers reproduce separation coverage honest adaptive alpha sweep trust clean
+.PHONY: help setup test test-drivers stats reproduce separation coverage honest adaptive alpha sweep trust clean
 
 # the project's virtual environment when there is one
 PY ?= $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
@@ -8,7 +8,8 @@ help:
 	@echo "make setup       install dependencies"
 	@echo "make test        run the test suite (about 20 s; no datasets needed)"
 	@echo "make test-drivers  short end-to-end run of two drivers on the simulated plant, about 2 min"
-	@echo "make reproduce   rerun every experiment behind results/ (about 6 h on CPU; needs the datasets)"
+	@echo "make reproduce   rerun every experiment behind results/ (about 20 h on CPU; needs the datasets)"
+	@echo "make stats       removal CIs and tests, alpha sensitivity (seconds; reads results/ only)"
 	@echo "make <group>     rerun one group: $(GROUPS)"
 	@echo "make clean       remove test outputs and caches (never touches results/)"
 	@echo ""
@@ -27,6 +28,10 @@ test-drivers:
 	$(PY) scripts/separation.py --steps 3000 --out results_archive/test_separation.json
 	$(PY) scripts/sim_defences.py --clients 4 --rounds 5 --local-epochs 1 --steps-per-client 1500 \
 		--defences fedavg krum --seeds 0 --out results_archive/test_sim_defences.json
+
+stats:
+	$(PY) scripts/removal_stats.py
+	$(PY) scripts/alpha_sensitivity.py
 
 reproduce:
 	PY=$(PY) scripts/reproduce.sh
