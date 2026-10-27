@@ -2,6 +2,8 @@
 
 **A Framework for Physics-Based Admission Control in Federated Intrusion Detection for Industrial Control Systems**
 
+![PA-FL overview: each plant proves in zero knowledge that its committed training batch obeys the process invariants; the admission gate excludes plants that cannot, before the aggregation rule combines the admitted updates.](docs/fig-hero.png)
+
 
 - **Dataset Guide & Licensing:** [`DATA.md`](DATA.md) — *Detailed descriptions, schemas, telemetry examples, and acquisition instructions (strict non-redistribution notice).*
 - **Result Files:** [`results/README.md`](results/README.md) — *What each committed result file holds and which script writes it.*
