@@ -217,6 +217,7 @@ python scripts/compare_results.py results/swat_adaptive_wide_splice_20seed.json 
 |---|---|---|
 | `separation.py` | `c1_*` | does the invariant check separate honest from fabricated batches (no training) |
 | `coverage.py` | `*_coverage` | which labelled attacks each invariant set sees |
+| `boundary_balances.py` | `boundary_balances` | whether each mined SWaT balance rests on the tank's own inflow and outflow (R² of the mined fit vs the boundary flows alone) |
 | `honest_verdicts.py` | `honest_verdicts` | the check's verdict on every honest client shard |
 | `adaptive.py` | `*_adaptive_*` | the five federated modes under each aggregation rule |
 | `sweep.py` | `*_sweep_*` | every rule against every data-space and update-space attack |

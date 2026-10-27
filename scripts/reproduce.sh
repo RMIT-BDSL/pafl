@@ -61,6 +61,8 @@ separation() {
 coverage() {
   run scripts/coverage.py --dataset swat --settings narrow wide --out "$OUT/swat_coverage.json"
   run scripts/coverage.py --dataset wadi --settings default     --out "$OUT/wadi_coverage.json"
+  # do the mined SWaT balances rest on each tank's own inflow and outflow? (no training; seconds)
+  run scripts/boundary_balances.py --out "$OUT/boundary_balances.json"
 }
 
 honest() {

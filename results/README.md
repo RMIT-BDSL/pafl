@@ -8,6 +8,7 @@ Naming: `<experiment>_<dataset>_<setting>_<seeds>.json`
 |---|---|---|
 | `c1_<dataset>_<invariant set>_<roll shift>` | `separation.py` | criterion 1: do the invariants separate honest from fabricated batches; honest false-reject rate; real-attack reference |
 | `<dataset>_coverage` | `coverage.py` | per labelled attack segment, the share of its rows each invariant set flags |
+| `boundary_balances` | `boundary_balances.py` | each kept SWaT mass balance (wide set): R² of the mined fit, of the tank's own inflow and outflow alone, of the inflow alone, and of all flows |
 | `honest_verdicts` | `honest_verdicts.py` | the check's verdict on every honest client shard of the federated runs |
 | `<dataset>_adaptive_<invariant set>_<attacker>_<seeds>` | `adaptive.py` | clean / honest_only / fabricated (naive) / projected (physics-aware) / gated federations per aggregation rule |
 | `<dataset>_sweep_*` | `sweep.py` | every defence against every attack (data and update attacks) |

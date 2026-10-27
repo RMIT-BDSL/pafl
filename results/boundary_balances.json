@@ -1,0 +1,97 @@
+{
+  "note": "Do the mined SWaT mass balances rest on each tank's own inflow and outflow? (Revision 1)",
+  "rows": 14201,
+  "thresholds": {
+    "r2_min": 0.4,
+    "coupling_off_ratio": 0.1,
+    "coupling_support": 0.005
+  },
+  "tanks": {
+    "LIT101": {
+      "kept_by_miner": true,
+      "inflow": "FIT101",
+      "outflow": "FIT201",
+      "mined_terms": {
+        "FIT504": 8.9008,
+        "FIT503": -4.3571,
+        "FIT501": -3.2784,
+        "FIT401": 2.9391,
+        "FIT201": -0.9685,
+        "FIT101": 0.9474,
+        "FIT502": -0.2842,
+        "FIT601": 0.023
+      },
+      "mined_r2": 0.6242,
+      "boundary_r2": 0.6242,
+      "boundary_coef": {
+        "FIT101": 0.9524,
+        "FIT201": -0.9803
+      },
+      "inflow_only_r2": 0.2467,
+      "outflow_cv": 0.6063,
+      "all_flows_ols_r2": 0.6243,
+      "boundary_flows_in_mined": [
+        "FIT101",
+        "FIT201"
+      ],
+      "largest_mined_term": "FIT504"
+    },
+    "LIT301": {
+      "kept_by_miner": true,
+      "inflow": "FIT201",
+      "outflow": "FIT301",
+      "mined_terms": {
+        "FIT504": -3.6499,
+        "FIT503": 1.8228,
+        "FIT301": -0.9575,
+        "FIT201": 0.9488,
+        "FIT401": 0.2351,
+        "FIT601": 0.0529,
+        "FIT502": 0.0179,
+        "FIT101": 0.0178
+      },
+      "mined_r2": 0.7022,
+      "boundary_r2": 0.7018,
+      "boundary_coef": {
+        "FIT201": 0.9617,
+        "FIT301": -0.9747
+      },
+      "inflow_only_r2": 0.3113,
+      "outflow_cv": 0.4591,
+      "all_flows_ols_r2": 0.7022,
+      "boundary_flows_in_mined": [
+        "FIT201",
+        "FIT301"
+      ],
+      "largest_mined_term": "FIT504"
+    },
+    "LIT401": {
+      "kept_by_miner": true,
+      "inflow": "FIT301",
+      "outflow": "FIT401",
+      "mined_terms": {
+        "FIT504": 7.3974,
+        "FIT503": 6.0897,
+        "FIT501": 2.3875,
+        "FIT301": 0.8259,
+        "FIT502": -0.4502,
+        "FIT201": 0.0801,
+        "FIT101": -0.014,
+        "FIT601": -0.0097
+      },
+      "mined_r2": 0.5512,
+      "boundary_r2": 0.5463,
+      "boundary_coef": {
+        "FIT301": 0.8874,
+        "FIT401": 0.2316
+      },
+      "inflow_only_r2": 0.5463,
+      "outflow_cv": 0.0042,
+      "all_flows_ols_r2": 0.5512,
+      "boundary_flows_in_mined": [
+        "FIT301"
+      ],
+      "largest_mined_term": "FIT504"
+    }
+  }
+}
