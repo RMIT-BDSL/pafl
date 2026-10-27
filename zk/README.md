@@ -3,7 +3,7 @@
 - **Implementation Tutorial & Action Plan:** [`PLAN.md`](PLAN.md) — *Step-by-step engineering roadmap, tooling setup, circuit stages, and benchmarking checklist.*
 - **Cryptographic Formalization & Specification:** [`FORMALIZATION.md`](FORMALIZATION.md) — *Formal zero-knowledge relation, affine models, fixed-point quantization, and soundness analysis.*
 
-Every experiment in the paper computes the physics check directly on a client's raw batch, which
+Every experiment in the paper computes the admission gate's check directly on a client's raw batch, which
 would require the server to see the telemetry that federated learning exists to hide. PA-FL Lite
 shows the check can be enforced without that: the client proves in zero knowledge that its committed
 training batch satisfies the plant's mined invariants.

@@ -7,6 +7,7 @@
 - **Result Files:** [`results/README.md`](results/README.md) — *What each committed result file holds and which script writes it.*
 - **Zero-Knowledge Extension:** [`zk/README.md`](zk/README.md) — *The PA-FL Lite specification; the Circom / Groth16 build is in [`zk/lite/`](zk/lite/README.md).*
 - **Learning Resources:** [`tutorials/`](tutorials/) — *Visual (HTML) workflows of federated training loops and pilot results.*
+- **Paper Release:** the results reported in the paper were produced with release [`v1.3-revision`](https://github.com/RMIT-BDSL/pafl/tree/v1.3-revision).
 
 ---
 
@@ -16,15 +17,15 @@ Industrial Control Systems (ICS) and Supervisory Control and Data Acquisition (S
 
 **Federated Learning (FL)** offers a privacy-preserving solution. Under standard federated architectures, multiple industrial operators collaboratively train a global anomaly detection model by sharing local model parameter updates (weight gradients or model deltas) with an aggregation server, without centralizing proprietary operational telemetry.
 
-### The Security Vulnerability: The Blindness of Update-Space Defenses
+### The Security Vulnerability: The Blindness of Update-Space Defences
 While federated learning safeguards data confidentiality, it introduces a severe vulnerability: **participants cannot inspect each other's local training data**. A compromised, colluding, or malicious client can submit poisoned model updates designed to induce targeted blind spots into the global detector—causing it to ignore specific physical sabotage. In critical infrastructure, such poisoning constitutes an imminent physical safety failure rather than a minor service degradation.
 
-Existing Byzantine-robust federated learning defenses operate almost exclusively in **update space**:
+Existing Byzantine-robust federated learning defences operate almost exclusively in **update space**:
 1. **Geometric and Statistical Filtering:** Aggregators such as Krum, Coordinate-wise Median, Trimmed Mean, and FoolsGold filter or down-weight updates that diverge geometrically or statistically from the cluster of honest updates.
 2. **Norm Bounding and Trust-Score Alignment:** Techniques such as norm clipping and FLTrust (which scores updates against a small, clean server-side calibration dataset) restrict update magnitude or directional variance.
 3. **Cryptographic Input Validation:** Verifiable frameworks (e.g., RoFL, ACORN) prove that an update satisfies specific vector bounds.
 
-**The Fundamental Gap:** None of these defenses examine the underlying training data from which the update was generated. A malicious participant can synthesize entirely fabricated, physically impossible sensor traces that nevertheless yield model weight updates mathematically indistinguishable from honest updates. Update-space defenses remain blind to data that mimics honest update geometry.
+**The Fundamental Gap:** None of these defences examine the underlying training data from which the update was generated. A malicious participant can synthesize entirely fabricated, physically impossible sensor traces that nevertheless yield model weight updates mathematically indistinguishable from honest updates. Update-space defences remain blind to data that mimics honest update geometry.
 
 ---
 
@@ -94,7 +95,7 @@ Data-space attacks that break the physical relations between channels. All but c
   Every invariant is affine, so each constraint is a slab and the problem is convex; it is solved by an active-set loop of minimum-norm corrections. Actuator states are held fixed, so only continuous sensor readings move, and the loop stops once at most 0.5% of rows violate, half the 1% admission threshold. This measures how much poisoning survives once the attacker is forced to satisfy the physical checks.
 
 ### 5. Update-Space Baselines
-* Classical model-space attacks for comparison across aggregation rules: sign flipping (the negated update), update scaling (×10), free riding (small Gaussian noise instead of training), and min–max (Shejwalkar and Houmansadr: the honest mean shifted against its own direction as far as the largest honest-to-honest distance allows). These clients train on honest data and tamper only with the update, so the physics check admits their batches and the aggregation rule is the only defence.
+* Classical model-space attacks for comparison across aggregation rules: sign flipping (the negated update), update scaling (×10), free riding (small Gaussian noise instead of training), and min–max (Shejwalkar and Houmansadr: the honest mean shifted against its own direction as far as the largest honest-to-honest distance allows). These clients train on honest data and tamper only with the update, so the admission gate admits their batches and the aggregation rule is the only defence.
 
 ---
 
