@@ -235,15 +235,21 @@ python scripts/compare_results.py results/swat_adaptive_wide_splice_20seed.json 
 
 ## Citation and Licensing
 
+The paper is published open access in *Information*: [https://www.mdpi.com/2078-2489/17/11/1101](https://www.mdpi.com/2078-2489/17/11/1101) (DOI [10.3390/info17111101](https://doi.org/10.3390/info17111101)). If you use this code, please cite:
 
+> Nijsse, J.; Su, S.; Oholeguy, B.; Tirumala, S.S. Physics-Attested Federated Learning: Securing Collaborative Anomaly Detection in Critical Water Infrastructure. *Information* **2026**, *17*, 1101. https://doi.org/10.3390/info17111101
 
 ```bibtex
 @article{pafl2026,
   title   = {Physics-Attested Federated Learning: Securing Collaborative Anomaly Detection in Critical Water Infrastructure},
-  author  = {Nijsse, Jeff and Su, Shu and Oholeguy, Benjamin and Tirumala, Sreenivas},
-  journal = {Journal},
-  volume  = {Volume},
-  year    = {Year}
+  author  = {Nijsse, Jeff and Su, Shu and Oholeguy, Benjamin and Tirumala, Sreenivas Sremath},
+  journal = {Information},
+  volume  = {17},
+  number  = {11},
+  pages   = {1101},
+  year    = {2026},
+  doi     = {10.3390/info17111101},
+  url     = {https://www.mdpi.com/2078-2489/17/11/1101}
 }
 ```
 
