@@ -240,16 +240,17 @@ The paper is published open access in *Information*: [https://www.mdpi.com/2078-
 > Nijsse, J.; Su, S.; Oholeguy, B.; Tirumala, S.S. Physics-Attested Federated Learning: Securing Collaborative Anomaly Detection in Critical Water Infrastructure. *Information* **2026**, *17*, 1101. https://doi.org/10.3390/info17111101
 
 ```bibtex
-@article{pafl2026,
-  title   = {Physics-Attested Federated Learning: Securing Collaborative Anomaly Detection in Critical Water Infrastructure},
-  author  = {Nijsse, Jeff and Su, Shu and Oholeguy, Benjamin and Tirumala, Sreenivas Sremath},
-  journal = {Information},
-  volume  = {17},
-  number  = {11},
-  pages   = {1101},
-  year    = {2026},
-  doi     = {10.3390/info17111101},
-  url     = {https://www.mdpi.com/2078-2489/17/11/1101}
+@article{info17111101,
+  author         = {Nijsse, Jeff and Su, Shu and Oholeguy, Benjamin and Tirumala, Sreenivas Sremath},
+  title          = {Physics-Attested Federated Learning: Securing Collaborative Anomaly Detection in Critical Water Infrastructure},
+  journal        = {Information},
+  volume         = {17},
+  year           = {2026},
+  number         = {11},
+  article-number = {1101},
+  url            = {https://www.mdpi.com/2078-2489/17/11/1101},
+  issn           = {2078-2489},
+  doi            = {10.3390/info17111101}
 }
 ```
 
